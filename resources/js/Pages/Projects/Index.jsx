@@ -1,0 +1,618 @@
+import React, { useState, useEffect } from "react";
+import { Head, router } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { motion } from "framer-motion";
+import {
+    Plus,
+    Eye,
+    ChevronRight,
+    Folder,
+    Building2,
+    Target,
+    Activity,
+    Trash2,
+    X,
+    Star,
+    Sparkles,
+    Zap,
+    Palette,
+    Heart,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
+import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
+
+export default function Index({ auth, projects }) {
+    const { t, i18n } = useTranslation();
+    const isRTL = i18n.dir() === "rtl";
+
+    // State to track deleted projects (front-end only, persisted in localStorage)
+    const [deletedProjects, setDeletedProjects] = useState(new Set());
+    const [projectToDelete, setProjectToDelete] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    // Load deleted projects from localStorage on component mount
+    useEffect(() => {
+        const savedDeletedProjects = localStorage.getItem(
+            `deletedProjects_${auth.user.id}`
+        );
+        if (savedDeletedProjects) {
+            setDeletedProjects(new Set(JSON.parse(savedDeletedProjects)));
+        }
+    }, [auth.user.id]);
+
+    // Filter out deleted projects from display
+    const visibleProjects = projects.filter(
+        (project) => !deletedProjects.has(project.id)
+    );
+
+    const handleCreatePlan = (projectId) => {
+        // Use Inertia's router with query parameters
+        router.get(route("plans.create"), { project_id: projectId });
+    };
+    const handleDeleteProject = (projectId) => {
+        // Add project ID to deleted set (front-end only)
+        const newDeletedProjects = new Set([...deletedProjects, projectId]);
+        setDeletedProjects(newDeletedProjects);
+
+        // Save to localStorage to persist across page refreshes
+        localStorage.setItem(
+            `deletedProjects_${auth.user.id}`,
+            JSON.stringify([...newDeletedProjects])
+        );
+
+        setShowDeleteModal(false);
+        setProjectToDelete(null);
+    };
+
+    const showDeleteConfirmation = (project) => {
+        setProjectToDelete(project);
+        setShowDeleteModal(true);
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteModal(false);
+        setProjectToDelete(null);
+    };
+
+    // Status colors and translations with enhanced styling
+    const getStatusInfo = (status) => {
+        const statusMap = {
+            new_project: {
+                color: "bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/30",
+                icon: Sparkles,
+                label: t("new_project_status", "جديد"),
+                bgGradient: "from-blue-500/10 to-cyan-400/10",
+            },
+            existed_project: {
+                color: "bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg shadow-green-500/30",
+                icon: Star,
+                label: t("existing_project_status", "قائم"),
+                bgGradient: "from-green-500/10 to-emerald-400/10",
+            },
+        };
+        return (
+            statusMap[status] || {
+                color: "bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-lg shadow-gray-500/30",
+                icon: Folder,
+                label: status,
+                bgGradient: "from-gray-500/10 to-gray-400/10",
+            }
+        );
+    };
+
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.1,
+            },
+        },
+    };
+
+    const itemVariants = {
+        hidden: {
+            opacity: 0,
+            y: 50,
+            rotateX: -10,
+            scale: 0.9,
+        },
+        show: {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            scale: 1,
+            transition: {
+                type: "spring",
+                duration: 0.6,
+                bounce: 0.3,
+            },
+        },
+    };
+
+    const floatingVariants = {
+        floating: {
+            y: [-10, 10, -10],
+            rotate: [-1, 1, -1],
+            transition: {
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut",
+            },
+        },
+    };
+
+    const pulseVariants = {
+        pulse: {
+            scale: [1, 1.05, 1],
+            transition: {
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+            },
+        },
+    };
+
+    return (
+        <AuthenticatedLayout user={auth.user}>
+            <Head title={t("my_projects", "مشاريعي")} />
+
+            {/* Animated Background */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <motion.div
+                    className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl"
+                    animate={{ rotate: 360 }}
+                    transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                    }}
+                />
+                <motion.div
+                    className="absolute -bottom-40 -left-40 w-96 h-96 bg-gradient-to-tr from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"
+                    animate={{ rotate: -360 }}
+                    transition={{
+                        duration: 25,
+                        repeat: Infinity,
+                        ease: "linear",
+                    }}
+                />
+                <motion.div
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-gradient-to-r from-indigo-400/10 to-purple-400/10 rounded-full blur-3xl"
+                    animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+                    transition={{
+                        duration: 30,
+                        repeat: Infinity,
+                        ease: "linear",
+                    }}
+                />
+            </div>
+
+            <div className="min-h-screen py-8 px-4 relative">
+                {/* Delete Confirmation Modal */}
+                {showDeleteModal && (
+                    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+                            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl border border-white/20"
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                    {t("delete_project", "حذف المشروع")}
+                                </h3>
+                                <motion.button
+                                    onClick={cancelDelete}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <X size={20} />
+                                </motion.button>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-400 mb-6">
+                                {t(
+                                    "delete_project_confirmation",
+                                    "هل أنت متأكد من حذف المشروع"
+                                )}{" "}
+                                "{projectToDelete?.name}"؟
+                                <br />
+                                <span className="text-sm text-amber-600 dark:text-amber-400 mt-2 block">
+                                    {t(
+                                        "delete_frontend_persistent",
+                                        "ملاحظة: سيتم حذف المشروع من الواجهة نهائياً ولكن لن يتم حذفه من قاعدة البيانات"
+                                    )}
+                                </span>
+                            </p>
+                            <div className="flex gap-3 justify-end">
+                                <motion.button
+                                    onClick={cancelDelete}
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-xl transition-all duration-300"
+                                >
+                                    {t("cancel", "إلغاء")}
+                                </motion.button>
+                                <motion.button
+                                    onClick={() =>
+                                        handleDeleteProject(projectToDelete.id)
+                                    }
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-xl transition-all duration-300 shadow-lg shadow-red-500/30"
+                                >
+                                    {t("delete", "حذف")}
+                                </motion.button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+
+                <div className="max-w-7xl mx-auto">
+                    {/* Header Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: "spring", duration: 0.8 }}
+                        className="mb-12 relative"
+                    >
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                            <div className="relative">
+                                <motion.div
+                                    className="absolute -top-6 -left-6 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-20"
+                                    animate={{ rotate: 360 }}
+                                    transition={{
+                                        duration: 8,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}
+                                />
+                                <motion.h1
+                                    className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+                                    initial={{ opacity: 0, x: -50 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                >
+                                    {t("my_projects", "مشاريعي")}
+                                </motion.h1>
+                                <motion.div
+                                    className="mt-3 flex items-center gap-2"
+                                    initial={{ opacity: 0, x: -30 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.4 }}
+                                >
+                                    <Heart
+                                        size={20}
+                                        className="text-pink-500"
+                                    />
+                                    <p className="text-gray-600 dark:text-gray-400 font-medium">
+                                        {t(
+                                            "projects_subtitle",
+                                            "إدارة وتطوير مشاريعك"
+                                        )}
+                                    </p>
+                                </motion.div>
+                            </div>
+                            <motion.button
+                                onClick={() =>
+                                    router.get(route("projects.create"))
+                                }
+                                className="group relative overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl shadow-indigo-500/30"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.6, type: "spring" }}
+                            >
+                                <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="relative flex items-center gap-3">
+                                    <motion.div
+                                        animate={{ rotate: [0, 90, 0] }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 0.6,
+                                        }}
+                                    >
+                                        <Plus size={20} />
+                                    </motion.div>
+                                    <span className="font-semibold">
+                                        {t("new_project", "مشروع جديد")}
+                                    </span>
+                                    <Sparkles
+                                        size={16}
+                                        className="text-yellow-300"
+                                    />
+                                </div>
+                            </motion.button>
+                        </div>
+                    </motion.div>
+
+                    {/* Projects Grid */}
+                    {visibleProjects.length === 0 ? (
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.3 }}
+                            className="text-center py-20"
+                        >
+                            <motion.div
+                                className="w-32 h-32 mx-auto mb-8 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 rounded-3xl flex items-center justify-center shadow-xl"
+                                variants={floatingVariants}
+                                animate="floating"
+                            >
+                                <Folder
+                                    size={48}
+                                    className="text-indigo-600 dark:text-indigo-400"
+                                />
+                            </motion.div>
+                            <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-4">
+                                {t("no_projects", "لا توجد مشاريع حالياً")}
+                            </h3>
+                            <p className="text-gray-500 dark:text-gray-400 mb-8 text-lg">
+                                {t(
+                                    "start_first_project",
+                                    "ابدأ مشروعك الأول الآن"
+                                )}
+                            </p>
+                            <motion.button
+                                onClick={() =>
+                                    router.get(route("projects.create"))
+                                }
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className="inline-flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-indigo-500/30"
+                            >
+                                <Plus size={20} />
+                                {t("create_project", "إنشاء مشروع")}
+                                <Zap size={16} className="text-yellow-300" />
+                            </motion.button>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+                        >
+                            {visibleProjects.map((project, index) => {
+                                const statusInfo = getStatusInfo(
+                                    project.status
+                                );
+                                const StatusIcon = statusInfo.icon;
+
+                                return (
+                                    <motion.div
+                                        key={project.id}
+                                        variants={itemVariants}
+                                        whileHover={{
+                                            y: -10,
+                                            rotateY: 5,
+                                            scale: 1.02,
+                                        }}
+                                        className="relative group"
+                                    >
+                                        {/* Card Background with Gradient */}
+                                        <div
+                                            className={`absolute inset-0 bg-gradient-to-br ${statusInfo.bgGradient} rounded-3xl transform rotate-1 group-hover:rotate-2 transition-transform duration-300`}
+                                        />
+
+                                        <div className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/20">
+                                            {/* Shimmer Effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+
+                                            {/* Delete Button */}
+                                            <motion.button
+                                                onClick={() =>
+                                                    showDeleteConfirmation(
+                                                        project
+                                                    )
+                                                }
+                                                className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 rounded-2xl bg-red-100/80 hover:bg-red-200/80 text-red-600 hover:text-red-700 dark:bg-red-900/50 dark:hover:bg-red-900/70 dark:text-red-400 dark:hover:text-red-300 backdrop-blur-sm"
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                <Trash2 size={16} />
+                                            </motion.button>
+
+                                            {/* Project Header */}
+                                            <div className="p-8 border-b border-gray-100/50 dark:border-gray-700/50">
+                                                <div className="flex items-start justify-between">
+                                                    <div className="flex-1 pr-12">
+                                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1 mb-4">
+                                                            {project.name}
+                                                        </h3>
+                                                        <div className="space-y-3">
+                                                            {project.industry && (
+                                                                <motion.div
+                                                                    className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
+                                                                    whileHover={{
+                                                                        x: 5,
+                                                                    }}
+                                                                >
+                                                                    <Building2
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        className="text-blue-500"
+                                                                    />
+                                                                    <span className="font-medium">
+                                                                        {project
+                                                                            .industry
+                                                                            ?.industry_name ||
+                                                                            t(
+                                                                                "no_industry",
+                                                                                "غير محدد"
+                                                                            )}
+                                                                    </span>
+                                                                </motion.div>
+                                                            )}
+                                                            {project.target_market && (
+                                                                <motion.div
+                                                                    className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
+                                                                    whileHover={{
+                                                                        x: 5,
+                                                                    }}
+                                                                >
+                                                                    <Target
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        className="text-green-500"
+                                                                    />
+                                                                    <span className="font-medium">
+                                                                        {
+                                                                            project.target_market
+                                                                        }
+                                                                    </span>
+                                                                </motion.div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <motion.span
+                                                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-bold ${statusInfo.color}`}
+                                                        whileHover={{
+                                                            scale: 1.05,
+                                                        }}
+                                                        variants={pulseVariants}
+                                                        animate="pulse"
+                                                    >
+                                                        <StatusIcon size={14} />
+                                                        {statusInfo.label}
+                                                    </motion.span>
+                                                </div>
+                                            </div>
+
+                                            {/* Project Description */}
+                                            {project.description && (
+                                                <div className="px-8 py-6">
+                                                    <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 font-medium leading-relaxed">
+                                                        {project.description}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Additional Project Info */}
+                                            {(project.business_type ||
+                                                project.location) && (
+                                                <div className="px-8 py-4 space-y-2 bg-gray-50/50 dark:bg-gray-700/30">
+                                                    {project.business_type && (
+                                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                            <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                                                                {t(
+                                                                    "business_type",
+                                                                    "نوع العمل"
+                                                                )}
+                                                                :
+                                                            </span>
+                                                            <span className="ml-2">
+                                                                {project
+                                                                    .business_type
+                                                                    ?.business_type_name ||
+                                                                    "غير محدد"}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {project.location && (
+                                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                            <span className="font-semibold text-purple-600 dark:text-purple-400">
+                                                                {t(
+                                                                    "location",
+                                                                    "الموقع"
+                                                                )}
+                                                                :
+                                                            </span>
+                                                            <span className="ml-2">
+                                                                {
+                                                                    project.location
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Actions */}
+                                            <div className="px-8 py-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-700/30 dark:to-gray-600/30 flex gap-4">
+                                                <motion.button
+                                                    onClick={() =>
+                                                        handleCreatePlan(
+                                                            project.id
+                                                        )
+                                                    }
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-500/30"
+                                                >
+                                                    <Plus size={16} />
+                                                    {t(
+                                                        "create_plan",
+                                                        "إنشاء خطة"
+                                                    )}
+                                                    <Sparkles
+                                                        size={14}
+                                                        className="text-yellow-300"
+                                                    />
+                                                </motion.button>
+                                                <motion.button
+                                                    onClick={() =>
+                                                        router.get(
+                                                            route(
+                                                                "projects.show",
+                                                                project.id
+                                                            )
+                                                        )
+                                                    }
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg border border-gray-200 dark:border-gray-600"
+                                                >
+                                                    <Eye size={16} />
+                                                    {t(
+                                                        "view_project",
+                                                        "عرض المشروع"
+                                                    )}
+                                                </motion.button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
+                        </motion.div>
+                    )}
+                </div>
+            </div>
+
+            <style jsx="true">{`
+                .line-clamp-1 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 1;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+                .line-clamp-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                @keyframes shimmer {
+                    0% {
+                        transform: translateX(-100%) skewX(-12deg);
+                    }
+                    100% {
+                        transform: translateX(200%) skewX(-12deg);
+                    }
+                }
+
+                .animate-shimmer {
+                    animation: shimmer 2s infinite;
+                }
+            `}</style>
+        </AuthenticatedLayout>
+    );
+}

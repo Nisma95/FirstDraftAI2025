@@ -1,0 +1,240 @@
+/*************** resources\css\dashboard.css ***************/
+
+/* Dashboard Styles */
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-button {
+    transition: all 0.25s ease;
+}
+
+.profile-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+        0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-icon {
+    transition: transform 0.2s ease;
+}
+
+.sidebar-link:hover .sidebar-icon {
+    transform: scale(1.1);
+}
+
+/* Card Styles */
+.glass-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Stat Cards */
+.stat-card {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        45deg,
+        transparent 25%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 75%
+    );
+    background-size: 200% 200%;
+    animation: shimmer 3s infinite linear;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Plan Cards */
+.plan-card {
+    transition: all 0.2s ease;
+}
+
+.plan-card:hover {
+    transform: scale(1.02);
+}
+
+/* Timeline */
+.timeline-dot {
+    transition: all 0.3s ease;
+}
+
+.timeline-item:hover .timeline-dot {
+    transform: scale(1.2);
+}
+
+.timeline-line {
+    transition: background-color 0.3s ease;
+}
+
+.timeline-item:hover .timeline-line {
+    background-color: var(--timeline-hover-color, #4f46e5);
+}
+
+/* Button Styles */
+.action-button {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.action-button:hover::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* AI Elements */
+.ai-icon-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.insight-card {
+    transition: all 0.3s ease;
+}
+
+.insight-card:hover {
+    border-color: #8b5cf6;
+}
+
+/* Dark Mode Transitions */
+.dark-transition {
+    transition: background-color 0.3s ease, color 0.3s ease,
+        border-color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+.dashboard-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb {
+    background: #c7c7c7;
+    border-radius: 10px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.dark .dashboard-scroll::-webkit-scrollbar-track {
+    background: #2d3748;
+}
+
+.dark .dashboard-scroll::-webkit-scrollbar-thumb {
+    background: #4a5568;
+}
+
+.dark .dashboard-scroll::-webkit-scrollbar-thumb:hover {
+    background: #718096;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .responsive-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+
+    .responsive-padding {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+/* Custom Theme Elements */
+.brand-gradient {
+    background: linear-gradient(135deg, #5956e9, #6077a1);
+}
+
+.brand-border {
+    border-color: #0f7a31;
+}
+
+.brand-text {
+    color: #0f7a31;
+}
+
+.brand-shadow {
+    box-shadow: 0 4px 14px rgba(15, 122, 49, 0.2);
+}

@@ -1,0 +1,158 @@
+{
+    "First_Draft": "First Draft",
+    "dashboard": "Dashboard",
+    "Start_Now": "Start Now",
+    "plan": "Plan",
+    "plans_list": "My Plans",
+    "welcome": "Welcome to First Draft",
+    "description": "The smart way to visualize, plan, and execute your project successfully.",
+    "get_started": "Get Started",
+
+    "quick_actions": "Quick Actions",
+    "new_plan": "New Plan",
+    "send_message": "Send Message",
+    "view_plans": "View Plans",
+    "chat_with_ai": "Chat with AI",
+
+    "about_title": "Turn your ideas into real, successful projects",
+    "about_description": "First Draft is your tool for building project plans the easy way. With our intuitive interface, you can create, edit, and collaborate with your team in real time.",
+
+    "easy_drafting": "Simple Drafting",
+    "easy_drafting_desc": "Draft and edit your plans with ease using our beginner-friendly tools.",
+
+    "collaboration": "Team Collaboration",
+    "collaboration_desc": "Work with your team in real time and keep everyone on the same page.",
+
+    "secure_storage": "Safe and Secure",
+    "secure_storage_desc": "Your data is safely stored and always accessible when you need it.",
+
+    "copyright": "All rights reserved",
+
+    "new_business": "New Business",
+    "new_business_desc": "Build a plan to launch a brand-new business.",
+
+    "existing_business": "Existing Business",
+    "existing_business_desc": "Create a strategy to grow or improve your current business.",
+
+    "FT01": "Your Smart Assistant for Project Success",
+    "FD01": "First Draft is your intelligent partner for building strong, AI-powered business plans.",
+
+    "FT02": "Clear and Accurate Project Vision",
+    "FD02": "Get a deep understanding of your project through a professional, AI-supported plan.",
+
+    "FT03": "Finance Made Simple",
+    "FD03": "Understand your numbers with smart financial analysis for every part of your business.",
+
+    "FT04": "Designed for You",
+    "FD04": "We guide you from idea to execution with a simple and confident roadmap.",
+
+    "FP01": "Community & Networking Hub",
+    "FP02": "Refined Business Strategies",
+    "FP03": "Manage Tasks & Goals",
+    "FP04": "Financial Planning Made Easy",
+    "FP05": "Accurate AI Recommendations",
+
+    "mainGoals": "Our Main Goals",
+    "mainGoalsDesc": "Stay focused on what matters — your growth, your vision, your success. In a world full of distractions, First Draft helps you stay on track. Whether you're launching a new venture or planning your next step, your commitment is the key. Let us help you turn focus into results.",
+
+    "TitleImg": "Turn your ideas into real plans with First Draft.",
+    "is_existed": "Is this a new or existing project?",
+    "business_type_id": "What kind of project is it?",
+    "PlanName": "Let's get some information about the plan",
+    "NamingThePlan": "What would you like to name your plan?",
+    "industry_id": "Choose your industry",
+    "choose_industryTitle": "Pick the industry that best fits your business",
+    "AddIndustryP": "Search for your industry or add it if not listed",
+    "audience_id": "Define your target audience",
+    "finance_id": "Enter your financial details",
+    "final": "You're all set!",
+
+    "faq_title": "FAQ",
+    "faq_subtitle": "Find answers to common questions about First Draft",
+
+    "faq_question_1": "What is First Draft?",
+    "faq_answer_1": "First Draft is a smart business planning platform. It helps entrepreneurs create professional business plans, manage goals and finances, and connect with a supportive community.",
+
+    "faq_question_2": "How do I get started?",
+    "faq_answer_2": "Just sign up for free, choose your industry and business type, and First Draft will guide you through creating your first plan step by step.",
+
+    "faq_question_3": "Is my data secure?",
+    "faq_answer_3": "Absolutely. We encrypt your data and store it securely. Your information stays private, and we never share it without your permission.",
+
+    "faq_question_4": "Can I export my business plan?",
+    "faq_answer_4": "Yes, you can export your plan as a PDF. This is included in all paid plans.",
+
+    "faq_question_5": "Do you offer refunds?",
+    "faq_answer_5": "Yes, we offer a 30-day money-back guarantee. If you're not satisfied, just contact our support team.",
+
+    "faq_more_questions": "Still have questions?",
+    "faq_contact_us": "Reach out to our support team",
+
+    "OurGoals": "Our Mission",
+    "OurGoalsDec": "At First Draft, our mission is to help entrepreneurs turn their ideas into clear, professional business plans — quickly and easily. With the power of AI, you can create detailed, accurate plans that guide your decisions and increase your chances of success. We believe every idea deserves to become something great. That's why we've made business planning simple, smart, and stress-free.",
+
+    "hero_title": "A Clear Vision, A Smart Plan",
+    "hero_subtitle": "Your AI-powered assistant for professional project planning",
+
+    "staff_id": "Add Staff details",
+
+    "planPurpostQu": "What is the purpose of this business plan?",
+    "planPurpostTagline": "Build a business that matters – plan with purpose and impact in mind",
+
+    "WelcomeSection": {
+        "good_morning": "Good morning",
+        "good_afternoon": "Good afternoon",
+        "good_evening": "Good evening",
+        "welcome_back": "Welcome back"
+    },
+
+    "contact": {
+        "greeting": "Hello",
+        "name_label": "My name is",
+        "company_label": "I'm from",
+        "email_label": "Here's my email",
+        "message_label": "And here's my message",
+        "name_placeholder": "Enter your name",
+        "company_placeholder": "Enter your company name",
+        "email_placeholder": "Enter your email",
+        "message_placeholder": "Enter your message",
+        "submit_button": "Send Message",
+        "thanks_message": "Thank you!"
+    },
+
+    "common": {
+        "welcomeMsg": "Welcome to First Draft – Your Business Planning Platform"
+    },
+
+    "auth": {
+        "register": {
+            "title": "Sign up",
+            "heading": "Sign up",
+            "subheading": "Step {{current}} of {{total}}",
+            "submit": "Create Account",
+            "next": "Next",
+            "togglePassword": "Toggle password visibility",
+            "goBack": "Go back",
+            "alreadyHaveAccount": "Already have an account?",
+            "fields": {
+                "name": {
+                    "label": "What's your full name?",
+                    "placeholder": "John Doe"
+                },
+                "email": {
+                    "label": "What's your email address?",
+                    "placeholder": "your@email.com"
+                },
+                "password": {
+                    "label": "Create a password",
+                    "placeholder": "••••••••"
+                },
+                "confirmPassword": {
+                    "label": "Confirm your password",
+                    "placeholder": "••••••••"
+                }
+            }
+        },
+        "signIn": "Sign in"
+    }
+}
