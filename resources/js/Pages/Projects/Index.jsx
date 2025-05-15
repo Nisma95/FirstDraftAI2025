@@ -19,8 +19,7 @@ import {
     Heart,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
-import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
+import TopTools from "@/Components/TopTools";
 
 export default function Index({ auth, projects }) {
     const { t, i18n } = useTranslation();
@@ -30,6 +29,7 @@ export default function Index({ auth, projects }) {
     const [deletedProjects, setDeletedProjects] = useState(new Set());
     const [projectToDelete, setProjectToDelete] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [hoveredCard, setHoveredCard] = useState(null);
 
     // Load deleted projects from localStorage on component mount
     useEffect(() => {
@@ -82,13 +82,15 @@ export default function Index({ auth, projects }) {
                 color: "bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/30",
                 icon: Sparkles,
                 label: t("new_project_status", "جديد"),
-                bgGradient: "from-blue-500/10 to-cyan-400/10",
+                bgGradient:
+                    "bg-gradient-to-br from-blue-500/10 to-cyan-400/10 dark:from-blue-500/20 dark:to-cyan-400/20",
             },
             existed_project: {
                 color: "bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg shadow-green-500/30",
                 icon: Star,
                 label: t("existing_project_status", "قائم"),
-                bgGradient: "from-green-500/10 to-emerald-400/10",
+                bgGradient:
+                    "bg-gradient-to-br from-green-500/10 to-emerald-400/10 dark:from-green-500/20 dark:to-emerald-400/20",
             },
         };
         return (
@@ -96,7 +98,8 @@ export default function Index({ auth, projects }) {
                 color: "bg-gradient-to-r from-gray-500 to-gray-400 text-white shadow-lg shadow-gray-500/30",
                 icon: Folder,
                 label: status,
-                bgGradient: "from-gray-500/10 to-gray-400/10",
+                bgGradient:
+                    "bg-gradient-to-br from-gray-500/10 to-gray-400/10 dark:from-gray-500/20 dark:to-gray-400/20",
             }
         );
     };
@@ -158,6 +161,11 @@ export default function Index({ auth, projects }) {
 
     return (
         <AuthenticatedLayout user={auth.user}>
+            {/* Top Right Tools - Mode and Language Switchers */}
+            <div className="mb-20">
+                <TopTools />
+            </div>
+
             <Head title={t("my_projects", "مشاريعي")} />
 
             {/* Animated Background */}
@@ -191,7 +199,7 @@ export default function Index({ auth, projects }) {
                 />
             </div>
 
-            <div className="min-h-screen py-8 px-4 relative">
+            <div className="min-h-screen py-8 px-2 relative">
                 {/* Delete Confirmation Modal */}
                 {showDeleteModal && (
                     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
@@ -252,7 +260,7 @@ export default function Index({ auth, projects }) {
                     </div>
                 )}
 
-                <div className="max-w-7xl mx-auto">
+                <div className="max-w-[88rem] mx-auto">
                     {/* Header Section */}
                     <motion.div
                         initial={{ opacity: 0, y: -50 }}
@@ -394,24 +402,32 @@ export default function Index({ auth, projects }) {
                                             scale: 1.02,
                                         }}
                                         className="relative group"
+                                        onMouseEnter={() =>
+                                            setHoveredCard(project.id)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoveredCard(null)
+                                        }
+                                        style={{ isolation: "isolate" }}
                                     >
-                                        {/* Card Background with Gradient */}
                                         <div
-                                            className={`absolute inset-0 bg-gradient-to-br ${statusInfo.bgGradient} rounded-3xl transform rotate-1 group-hover:rotate-2 transition-transform duration-300`}
-                                        />
-
-                                        <div className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/20">
+                                            className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/20 dark:border-gray-700/30 ${statusInfo.bgGradient}`}
+                                        >
                                             {/* Shimmer Effect */}
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
 
-                                            {/* Delete Button */}
+                                            {/* Delete Button - Positioned in top left corner */}
                                             <motion.button
                                                 onClick={() =>
                                                     showDeleteConfirmation(
                                                         project
                                                     )
                                                 }
-                                                className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 p-3 rounded-2xl bg-red-100/80 hover:bg-red-200/80 text-red-600 hover:text-red-700 dark:bg-red-900/50 dark:hover:bg-red-900/70 dark:text-red-400 dark:hover:text-red-300 backdrop-blur-sm"
+                                                className={`absolute top-4 left-4 z-10 transition-all duration-300 p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 hover:text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 dark:hover:text-red-300 backdrop-blur-sm border border-red-500/20 ${
+                                                    hoveredCard === project.id
+                                                        ? "opacity-100 scale-100"
+                                                        : "opacity-0 scale-90"
+                                                }`}
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.95 }}
                                             >
@@ -421,7 +437,7 @@ export default function Index({ auth, projects }) {
                                             {/* Project Header */}
                                             <div className="p-8 border-b border-gray-100/50 dark:border-gray-700/50">
                                                 <div className="flex items-start justify-between">
-                                                    <div className="flex-1 pr-12">
+                                                    <div className="flex-1 pr-4">
                                                         <h3 className="text-xl font-bold text-gray-900 dark:text-white line-clamp-1 mb-4">
                                                             {project.name}
                                                         </h3>
@@ -545,7 +561,7 @@ export default function Index({ auth, projects }) {
                                                     }
                                                     whileHover={{ scale: 1.02 }}
                                                     whileTap={{ scale: 0.98 }}
-                                                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-500/30"
+                                                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md shadow-indigo-500/20"
                                                 >
                                                     <Plus size={16} />
                                                     {t(
@@ -568,7 +584,7 @@ export default function Index({ auth, projects }) {
                                                     }
                                                     whileHover={{ scale: 1.02 }}
                                                     whileTap={{ scale: 0.98 }}
-                                                    className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-lg border border-gray-200 dark:border-gray-600"
+                                                    className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md border border-gray-200 dark:border-gray-600"
                                                 >
                                                     <Eye size={16} />
                                                     {t(

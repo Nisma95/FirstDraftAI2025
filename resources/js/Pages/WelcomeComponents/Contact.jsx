@@ -429,23 +429,6 @@ const Contact = () => {
                         color: rgba(209, 213, 219, 0.8);
                     }
                 }
-
-                /* RTL support */
-                [dir="rtl"] {
-                    direction: rtl;
-                }
-
-                [dir="rtl"] input {
-                    text-align: right;
-                }
-
-                [dir="rtl"] button {
-                    text-align: right;
-                }
-
-                [dir="ltr"] {
-                    direction: ltr;
-                }
             `}</style>
         </div>
     );

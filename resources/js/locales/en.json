@@ -1,129 +1,56 @@
 {
-    "First_Draft": "First Draft",
-    "dashboard": "Dashboard",
-    "Start_Now": "Start Now",
-    "plan": "Plan",
-    "plans_list": "My Plans",
     "welcome": "Welcome to First Draft",
-    "description": "The smart way to visualize, plan, and execute your project successfully.",
-    "get_started": "Get Started",
-
-    "quick_actions": "Quick Actions",
-    "new_plan": "New Plan",
-    "send_message": "Send Message",
-    "view_plans": "View Plans",
-    "chat_with_ai": "Chat with AI",
-
-    "about_title": "Turn your ideas into real, successful projects",
-    "about_description": "First Draft is your tool for building project plans the easy way. With our intuitive interface, you can create, edit, and collaborate with your team in real time.",
-
-    "easy_drafting": "Simple Drafting",
-    "easy_drafting_desc": "Draft and edit your plans with ease using our beginner-friendly tools.",
-
-    "collaboration": "Team Collaboration",
-    "collaboration_desc": "Work with your team in real time and keep everyone on the same page.",
-
-    "secure_storage": "Safe and Secure",
-    "secure_storage_desc": "Your data is safely stored and always accessible when you need it.",
-
-    "copyright": "All rights reserved",
-
-    "new_business": "New Business",
-    "new_business_desc": "Build a plan to launch a brand-new business.",
-
-    "existing_business": "Existing Business",
-    "existing_business_desc": "Create a strategy to grow or improve your current business.",
-
     "FT01": "Your Smart Assistant for Project Success",
     "FD01": "First Draft is your intelligent partner for building strong, AI-powered business plans.",
-
     "FT02": "Clear and Accurate Project Vision",
     "FD02": "Get a deep understanding of your project through a professional, AI-supported plan.",
-
+    "about_title": "Turn your ideas into real, successful projects",
     "FT03": "Finance Made Simple",
     "FD03": "Understand your numbers with smart financial analysis for every part of your business.",
-
     "FT04": "Designed for You",
     "FD04": "We guide you from idea to execution with a simple and confident roadmap.",
-
-    "FP01": "Community & Networking Hub",
-    "FP02": "Refined Business Strategies",
-    "FP03": "Manage Tasks & Goals",
-    "FP04": "Financial Planning Made Easy",
-    "FP05": "Accurate AI Recommendations",
-
-    "mainGoals": "Our Main Goals",
-    "mainGoalsDesc": "Stay focused on what matters — your growth, your vision, your success. In a world full of distractions, First Draft helps you stay on track. Whether you're launching a new venture or planning your next step, your commitment is the key. Let us help you turn focus into results.",
-
-    "TitleImg": "Turn your ideas into real plans with First Draft.",
-    "is_existed": "Is this a new or existing project?",
-    "business_type_id": "What kind of project is it?",
-    "PlanName": "Let's get some information about the plan",
-    "NamingThePlan": "What would you like to name your plan?",
-    "industry_id": "Choose your industry",
-    "choose_industryTitle": "Pick the industry that best fits your business",
-    "AddIndustryP": "Search for your industry or add it if not listed",
-    "audience_id": "Define your target audience",
-    "finance_id": "Enter your financial details",
-    "final": "You're all set!",
-
-    "faq_title": "FAQ",
-    "faq_subtitle": "Find answers to common questions about First Draft",
-
-    "faq_question_1": "What is First Draft?",
-    "faq_answer_1": "First Draft is a smart business planning platform. It helps entrepreneurs create professional business plans, manage goals and finances, and connect with a supportive community.",
-
-    "faq_question_2": "How do I get started?",
-    "faq_answer_2": "Just sign up for free, choose your industry and business type, and First Draft will guide you through creating your first plan step by step.",
-
-    "faq_question_3": "Is my data secure?",
-    "faq_answer_3": "Absolutely. We encrypt your data and store it securely. Your information stays private, and we never share it without your permission.",
-
-    "faq_question_4": "Can I export my business plan?",
-    "faq_answer_4": "Yes, you can export your plan as a PDF. This is included in all paid plans.",
-
-    "faq_question_5": "Do you offer refunds?",
-    "faq_answer_5": "Yes, we offer a 30-day money-back guarantee. If you're not satisfied, just contact our support team.",
-
-    "faq_more_questions": "Still have questions?",
-    "faq_contact_us": "Reach out to our support team",
-
-    "OurGoals": "Our Mission",
-    "OurGoalsDec": "At First Draft, our mission is to help entrepreneurs turn their ideas into clear, professional business plans — quickly and easily. With the power of AI, you can create detailed, accurate plans that guide your decisions and increase your chances of success. We believe every idea deserves to become something great. That's why we've made business planning simple, smart, and stress-free.",
-
     "hero_title": "A Clear Vision, A Smart Plan",
     "hero_subtitle": "Your AI-powered assistant for professional project planning",
-
-    "staff_id": "Add Staff details",
-
-    "planPurpostQu": "What is the purpose of this business plan?",
-    "planPurpostTagline": "Build a business that matters – plan with purpose and impact in mind",
-
-    "WelcomeSection": {
-        "good_morning": "Good morning",
-        "good_afternoon": "Good afternoon",
-        "good_evening": "Good evening",
-        "welcome_back": "Welcome back"
+    "faq_title": "FAQ",
+    "faq": {
+        "questions": {
+            "q1": "What is First Draft?",
+            "q2": "How do I get started?",
+            "q3": "Is my data secure?",
+            "q4": "Can I export my business plan?",
+            "q5": "Do you offer refunds?",
+            "q6": "What features are included in the free plan?",
+            "q7": "Can I collaborate with my team?",
+            "q8": "How does the AI assistance work?",
+            "q9": "What file formats can I import?",
+            "q10": "Is there customer support available?"
+        },
+        "answers": {
+            "a1": "First Draft is a smart business planning platform. It helps entrepreneurs create professional business plans, manage goals and finances, and connect with a supportive community.",
+            "a2": "Just sign up for free, choose your industry and business type, and First Draft will guide you through creating your first plan step by step.",
+            "a3": "Absolutely. We encrypt your data and store it securely. Your information stays private, and we never share it without your permission.",
+            "a4": "Yes, you can export your plan as a PDF. This is included in all paid plans.",
+            "a5": "Yes, we offer a 30-day money-back guarantee. If you're not satisfied, just contact our support team.",
+            "a6": "The free plan includes basic business plan creation, up to 3 projects, and access to our community features.",
+            "a7": "Yes, our Pro and Enterprise plans support team collaboration with real-time editing and commenting features.",
+            "a8": "Our AI analyzes your inputs and industry data to suggest improvements, identify potential issues, and help optimize your business plan.",
+            "a9": "You can import data from CSV, Excel, and PDF files. We also support integration with popular business tools.",
+            "a10": "Yes, we provide 24/7 customer support via email and live chat. Premium users get priority support with phone access."
+        }
     },
-
     "contact": {
         "greeting": "Hello",
         "name_label": "My name is",
-        "company_label": "I'm from",
+        "company_label": "I work at/with",
         "email_label": "Here's my email",
         "message_label": "And here's my message",
         "name_placeholder": "Enter your name",
-        "company_placeholder": "Enter your company name",
+        "company_placeholder": "Enter your company name or your business activities",
         "email_placeholder": "Enter your email",
         "message_placeholder": "Enter your message",
         "submit_button": "Send Message",
         "thanks_message": "Thank you!"
     },
-
-    "common": {
-        "welcomeMsg": "Welcome to First Draft – Your Business Planning Platform"
-    },
-
     "auth": {
         "register": {
             "title": "Sign up",
@@ -153,6 +80,246 @@
                 }
             }
         },
-        "signIn": "Sign in"
+        "signIn": "Sign in",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "email": "Email",
+        "password": "Password",
+        "remember_me": "Remember me",
+        "forgot_password": "Forgot password?",
+        "reset_password": "Reset Password",
+        "confirm_password": "Confirm Password"
+    },
+    "WelcomeSection": {
+        "good_morning": "Good morning",
+        "good_afternoon": "Good afternoon",
+        "good_evening": "Good evening",
+        "welcome_back": "Welcome back"
+    },
+    "new_project": "New Project",
+    "new_project_desc": "Start a new project from scratch with our guided setup process",
+    "project": "Project",
+    "create_plan": "Create Business Plan",
+    "create_plan_desc": "Build a comprehensive business plan with AI assistance",
+    "business_plan": "Business Plan",
+    "project_type": "Select Your Project Type",
+    "new_business": "New Business",
+    "new_business_desc": "I'm starting a completely new business from scratch",
+    "existing_business": "Existing Business",
+    "existing_business_desc": "I already have a business and want to improve or expand it",
+    "select_industry": "Select Your Industry",
+    "select_business_type": "Select Your Business Type",
+    "project_name": "Project Name",
+    "enter_project_name": "Enter your project name",
+    "project_description": "Project Description",
+    "enter_project_description": "Describe your project",
+    "target_market": "Target Market",
+    "enter_target_market": "Who is your target market?",
+    "location": "Location",
+    "enter_location": "Enter your project location",
+    "main_product_service": "Main Product or Service",
+    "describe_main_product_service": "Describe your main product or service",
+    "team_size": "Team Size",
+    "enter_team_size": "How many people are in your team?",
+    "project_scale": "Project Scale",
+    "select_project_scale": "Select your project scale",
+    "small_project": "Small",
+    "medium_project": "Medium",
+    "large_project": "Large",
+    "revenue_model": "Revenue Model",
+    "describe_revenue_model": "How will you make money?",
+    "main_differentiator": "Main Differentiator",
+    "describe_main_differentiator": "What makes you different from competitors?",
+    "timeout_error": "Request timed out. Please try again.",
+    "route_not_found": "Service not available. Please try again later.",
+    "enhancement_failed": "Failed to enhance description. Please try again.",
+    "create_project_button": "Create Project",
+    "next": "Next",
+    "creating_project": "Creating your project...",
+    "my_projects": "My Projects",
+    "new_project_status": "New",
+    "existing_project_status": "Existing",
+    "delete_project": "Delete Project",
+    "delete_project_confirmation": "Are you sure you want to delete the project",
+    "delete_frontend_persistent": "Note: This will delete the project from the interface permanently but will not remove it from the database",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "projects_subtitle": "Manage and develop your projects",
+    "no_projects": "No projects yet",
+    "start_first_project": "Start your first project now",
+    "create_project": "Create Project",
+    "no_industry": "Not specified",
+    "business_type": "Business Type",
+    "view_project": "View Project",
+    "ai_plan_title": "Create Business Plan with AI",
+    "ai_plan_intro_title": "Let's Create Your Business Plan Together! 🚀",
+    "ai_plan_intro_description": "I'll ask you 5 smart questions about your business plan and create a comprehensive analysis based on your answers.",
+    "select_project_label": "Select a project for this business plan:",
+    "create_new_project_label": "Create New Project",
+    "create_new_project_description": "Start a fresh project for your business plan",
+    "start_ai_conversation": "Start AI Conversation",
+    "starting_ai_conversation": "Starting AI Conversation...",
+    "question_progress": "Question {{current}} of {{total}}",
+    "ai_assistant": "AI Assistant",
+    "your_answer": "Your answer:",
+    "enter_number_placeholder": "Enter number here...",
+    "enter_answer_placeholder": "Write your answer here...",
+    "next_question": "Next Question",
+    "generate_plan": "Generate Plan",
+    "processing": "Processing...",
+    "creating_business_plan": "Creating Your Business Plan...",
+    "analyzing_answers": "Analyzing your answers and generating a comprehensive business plan based on your selected project.",
+    "plan_generation_started": "Business plan generation has started. The page will refresh when the process is complete.",
+    "plan_generation_error": "An error occurred while creating the business plan. Please try again.",
+    "max_attempts_reached": "Maximum attempts reached, reloading page",
+    "ai_conversation_failed": "Failed to start AI conversation",
+    "error_starting_conversation": "Error starting conversation",
+    "error_next_question": "Error getting next question",
+    "error_submitting_answer": "Error submitting answer",
+    "error_generating_plan": "Error generating business plan",
+    "plan_generation_failed": "Plan generation failed",
+    "business_plan_generation_error": "An error occurred during business plan generation",
+    "try_again": "Try Again",
+    "create_business_plan_ai": "Create Business Plan with AI",
+    "server_error": "Server error",
+    "server_returned_html_error": "Server returned an error page instead of JSON",
+    "server_invalid_response": "Server did not return a valid response",
+    "plan_generation_failed_alert": "An error occurred while creating the business plan. Please try again.",
+    "select_project_to_begin": "Simply select a project to begin!",
+    "project_description_fallback": "Project description",
+    "common": {
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "create": "Create",
+        "update": "Update",
+        "back": "Back",
+        "close": "Close",
+        "yes": "Yes",
+        "no": "No",
+        "loading": "Loading...",
+        "not_specified": "Not specified",
+        "name": "Name",
+        "description": "Description",
+        "title": "Title",
+        "status": "Status",
+        "actions": "Actions",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "import": "Import"
+    },
+    "plans": {
+        "title": "Business Plans",
+        "create_plan": "Create Plan",
+        "plan_title": "Plan Title",
+        "plan_description": "Plan Description",
+        "status": {
+            "draft": "Draft",
+            "completed": "Completed",
+            "generating": "Generating",
+            "failed": "Failed",
+            "premium": "Premium",
+            "unknown": "Unknown",
+            "completed_section": "Completed",
+            "incomplete": "Incomplete"
+        },
+        "overall_progress": "Overall Progress",
+        "sections_completed": ":completed of :total sections completed",
+        "project_info": "Project Information",
+        "project_name": "Project Name",
+        "industry": "Industry",
+        "target_market": "Target Market",
+        "location": "Location",
+        "sections": {
+            "executive_summary": "Executive Summary",
+            "market_analysis": "Market Analysis",
+            "swot_analysis": "SWOT Analysis",
+            "marketing_strategy": "Marketing Strategy",
+            "financial_plan": "Financial Plan",
+            "operational_plan": "Operational Plan"
+        },
+        "premium_content": "Premium Content",
+        "premium_only": "This section is available to premium subscribers only",
+        "upgrade_subscription": "Upgrade Subscription",
+        "section_not_completed": "This section has not been completed yet",
+        "start_filling_info": "Start filling in the required information for this section",
+        "complete_section": "Complete Section",
+        "last_updated": "Last updated",
+        "ai_suggestions": "AI Suggestions",
+        "suggestions_available": ":count suggestions available",
+        "suggestion_types": {
+            "business": "Business Strategy",
+            "marketing": "Marketing",
+            "financial": "Financial",
+            "operational": "Operational",
+            "other": "General"
+        },
+        "view_all_suggestions": "View all suggestions (:remaining more)",
+        "generating_pdf": "Generating...",
+        "download_pdf": "Download PDF",
+        "messages": {
+            "created_successfully": "Plan created successfully",
+            "updated_successfully": "Plan updated successfully",
+            "deleted_successfully": "Plan deleted successfully",
+            "generation_started": "Plan generation started",
+            "generation_completed": "Plan generation completed successfully",
+            "generation_failed": "Plan generation failed"
+        },
+        "ai": {
+            "title": "AI Business Plan",
+            "subtitle": "Create a comprehensive business plan with AI assistance",
+            "select_project": "Select Project",
+            "business_idea": "Business Idea",
+            "business_idea_placeholder": "Describe your business idea in detail...",
+            "generating_question": "Generating question...",
+            "question_count": "Question :current of :total",
+            "answer_placeholder": "Type your answer here...",
+            "submit_answer": "Submit Answer",
+            "generating_plan": "Generating your business plan...",
+            "plan_ready": "Your business plan is ready!",
+            "view_plan": "View Plan",
+            "questions": {
+                "title": "AI Questions",
+                "answer_question": "Answer this question to help us create your plan",
+                "skip_question": "Skip Question",
+                "previous_question": "Previous Question",
+                "next_question": "Next Question"
+            }
+        }
+    },
+    "projects": {
+        "title": "Projects",
+        "create_project": "Create Project",
+        "project_details": "Project Details",
+        "basic_info": "Basic Information",
+        "messages": {
+            "created_successfully": "Project created successfully",
+            "updated_successfully": "Project updated successfully",
+            "deleted_successfully": "Project deleted successfully"
+        }
+    },
+    "dashboard": {
+        "title": "Dashboard",
+        "welcome": "Welcome back",
+        "quick_stats": "Quick Stats",
+        "recent_plans": "Recent Plans",
+        "recent_projects": "Recent Projects"
+    },
+    "navigation": {
+        "dashboard": "Dashboard",
+        "plans": "Plans",
+        "projects": "Projects",
+        "profile": "Profile",
+        "settings": "Settings"
+    },
+    "errors": {
+        "404": "Page not found",
+        "500": "Server error",
+        "403": "Access denied",
+        "validation_failed": "Validation failed",
+        "something_went_wrong": "Something went wrong"
     }
 }

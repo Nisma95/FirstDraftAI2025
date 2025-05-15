@@ -16,17 +16,16 @@ import {
     CurrencyDollarIcon,
     UsersIcon,
     ChartPieIcon,
+    BuildingOfficeIcon,
+    ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 
-export default function Show({
-    auth,
-    plan,
-    sections,
-    canGeneratePDF,
-    isPremium,
-}) {
+export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
     const [expandedSection, setExpandedSection] = useState("executive_summary");
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+    // Get user language preference
+    const isArabic = auth.user.language === "ar";
 
     const handleGeneratePDF = async () => {
         setIsGeneratingPDF(true);
@@ -40,11 +39,32 @@ export default function Show({
     };
 
     const getStatusInfo = () => {
+        const texts = {
+            ar: {
+                draft: "مسودة",
+                completed: "مكتملة",
+                generating: "جاري الإنشاء",
+                failed: "فشل",
+                premium: "متميزة",
+                unknown: "غير محدد",
+            },
+            en: {
+                draft: "Draft",
+                completed: "Completed",
+                generating: "Generating",
+                failed: "Failed",
+                premium: "Premium",
+                unknown: "Unknown",
+            },
+        };
+
+        const currentTexts = isArabic ? texts.ar : texts.en;
+
         switch (plan.status) {
             case "draft":
                 return {
                     icon: ClockIcon,
-                    text: "مسودة",
+                    text: currentTexts.draft,
                     color: "text-yellow-600",
                     bgColor: "bg-yellow-100",
                     borderColor: "border-yellow-300",
@@ -52,15 +72,31 @@ export default function Show({
             case "completed":
                 return {
                     icon: CheckCircleIcon,
-                    text: "مكتملة",
+                    text: currentTexts.completed,
                     color: "text-green-600",
                     bgColor: "bg-green-100",
                     borderColor: "border-green-300",
                 };
+            case "generating":
+                return {
+                    icon: ClockIcon,
+                    text: currentTexts.generating,
+                    color: "text-blue-600",
+                    bgColor: "bg-blue-100",
+                    borderColor: "border-blue-300",
+                };
+            case "failed":
+                return {
+                    icon: ClockIcon,
+                    text: currentTexts.failed,
+                    color: "text-red-600",
+                    bgColor: "bg-red-100",
+                    borderColor: "border-red-300",
+                };
             case "premium":
                 return {
                     icon: SparklesIcon,
-                    text: "متميزة",
+                    text: currentTexts.premium,
                     color: "text-purple-600",
                     bgColor: "bg-purple-100",
                     borderColor: "border-purple-300",
@@ -68,7 +104,7 @@ export default function Show({
             default:
                 return {
                     icon: ClockIcon,
-                    text: "غير محدد",
+                    text: currentTexts.unknown,
                     color: "text-gray-600",
                     bgColor: "bg-gray-100",
                     borderColor: "border-gray-300",
@@ -76,13 +112,140 @@ export default function Show({
         }
     };
 
+    // Define translations object
+    const translations = {
+        ar: {
+            edit: "تعديل",
+            overall_progress: "التقدم العام",
+            sections_completed: (completed, total) =>
+                `${completed} من ${total} أقسام مكتملة`,
+            project_info: "معلومات المشروع",
+            project_name: "اسم المشروع",
+            industry: "الصناعة",
+            target_market: "السوق المستهدف",
+            location: "الموقع",
+            not_specified: "غير محدد",
+            sections: {
+                executive_summary: "الملخص التنفيذي",
+                market_analysis: "تحليل السوق",
+                swot_analysis: "تحليل SWOT",
+                marketing_strategy: "الاستراتيجية التسويقية",
+                financial_plan: "الخطة المالية",
+                operational_plan: "الخطة التشغيلية",
+            },
+            completed_section: "مكتمل",
+            incomplete: "غير مكتمل",
+            premium_content: "محتوى متميز",
+            premium_only: "هذا القسم متاح للمشتركين المتميزين فقط",
+            upgrade_subscription: "ترقية الاشتراك",
+            section_not_completed: "لم يتم إكمال هذا القسم بعد",
+            start_filling_info: "ابدأ بتعبئة المعلومات المطلوبة لهذا القسم",
+            complete_section: "إكمال القسم",
+            last_updated: "آخر تحديث",
+            ai_suggestions: "اقتراحات الذكاء الاصطناعي",
+            suggestions_available: (count) => `${count} اقتراح متاح`,
+            suggestion_types: {
+                business: "استراتيجية عمل",
+                marketing: "تسويق",
+                financial: "مالية",
+                operational: "تشغيلية",
+                other: "عامة",
+            },
+            view_all_suggestions: (remaining) =>
+                `عرض جميع الاقتراحات (${remaining} أكثر)`,
+            generating_pdf: "جاري التحميل...",
+            download_pdf: "تحميل PDF",
+        },
+        en: {
+            edit: "Edit",
+            overall_progress: "Overall Progress",
+            sections_completed: (completed, total) =>
+                `${completed} of ${total} sections completed`,
+            project_info: "Project Information",
+            project_name: "Project Name",
+            industry: "Industry",
+            target_market: "Target Market",
+            location: "Location",
+            not_specified: "Not specified",
+            sections: {
+                executive_summary: "Executive Summary",
+                market_analysis: "Market Analysis",
+                swot_analysis: "SWOT Analysis",
+                marketing_strategy: "Marketing Strategy",
+                financial_plan: "Financial Plan",
+                operational_plan: "Operational Plan",
+            },
+            completed_section: "Completed",
+            incomplete: "Incomplete",
+            premium_content: "Premium Content",
+            premium_only:
+                "This section is available to premium subscribers only",
+            upgrade_subscription: "Upgrade Subscription",
+            section_not_completed: "This section has not been completed yet",
+            start_filling_info:
+                "Start filling in the required information for this section",
+            complete_section: "Complete Section",
+            last_updated: "Last updated",
+            ai_suggestions: "AI Suggestions",
+            suggestions_available: (count) => `${count} suggestions available`,
+            suggestion_types: {
+                business: "Business Strategy",
+                marketing: "Marketing",
+                financial: "Financial",
+                operational: "Operational",
+                other: "General",
+            },
+            view_all_suggestions: (remaining) =>
+                `View all suggestions (${remaining} more)`,
+            generating_pdf: "Generating...",
+            download_pdf: "Download PDF",
+        },
+    };
+
+    const t = isArabic ? translations.ar : translations.en;
+
     const statusInfo = getStatusInfo();
     const StatusIcon = statusInfo.icon;
 
-    const completedSections = Object.values(sections).filter(
+    // Get sections from ai_analysis if available
+    const aiAnalysis = plan.ai_analysis || {};
+    const sectionsData = {
+        executive_summary: {
+            title: t.sections.executive_summary,
+            content: aiAnalysis.executive_summary,
+            completed: !!aiAnalysis.executive_summary,
+        },
+        market_analysis: {
+            title: t.sections.market_analysis,
+            content: aiAnalysis.market_analysis,
+            completed: !!aiAnalysis.market_analysis,
+        },
+        swot_analysis: {
+            title: t.sections.swot_analysis,
+            content: aiAnalysis.swot_analysis,
+            completed: !!aiAnalysis.swot_analysis,
+        },
+        marketing_strategy: {
+            title: t.sections.marketing_strategy,
+            content: aiAnalysis.marketing_strategy,
+            completed: !!aiAnalysis.marketing_strategy,
+        },
+        financial_plan: {
+            title: t.sections.financial_plan,
+            content: aiAnalysis.financial_plan,
+            completed: !!aiAnalysis.financial_plan,
+        },
+        operational_plan: {
+            title: t.sections.operational_plan,
+            content: aiAnalysis.operational_plan,
+            completed: !!aiAnalysis.operational_plan,
+        },
+    };
+
+    const completedSections = Object.values(sectionsData).filter(
         (section) => section.completed
     ).length;
-    const totalSections = Object.keys(sections).length;
+    const totalSections = Object.keys(sectionsData).length;
     const completionPercentage = Math.round(
         (completedSections / totalSections) * 100
     );
@@ -90,10 +253,10 @@ export default function Show({
     const sectionIcons = {
         executive_summary: ChartBarIcon,
         market_analysis: ChartPieIcon,
-        marketing_plan: UsersIcon,
-        financial_resources: CurrencyDollarIcon,
-        swot_analysis: ChartBarIcon,
-        operational_plan: CheckCircleIcon,
+        marketing_strategy: UsersIcon,
+        financial_plan: CurrencyDollarIcon,
+        swot_analysis: ArrowTrendingUpIcon,
+        operational_plan: BuildingOfficeIcon,
     };
 
     return (
@@ -118,7 +281,7 @@ export default function Show({
                             className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                         >
                             <PencilIcon className="h-4 w-4" />
-                            تعديل
+                            {t.edit}
                         </Link>
                         {canGeneratePDF && (
                             <button
@@ -128,8 +291,8 @@ export default function Show({
                             >
                                 <DocumentArrowDownIcon className="h-4 w-4" />
                                 {isGeneratingPDF
-                                    ? "جاري التحميل..."
-                                    : "تحميل PDF"}
+                                    ? t.generating_pdf
+                                    : t.download_pdf}
                             </button>
                         )}
                     </div>
@@ -146,11 +309,13 @@ export default function Show({
                         <div className="flex justify-between items-center mb-4">
                             <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                    التقدم العام
+                                    {t.overall_progress}
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {completedSections} من {totalSections} أقسام
-                                    مكتملة
+                                    {t.sections_completed(
+                                        completedSections,
+                                        totalSections
+                                    )}
                                 </p>
                             </div>
                             <div className="text-right">
@@ -175,55 +340,63 @@ export default function Show({
                     </div>
 
                     {/* Project Info */}
-                    <div className="fdDiveCard p-6 mb-6">
-                        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-                            معلومات المشروع
-                        </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    اسم المشروع
-                                </p>
-                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {plan.project.name}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    الصناعة
-                                </p>
-                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {plan.project.industry || "غير محدد"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    السوق المستهدف
-                                </p>
-                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {plan.project.target_market || "غير محدد"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    الموقع
-                                </p>
-                                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {plan.project.location || "غير محدد"}
-                                </p>
+                    {plan.project && (
+                        <div className="fdDiveCard p-6 mb-6">
+                            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
+                                {t.project_info}
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t.project_name}
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.name}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t.industry}
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.industry ||
+                                            t.not_specified}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t.target_market}
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.target_market ||
+                                            t.not_specified}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t.location}
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.location ||
+                                            t.not_specified}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Plan Sections */}
                     <div className="space-y-4">
-                        {Object.entries(sections).map(([key, section]) => {
+                        {Object.entries(sectionsData).map(([key, section]) => {
                             const Icon = sectionIcons[key] || ChartBarIcon;
                             const isPremiumSection = [
                                 "swot_analysis",
                                 "operational_plan",
                             ].includes(key);
-                            const isLocked = isPremiumSection && !isPremium;
+                            const isLocked =
+                                isPremiumSection &&
+                                !isPremium &&
+                                !section.content;
 
                             return (
                                 <div
@@ -259,8 +432,8 @@ export default function Show({
                                                 </h3>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400">
                                                     {section.completed
-                                                        ? "مكتمل"
-                                                        : "غير مكتمل"}
+                                                        ? t.completed_section
+                                                        : t.incomplete}
                                                 </p>
                                             </div>
                                         </div>
@@ -287,12 +460,10 @@ export default function Show({
                                                             <LockClosedIcon className="h-6 w-6 text-purple-600" />
                                                         </div>
                                                         <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                            محتوى متميز
+                                                            {t.premium_content}
                                                         </h4>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                                            هذا القسم متاح
-                                                            للمشتركين المتميزين
-                                                            فقط
+                                                            {t.premium_only}
                                                         </p>
                                                         <Link
                                                             href={route(
@@ -301,7 +472,9 @@ export default function Show({
                                                             className="fdButton inline-flex items-center gap-2"
                                                         >
                                                             <SparklesIcon className="h-4 w-4" />
-                                                            ترقية الاشتراك
+                                                            {
+                                                                t.upgrade_subscription
+                                                            }
                                                         </Link>
                                                     </div>
                                                 ) : section.content ? (
@@ -316,13 +489,14 @@ export default function Show({
                                                     <div className="text-center py-8">
                                                         <ClockIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                                                         <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                            لم يتم إكمال هذا
-                                                            القسم بعد
+                                                            {
+                                                                t.section_not_completed
+                                                            }
                                                         </h4>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                                            ابدأ بتعبئة
-                                                            المعلومات المطلوبة
-                                                            لهذا القسم
+                                                            {
+                                                                t.start_filling_info
+                                                            }
                                                         </p>
                                                         <Link
                                                             href={route(
@@ -332,7 +506,7 @@ export default function Show({
                                                             className="fdButton inline-flex items-center gap-2"
                                                         >
                                                             <PencilIcon className="h-4 w-4" />
-                                                            إكمال القسم
+                                                            {t.complete_section}
                                                         </Link>
                                                     </div>
                                                 )}
@@ -342,11 +516,13 @@ export default function Show({
                                                 <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-6 py-3">
                                                     <div className="flex justify-between items-center">
                                                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            آخر تحديث:{" "}
+                                                            {t.last_updated}:{" "}
                                                             {new Date(
                                                                 plan.updated_at
                                                             ).toLocaleDateString(
-                                                                "ar-AE"
+                                                                isArabic
+                                                                    ? "ar-AE"
+                                                                    : "en-US"
                                                             )}
                                                         </span>
                                                         <Link
@@ -356,7 +532,7 @@ export default function Show({
                                                             )}
                                                             className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                                                         >
-                                                            تعديل
+                                                            {t.edit}
                                                         </Link>
                                                     </div>
                                                 </div>
@@ -377,10 +553,12 @@ export default function Show({
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        اقتراحات الذكاء الاصطناعي
+                                        {t.ai_suggestions}
                                     </h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {plan.ai_suggestions.length} اقتراح متاح
+                                        {t.suggestions_available(
+                                            plan.ai_suggestions.length
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -412,22 +590,21 @@ export default function Show({
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                                            {suggestion.suggestion_type ===
-                                                            "business"
-                                                                ? "استراتيجية عمل"
-                                                                : suggestion.suggestion_type ===
-                                                                  "marketing"
-                                                                ? "تسويق"
-                                                                : suggestion.suggestion_type ===
-                                                                  "financial"
-                                                                ? "مالية"
-                                                                : "عامة"}
+                                                            {t.suggestion_types[
+                                                                suggestion
+                                                                    .suggestion_type
+                                                            ] ||
+                                                                t
+                                                                    .suggestion_types
+                                                                    .other}
                                                         </span>
                                                         <span className="text-xs text-gray-400 dark:text-gray-500">
                                                             {new Date(
                                                                 suggestion.created_at
                                                             ).toLocaleDateString(
-                                                                "ar-AE"
+                                                                isArabic
+                                                                    ? "ar-AE"
+                                                                    : "en-US"
                                                             )}
                                                         </span>
                                                     </div>
@@ -443,9 +620,9 @@ export default function Show({
                                 {plan.ai_suggestions.length > 3 && (
                                     <div className="text-center pt-4">
                                         <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                                            عرض جميع الاقتراحات (
-                                            {plan.ai_suggestions.length - 3}{" "}
-                                            أكثر)
+                                            {t.view_all_suggestions(
+                                                plan.ai_suggestions.length - 3
+                                            )}
                                         </button>
                                     </div>
                                 )}

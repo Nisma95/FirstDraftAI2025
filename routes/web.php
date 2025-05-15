@@ -125,6 +125,9 @@ Route::middleware(['auth'])->prefix('plans/{plan}/ai')->name('plans.ai.')->group
 
     // Restart questioning
     Route::post('/restart', [AIQuestioningController::class, 'restart'])->name('restart');
+
+    // ADD THIS MISSING ROUTE - Check generation status (AJAX)
+    Route::get('/status', [AIQuestioningController::class, 'checkGenerationStatus'])->name('status');
 });
 
 // Add this route to check plan generation status

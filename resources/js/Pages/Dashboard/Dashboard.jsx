@@ -1,6 +1,8 @@
 import React from "react";
 import { Head } from "@inertiajs/react";
 import StarBackground from "@/Components/StarBackground";
+import TopTools from "@/Components/TopTools";
+
 import Footer from "@/Layouts/Footer";
 import WelcomeSection from "./MainContent/WelcomeSection";
 import CreateOptions from "./MainContent/CreateOptions";
@@ -14,8 +16,10 @@ export default function Dashboard() {
             <StarBackground />
 
             <div className="flex min-h-screen">
-                {/* Sidebar space for desktop */}
-                <div className="">{/* Sidebar goes here */}</div>
+                {/* Top Right Tools - Mode and Language Switchers */}
+                <div>
+                    <TopTools />
+                </div>
 
                 {/* Main content */}
                 <div className="flex-1 w-full p-10">

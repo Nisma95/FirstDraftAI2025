@@ -11,7 +11,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\App;
 use Inertia\Inertia;
+use App\Jobs\GenerateBusinessPlan;
+
+
 
 class AIQuestioningController extends Controller
 {
@@ -27,6 +31,12 @@ class AIQuestioningController extends Controller
      */
     public function startBusinessPlan(Request $request)
     {
+        // Add debug logging at the beginning
+        Log::info('startBusinessPlan called', [
+            'request_data' => $request->all(),
+            'user_id' => auth()->id()
+        ]);
+
         $validated = $request->validate([
             'business_idea' => 'required|string|max:1000',
             'project_id' => 'required|exists:projects,id',
@@ -38,9 +48,33 @@ class AIQuestioningController extends Controller
             // Get project info if not provided
             if (!isset($validated['project_name']) || !isset($validated['project_description'])) {
                 $project = \App\Models\Project::find($validated['project_id']);
+                if (!$project) {
+                    Log::error('Project not found', ['project_id' => $validated['project_id']]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => App::getLocale() === 'ar' ? 'المشروع غير موجود' : 'Project not found'
+                    ], 404);
+                }
                 $validated['project_name'] = $project->name;
                 $validated['project_description'] = $project->description;
             }
+
+            // Check if AIService is properly initialized
+            if (!$this->aiService) {
+                Log::error('AIService is not initialized');
+                return response()->json([
+                    'success' => false,
+                    'message' => App::getLocale() === 'ar' ? 'خدمة الذكاء الاصطناعي غير متوفرة' : 'AI service is not available'
+                ], 500);
+            }
+
+            // Debug: Check OpenAI configuration
+            Log::info('OpenAI Config Check', [
+                'api_key_exists' => config('openai.api_key') ? 'Yes' : 'No',
+                'api_key_length' => config('openai.api_key') ? strlen(config('openai.api_key')) : 0,
+                'api_url' => config('openai.api_url'),
+                'model' => config('openai.model')
+            ]);
 
             // Store business idea in session with project info
             session(['ai_business_plan' => [
@@ -52,6 +86,8 @@ class AIQuestioningController extends Controller
                 'started_at' => now()
             ]]);
 
+            Log::info('About to call AI service for first question');
+
             // Generate first question based on business idea and project context
             $firstQuestion = $this->aiService->generateFirstQuestion(
                 $validated['business_idea'],
@@ -59,22 +95,45 @@ class AIQuestioningController extends Controller
                 $validated['project_description']
             );
 
+            Log::info('AI service response', ['first_question' => $firstQuestion]);
+
+            // Validate the response from AI service
+            if (!$firstQuestion || !isset($firstQuestion['question'])) {
+                Log::error('Invalid response from AI service:', ['response' => $firstQuestion]);
+                return response()->json([
+                    'success' => false,
+                    'message' => App::getLocale() === 'ar' ? 'فشل في إنشاء السؤال الأول' : 'Failed to generate first question'
+                ], 500);
+            }
+
             // Store current question in session
             session(['current_question' => $firstQuestion]);
+
+            Log::info('Successfully generated first question for business plan', [
+                'project_id' => $validated['project_id'],
+                'business_idea' => substr($validated['business_idea'], 0, 100) // Log first 100 chars only
+            ]);
 
             return response()->json([
                 'success' => true,
                 'question' => $firstQuestion
             ]);
         } catch (\Exception $e) {
-            Log::error('Error starting AI business plan: ' . $e->getMessage());
+            Log::error('Error starting AI business plan: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'validated' => $validated,
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ في بدء إنشاء خطة العمل'
+                'message' => App::getLocale() === 'ar'
+                    ? 'حدث خطأ في بدء إنشاء خطة العمل: ' . $e->getMessage()
+                    : 'Error starting business plan: ' . $e->getMessage()
             ], 500);
         }
     }
-
     /**
      * Get next question based on current answer (UPDATED METHOD)
      */
@@ -147,6 +206,12 @@ class AIQuestioningController extends Controller
     /**
      * Generate final business plan from all answers (UPDATED METHOD)
      */
+    /**
+     * Generate final business plan from all answers (OPTIMIZED VERSION)
+     */
+    /**
+     * Generate final business plan from all answers (FULLY OPTIMIZED)
+     */
     public function generatePlanFromAnswers(Request $request)
     {
         $validated = $request->validate([
@@ -163,21 +228,29 @@ class AIQuestioningController extends Controller
             // Get project info if not provided
             if (!isset($validated['project_name']) || !isset($validated['project_description'])) {
                 $project = \App\Models\Project::find($validated['project_id']);
+                if (!$project) {
+                    Log::error('Project not found', ['project_id' => $validated['project_id']]);
+                    return response()->json([
+                        'success' => false,
+                        'message' => App::getLocale() === 'ar' ? 'المشروع غير موجود' : 'Project not found'
+                    ], 404);
+                }
                 $validated['project_name'] = $project->name;
                 $validated['project_description'] = $project->description;
             }
 
-            // Create the plan first with project context
+            // Create the plan with initial status
             $plan = Plan::create([
                 'project_id' => $validated['project_id'],
-                'title' => $validated['project_name'] . ' - خطة العمل', // Use project name in title
+                'title' => $validated['project_name'] . ' - خطة العمل',
                 'summary' => $validated['business_idea'],
                 'status' => 'generating',
                 'ai_analysis' => null,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
+                'progress_percentage' => 0
             ]);
 
-            // Save answers and project context in plan for later processing
+            // Save generation context for job processing
             $plan->ai_conversation_context = [
                 'answers' => $validated['answers'],
                 'business_idea' => $validated['business_idea'],
@@ -191,98 +264,202 @@ class AIQuestioningController extends Controller
             session()->forget('ai_business_plan');
             session()->forget('current_question');
 
+            Log::info('Plan created successfully, starting background generation', [
+                'plan_id' => $plan->id,
+                'project_id' => $validated['project_id']
+            ]);
+
             DB::commit();
 
-            // Start background generation process with project context
-            dispatch(function () use ($plan, $validated) {
-                $this->generatePlanInBackground(
-                    $plan,
-                    $validated['answers'],
-                    $validated['business_idea'],
-                    $validated['project_name'],
-                    $validated['project_description']
-                );
-            })->afterResponse();
+            // Dispatch background generation job
+            try {
+                // Check if GenerateBusinessPlan job class exists
+                if (class_exists(\App\Jobs\GenerateBusinessPlan::class)) {
+                    // Use the job queue for better performance and reliability
+                    \App\Jobs\GenerateBusinessPlan::dispatch($plan, $validated)
+                        ->onQueue('business-plans') // Use specific queue
+                        ->delay(now()->addSeconds(2)); // Small delay to ensure transaction is committed
 
+                    Log::info("Business plan generation job dispatched successfully for plan: {$plan->id}");
+                } else {
+                    // Fallback to closure if job class doesn't exist
+                    dispatch(function () use ($plan, $validated) {
+                        $this->generatePlanInBackground(
+                            $plan,
+                            $validated['answers'],
+                            $validated['business_idea'],
+                            $validated['project_name'],
+                            $validated['project_description']
+                        );
+                    })->afterResponse();
+
+                    Log::info("Business plan generation dispatched as closure for plan: {$plan->id}");
+                }
+            } catch (\Exception $e) {
+                Log::error('Error dispatching business plan generation: ' . $e->getMessage());
+
+                // Last resort: run synchronously
+                try {
+                    $this->generatePlanInBackground(
+                        $plan,
+                        $validated['answers'],
+                        $validated['business_idea'],
+                        $validated['project_name'],
+                        $validated['project_description']
+                    );
+                } catch (\Exception $syncError) {
+                    Log::error('Even synchronous generation failed: ' . $syncError->getMessage());
+                    $plan->update([
+                        'status' => 'failed',
+                        'ai_analysis' => ['error' => 'Failed to start generation process']
+                    ]);
+                }
+            }
+
+            // Return immediate response with plan information
             return response()->json([
                 'success' => true,
-                'plan' => $plan,
-                'message' => 'تم بدء عملية إنشاء خطة العمل. سيتم إعادة توجيهك لمتابعة التقدم.'
+                'plan' => [
+                    'id' => $plan->id,
+                    'title' => $plan->title,
+                    'status' => $plan->status,
+                    'created_at' => $plan->created_at
+                ],
+                'plan_id' => $plan->id,
+                'status_check_url' => route('plans.ai.status', $plan),
+                'plan_show_url' => route('plans.show', $plan),
+                'message' => App::getLocale() === 'ar'
+                    ? 'تم بدء عملية إنشاء خطة العمل. سيتم إعادة توجيهك لمتابعة التقدم.'
+                    : 'Business plan generation started. You will be redirected to track progress.',
+                'estimated_time' => 'يقرّب من 30-60 ثانية',
+                'instructions' => App::getLocale() === 'ar'
+                    ? 'سيتم إعادة توجيهك تلقائياً عند اكتمال خطة العمل'
+                    : 'You will be automatically redirected when the business plan is complete'
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error creating plan: ' . $e->getMessage());
+            Log::error('Error in generatePlanFromAnswers: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'validated' => $validated
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'حدث خطأ في إنشاء خطة العمل. يرجى المحاولة مرة أخرى.'
+                'message' => App::getLocale() === 'ar'
+                    ? 'حدث خطأ في إنشاء خطة العمل. يرجى المحاولة مرة أخرى.'
+                    : 'An error occurred while creating the business plan. Please try again.',
+                'error_details' => config('app.debug') ? $e->getMessage() : null
             ], 500);
         }
     }
 
     /**
-     * Generate plan content in background with project context (UPDATED METHOD)
+     * Check plan generation status (AJAX endpoint)
+     */
+    public function checkGenerationStatus(Plan $plan)
+    {
+        $this->authorize('view', $plan);
+
+        return response()->json([
+            'success' => true,
+            'status' => $plan->status,
+            'progress' => $this->getProgressPercentage($plan->status),
+            'message' => $this->getStatusMessage($plan->status),
+            'is_completed' => in_array($plan->status, ['completed', 'failed']),
+            'redirect_url' => $plan->status === 'completed' ? route('plans.show', $plan) : null
+        ]);
+    }
+
+    /**
+     * Get progress percentage based on status
+     */
+    private function getProgressPercentage(string $status): int
+    {
+        $statusMap = [
+            'generating' => 10,
+            'title_generated' => 20,
+            'generating_sections' => 30,
+            'generating_suggestions' => 80,
+            'completed' => 100,
+            'failed' => 0
+        ];
+
+        return $statusMap[$status] ?? 0;
+    }
+
+    /**
+     * Get status message in Arabic
+     */
+    private function getStatusMessage(string $status): string
+    {
+        $messages = [
+            'generating' => 'جاري بدء العملية...',
+            'title_generated' => 'تم إنشاء العنوان...',
+            'generating_sections' => 'جاري إنشاء أقسام خطة العمل...',
+            'generating_suggestions' => 'جاري إنشاء الاقتراحات...',
+            'completed' => 'تم إنشاء خطة العمل بنجاح!',
+            'failed' => 'حدث خطأ في إنشاء خطة العمل'
+        ];
+
+        return $messages[$status] ?? 'معالجة...';
+    }
+
+
+    /**
+     * Generate plan content in background with project context (OPTIMIZED)
      */
     private function generatePlanInBackground(Plan $plan, array $answers, string $businessIdea, string $projectName = null, string $projectDescription = null)
     {
         try {
-            Log::info("Starting background generation for plan: {$plan->id}");
+            Log::info("Starting optimized background generation for plan: {$plan->id}");
 
             // Update status to show progress
             $plan->update(['status' => 'generating']);
 
-            // Generate title using project context
-            $title = $this->aiService->generateTitleFromAnswers($answers, $projectName, $projectDescription);
-            $plan->update(['title' => $title]);
-
-            // Generate sections one by one with project context
-            $sections = [];
-
-            // Generate essential sections first
-            $essentialSections = ['executive_summary', 'market_analysis'];
-            foreach ($essentialSections as $sectionKey) {
-                try {
-                    Log::info("Generating section: {$sectionKey}");
-                    $sections[$sectionKey] = $this->aiService->generateSectionFromAnswers($sectionKey, [
-                        'business_idea' => $businessIdea,
-                        'project_name' => $projectName,
-                        'project_description' => $projectDescription,
-                        'answers' => $answers
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error("Error generating {$sectionKey}: " . $e->getMessage());
-                    $sections[$sectionKey] = "<p class='text-yellow-500'>سيتم إكمال هذا القسم لاحقاً...</p>";
-                }
-            }
-
-            // Update plan with essential sections
-            $plan->update([
-                'ai_analysis' => $sections,
-                'status' => 'partially_completed'
-            ]);
-
-            // Generate remaining sections
-            $remainingSections = ['swot_analysis', 'marketing_strategy', 'financial_plan', 'operational_plan'];
-            foreach ($remainingSections as $sectionKey) {
-                try {
-                    Log::info("Generating section: {$sectionKey}");
-                    $sections[$sectionKey] = $this->aiService->generateSectionFromAnswers($sectionKey, [
-                        'business_idea' => $businessIdea,
-                        'project_name' => $projectName,
-                        'project_description' => $projectDescription,
-                        'answers' => $answers
-                    ]);
-
-                    // Update plan after each section
-                    $plan->update(['ai_analysis' => $sections]);
-                } catch (\Exception $e) {
-                    Log::error("Error generating {$sectionKey}: " . $e->getMessage());
-                    $sections[$sectionKey] = "<p class='text-yellow-500'>حدث خطأ في توليد هذا القسم. سيتم إعادة المحاولة.</p>";
-                }
-            }
-
-            // Generate suggestions with project context
+            // Generate title first (quick win for user)
             try {
+                $title = $this->aiService->generateTitleFromAnswers($answers, $projectName, $projectDescription);
+                $plan->update(['title' => $title, 'status' => 'title_generated']);
+                Log::info("Title generated for plan: {$plan->id}");
+            } catch (\Exception $e) {
+                Log::error("Error generating title: " . $e->getMessage());
+                $plan->update(['title' => $projectName . ' - Business Plan']);
+            }
+
+            // **OPTIMIZED**: Generate all sections in a single AI call instead of multiple calls
+            try {
+                Log::info("Generating all sections in batch for plan: {$plan->id}");
+                $plan->update(['status' => 'generating_sections']);
+
+                // Generate complete plan in one call
+                $completePlan = $this->aiService->generateCompleteBusinessPlan([
+                    'business_idea' => $businessIdea,
+                    'project_name' => $projectName,
+                    'project_description' => $projectDescription,
+                    'answers' => $answers
+                ]);
+
+                // Update plan with all sections at once
+                $plan->update(['ai_analysis' => $completePlan]);
+                Log::info("All sections completed for plan: {$plan->id}");
+            } catch (\Exception $e) {
+                Log::error("Error generating sections in batch: " . $e->getMessage());
+
+                // Fallback to default content if batch generation fails
+                $sections = [
+                    'executive_summary' => $this->getDefaultSectionContent('executive_summary'),
+                    'market_analysis' => $this->getDefaultSectionContent('market_analysis'),
+                    'swot_analysis' => $this->getDefaultSectionContent('swot_analysis'),
+                    'marketing_strategy' => $this->getDefaultSectionContent('marketing_strategy'),
+                    'financial_plan' => $this->getDefaultSectionContent('financial_plan'),
+                    'operational_plan' => $this->getDefaultSectionContent('operational_plan')
+                ];
+                $plan->update(['ai_analysis' => $sections]);
+            }
+
+            // Generate suggestions (optional, non-blocking)
+            try {
+                $plan->update(['status' => 'generating_suggestions']);
                 $suggestions = $this->aiService->generateSuggestionsFromAnswers([
                     'business_idea' => $businessIdea,
                     'project_name' => $projectName,
@@ -299,25 +476,40 @@ class AIQuestioningController extends Controller
                 }
             } catch (\Exception $e) {
                 Log::error("Error generating suggestions: " . $e->getMessage());
+                // Continue without suggestions
             }
 
             // Mark as completed
-            $plan->update([
-                'status' => 'completed',
-                'ai_analysis' => $sections
-            ]);
+            $plan->update(['status' => 'completed']);
 
-            Log::info("Background generation completed for plan: {$plan->id}");
+            Log::info("Background generation completed successfully for plan: {$plan->id}");
         } catch (\Exception $e) {
             Log::error("Fatal error in background generation for plan {$plan->id}: " . $e->getMessage());
 
             $plan->update([
                 'status' => 'failed',
                 'ai_analysis' => [
-                    'error' => 'حدث خطأ أثناء إنشاء خطة العمل: ' . $e->getMessage()
+                    'error' => 'An error occurred during business plan generation: ' . $e->getMessage()
                 ]
             ]);
         }
+    }
+
+    /**
+     * Get default content for sections that fail to generate
+     */
+    private function getDefaultSectionContent(string $section): string
+    {
+        $defaults = [
+            'executive_summary' => '<p>This section will be completed shortly. Please refresh the page in a few moments.</p>',
+            'market_analysis' => '<p>Market analysis is being generated. Please check back in a moment.</p>',
+            'swot_analysis' => '<p>SWOT analysis will be available shortly.</p>',
+            'marketing_strategy' => '<p>Marketing strategy is being prepared.</p>',
+            'financial_plan' => '<p>Financial plan will be generated shortly.</p>',
+            'operational_plan' => '<p>Operational plan is being created.</p>'
+        ];
+
+        return $defaults[$section] ?? '<p>Content will be available shortly.</p>';
     }
 
     // Keep all existing methods below unchanged...

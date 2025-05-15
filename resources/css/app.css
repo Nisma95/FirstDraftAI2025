@@ -11,41 +11,39 @@
 @import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=League+Script&display=swap");
 
+/* Add this to your CSS file to override browser-applied direction */
+
+/* Reset webkit-locale and direction on html element */
 html {
+    -webkit-locale: initial !important;
+    direction: ltr !important;
     scroll-behavior: initial;
     overflow: hidden;
 }
 
-html[lang="ar"],
-body[lang="ar"] {
-    text-align: right;
-    font-family: "Cairo", sans-serif !important;
+/* Reset any inherited direction on the body */
+body {
+    direction: ltr !important;
 }
 
-html[lang="en"],
-body[lang="en"] {
-    text-align: left;
-    font-family: "Atkinson Hyperlegible Next", serif !important;
-}
-
-/* Apply left alignment for LTR */
-[dir="ltr"] {
+/* Ensure your main container doesn't inherit unwanted direction */
+.app-container {
+    direction: ltr;
     text-align: left;
 }
 
-/* Apply right alignment for RTL */
-[dir="rtl"] {
-    text-align: right;
+/* Alternative: Use a class to force LTR on specific components */
+.force-ltr {
+    direction: ltr !important;
+    text-align: left !important;
 }
 
-/* Ensure all text elements inherit the alignment */
-[dir="ltr"] *,
-[dir="rtl"] * {
-    text-align: inherit;
-}
-.dark body {
-    background-color: #000;
-    color: #e2e8f0;
+/* If you need to support both LTR and RTL later, use logical properties */
+.responsive-layout {
+    margin-inline-start: 2.5rem; /* equivalent to margin-left in LTR */
+    margin-inline-end: 2.5rem; /* equivalent to margin-right in LTR */
+    padding-inline: 2.5rem; /* equivalent to padding-left + padding-right */
+    text-align: start; /* equivalent to text-align: left in LTR */
 }
 
 /* Hide arrows for number input in Chrome, Safari, Edge, and Opera */
