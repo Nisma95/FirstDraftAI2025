@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { usePage } from "@inertiajs/react";
 import { motion } from "framer-motion";
+import QuickActions from "./QuickActions";
 
 export default function WelcomeSection() {
     const { t, i18n } = useTranslation();
@@ -231,6 +232,22 @@ export default function WelcomeSection() {
         },
     };
 
+    // Quick Actions animation variants
+    const quickActionsVariants = {
+        hidden: { opacity: 0, x: i18n.language === "ar" ? -50 : 50 },
+        visible: {
+            opacity: 1,
+            x: 0,
+            transition: {
+                duration: 0.8,
+                ease: "easeOut",
+                delay: 0.6,
+                type: "spring",
+                bounce: 0.25,
+            },
+        },
+    };
+
     return (
         <motion.div
             className="relative pt-8 pb-6"
@@ -241,103 +258,123 @@ export default function WelcomeSection() {
         >
             {/* Welcome card container - now transparent to blend with dashboard */}
             <div className="relative bg-white/40 dark:bg-gray-900/20 backdrop-blur-xl rounded-3xl border border-white/30 dark:border-gray-700/20 shadow-xl shadow-blue-500/5 dark:shadow-purple-500/10 p-8 md:p-12">
-                <div
-                    className={`flex flex-col ${
-                        i18n.language === "ar" ? "items-end" : "items-start"
-                    }`}
-                >
-                    {/* Greeting with time element and sparkle */}
-                    <motion.div
-                        variants={greetingVariants}
-                        className="flex items-center gap-3 mb-3"
+                <div className="flex items-start gap-5">
+                    {" "}
+                    {/* Left side - Welcome content */}
+                    <div
+                        className={`flex flex-col ${
+                            i18n.language === "ar" ? "items-end" : "items-start"
+                        } flex-1`}
                     >
-                        <motion.div variants={waveVariants} animate="wave">
-                            {getTimeElement()}
-                        </motion.div>
-                        <motion.p
-                            className="text-2xl md:text-4xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent"
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ type: "spring", bounce: 0.5 }}
-                        >
-                            {getGreeting()}
-                        </motion.p>
-                        <motion.span
-                            variants={sparkleVariants}
-                            className="text-2xl"
-                        >
-                            ✨
-                        </motion.span>
-                    </motion.div>
-
-                    {/* Name with enhanced styling */}
-                    <motion.div
-                        variants={nameVariants}
-                        className="relative mb-4"
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ type: "spring", bounce: 0.3 }}
-                    >
-                        <motion.h1
-                            className="text-6xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-700 dark:from-indigo-400 dark:via-blue-400 dark:to-purple-500 bg-clip-text text-transparent tracking-tight"
-                            style={{
-                                WebkitTextStroke: "2px rgba(99, 102, 241, 0.1)",
-                                textShadow:
-                                    "0 4px 20px rgba(99, 102, 241, 0.2)",
-                            }}
-                        >
-                            {user.name.split(" ")[0]}
-                        </motion.h1>
-
-                        {/* Decorative underline */}
+                        {/* Greeting with time element and sparkle */}
                         <motion.div
-                            className="h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mt-2"
-                            initial={{ width: 0 }}
-                            animate={{ width: "100%" }}
-                            transition={{
-                                duration: 1,
-                                delay: 0.8,
-                                ease: "easeOut",
-                            }}
-                        />
-                    </motion.div>
+                            variants={greetingVariants}
+                            className="flex items-center gap-3 mb-3"
+                        >
+                            <motion.div variants={waveVariants} animate="wave">
+                                {getTimeElement()}
+                            </motion.div>
+                            <motion.p
+                                className="text-2xl md:text-4xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent"
+                                whileHover={{ scale: 1.05 }}
+                                transition={{ type: "spring", bounce: 0.5 }}
+                            >
+                                {getGreeting()}
+                            </motion.p>
+                            <motion.span
+                                variants={sparkleVariants}
+                                className="text-2xl"
+                            >
+                                ✨
+                            </motion.span>
+                        </motion.div>
 
-                    {/* Date with enhanced styling */}
-                    <motion.div
-                        variants={dateVariants}
-                        className="flex items-center gap-3 px-6 py-3 bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl border border-white/40 dark:border-gray-700/30"
-                        whileHover={{ scale: 1.05, y: -2 }}
-                        transition={{ type: "spring", bounce: 0.4 }}
-                    >
-                        <svg
-                            className="w-5 h-5 md:w-6 md:h-6 text-blue-500 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        {/* Name with enhanced styling */}
+                        <motion.div
+                            variants={nameVariants}
+                            className="relative mb-4"
+                            whileHover={{ scale: 1.02 }}
+                            transition={{ type: "spring", bounce: 0.3 }}
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            <motion.h1
+                                className="text-6xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-700 dark:from-indigo-400 dark:via-blue-400 dark:to-purple-500 bg-clip-text text-transparent tracking-tight"
+                                style={{
+                                    WebkitTextStroke:
+                                        "2px rgba(99, 102, 241, 0.1)",
+                                    textShadow:
+                                        "0 4px 20px rgba(99, 102, 241, 0.2)",
+                                }}
+                            >
+                                {user.name.split(" ")[0]}
+                            </motion.h1>
+
+                            {/* Decorative underline */}
+                            <motion.div
+                                className="h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mt-2"
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{
+                                    duration: 1,
+                                    delay: 0.8,
+                                    ease: "easeOut",
+                                }}
                             />
-                        </svg>
-                        <span className="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-200">
-                            {formattedDate}
-                        </span>
-                        <span className="text-lg md:text-xl text-gray-500 dark:text-gray-400">
-                            •
-                        </span>
-                        <span className="text-lg md:text-xl font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                            {t("WelcomeSection.welcome_back")}
-                        </span>
-                        <motion.span
-                            className="text-lg"
-                            animate={{ opacity: [0.5, 1, 0.5] }}
-                            transition={{ duration: 2, repeat: Infinity }}
+                        </motion.div>
+
+                        {/* Date with enhanced styling */}
+                        <motion.div
+                            variants={dateVariants}
+                            className="flex items-center gap-3 px-6 py-3 bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl border border-white/40 dark:border-gray-700/30"
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            transition={{ type: "spring", bounce: 0.4 }}
                         >
-                            🎉
-                        </motion.span>
+                            <svg
+                                className="w-5 h-5 md:w-6 md:h-6 text-blue-500 dark:text-blue-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                            </svg>
+                            <span className="text-lg md:text-xl font-medium text-gray-700 dark:text-gray-200">
+                                {formattedDate}
+                            </span>
+                            <span className="text-lg md:text-xl text-gray-500 dark:text-gray-400">
+                                •
+                            </span>
+                            <span className="text-lg md:text-xl font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                                {t("WelcomeSection.welcome_back")}
+                            </span>
+                            <motion.span
+                                className="text-lg"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                            >
+                                🎉
+                            </motion.span>
+                        </motion.div>
+                    </div>
+                    {/* Right side - Quick Actions for desktop */}
+                    <motion.div
+                        variants={quickActionsVariants}
+                        className="hidden lg:block self-center mr-[10rem]"
+                    >
+                        <QuickActions />
                     </motion.div>
                 </div>
+
+                {/* Quick Actions for mobile - below the content */}
+                <motion.div
+                    variants={quickActionsVariants}
+                    className="lg:hidden mt-8"
+                >
+                    <QuickActions />
+                </motion.div>
 
                 {/* Subtle floating particles - reduced for better dashboard integration */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
