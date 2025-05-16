@@ -86,7 +86,7 @@ Route::middleware('auth')->prefix('plans')->name('plans.')->group(function () {
 // ADD THE AI-FIRST PLAN CREATION ROUTE
 Route::get('/create-with-ai', function () {
     $user = auth()->user();
-    return Inertia::render('Plans/AIFirst', [
+    return Inertia::render('Plans/AiPlanner', [
         'projects' => $user->projects
     ]);
 })->middleware('auth')->name('create-with-ai');

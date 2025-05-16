@@ -17,13 +17,6 @@ export default function ProjectSelection({
 
     return (
         <div className="p-5">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-                {t(
-                    "select_project_label",
-                    "Select a project for this business plan:"
-                )}
-            </label>
-
             {/* Using flex layout for consistent card sizing */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* First row: 2 project cards */}

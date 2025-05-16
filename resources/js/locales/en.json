@@ -158,7 +158,7 @@
     "ai_plan_intro_description": "I'll ask you 5 smart questions about your business plan and create a comprehensive analysis based on your answers.",
     "select_project_label": "Select a project for this business plan:",
     "create_new_project_label": "Create New Project",
-    "create_new_project_description": "Start a fresh project for your business plan",
+    "create_new_project_description": "Start a fresh project for your plan",
     "start_ai_conversation": "Start AI Conversation",
     "starting_ai_conversation": "Starting AI Conversation...",
     "question_progress": "Question {{current}} of {{total}}",

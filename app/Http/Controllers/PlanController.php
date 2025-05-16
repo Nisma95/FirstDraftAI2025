@@ -103,7 +103,7 @@ class PlanController extends Controller
 
         Log::info('Passing data to React', $responseData);
 
-        return Inertia::render('Plans/AIFirst', $responseData);
+        return Inertia::render('Plans/AiPlanner', $responseData);
     }
 
     /**
