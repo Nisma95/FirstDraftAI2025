@@ -7,12 +7,13 @@ export default function CreateOptions() {
     const { t } = useTranslation();
 
     return (
-        <div className="font-arabic flex flex-col sm:flex-row gap-6 justify-center w-full">
+        <div className="font-arabic flex flex-col sm:flex-row gap-8 justify-center w-full">
             {/* New Project Card */}
             <motion.div
                 className={`p-10 rounded-lg cursor-pointer w-full text-center transition-all duration-300 
-        bg-gray-100 dark:bg-dark-card dark:text-gray-200
-        hover:bg-Fdbg-hover hover:text-white`}
+        bg-white/40 dark:bg-gray-900/20 dark:text-gray-200
+        hover:bg-Fdbg-hover hover:text-white
+        shadow-xl shadow-blue-500/5 dark:shadow-purple-500/10`}
                 whileTap={{ scale: 0.95 }}
             >
                 <Link
@@ -36,8 +37,9 @@ export default function CreateOptions() {
             {/* Create Plan Card */}
             <motion.div
                 className={`p-10 rounded-lg cursor-pointer w-full text-center transition-all duration-300 
-        bg-gray-100 dark:bg-dark-card dark:text-gray-200
-        hover:bg-Fdbg-hover hover:text-white`}
+        bg-white/40 dark:bg-gray-900/20 dark:text-gray-200
+        hover:bg-Fdbg-hover hover:text-white
+        shadow-xl shadow-blue-500/5 dark:shadow-purple-500/10`}
                 whileTap={{ scale: 0.95 }}
             >
                 <Link
