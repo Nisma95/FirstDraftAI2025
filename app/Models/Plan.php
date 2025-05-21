@@ -4,244 +4,218 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-
-use App\Services\AIService;
+use Illuminate\Support\Facades\Storage;
 
 class Plan extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'plans';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'project_id',
         'title',
         'summary',
         'ai_analysis',
+        'ai_analysis_path',
         'pdf_path',
         'status',
         'progress_percentage',
-        'questioning_status',
-        'ai_conversation_context',
+        'conversation_file_path',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
     protected $casts = [
-        'ai_analysis' => 'array',
-        'ai_conversation_context' => 'array',
+        'project_id' => 'integer',
+        'progress_percentage' => 'integer',
+        'ai_analysis' => 'array', // Cast JSON to array
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
-    // Existing relationships (keeping them for backwards compatibility)
-    public function project(): BelongsTo
+    /**
+     * Status constants
+     */
+    const STATUS_DRAFT = 'draft';
+    const STATUS_GENERATING = 'generating';
+    const STATUS_PARTIALLY_COMPLETED = 'partially_completed';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_PREMIUM = 'premium';
+    const STATUS_FAILED = 'failed';
+
+    /**
+     * Scope a query to only include draft plans.
+     */
+    public function scopeDraft($query)
+    {
+        return $query->where('status', self::STATUS_DRAFT);
+    }
+
+    /**
+     * Scope a query to only include generating plans.
+     */
+    public function scopeGenerating($query)
+    {
+        return $query->where('status', self::STATUS_GENERATING);
+    }
+
+    /**
+     * Scope a query to only include completed plans.
+     */
+    public function scopeCompleted($query)
+    {
+        return $query->where('status', self::STATUS_COMPLETED);
+    }
+
+    /**
+     * Scope a query to only include premium plans.
+     */
+    public function scopePremium($query)
+    {
+        return $query->where('status', self::STATUS_PREMIUM);
+    }
+
+    /**
+     * Get the project that owns the plan.
+     */
+    public function project()
     {
         return $this->belongsTo(Project::class);
     }
 
-    // New dynamic questioning relationships
-    public function questions(): HasMany
+    /**
+     * Get the plan's AI suggestions.
+     */
+    public function aiSuggestions()
     {
-        return $this->hasMany(PlanQuestion::class);
-    }
-
-    public function answers(): HasManyThrough
-    {
-        return $this->hasManyThrough(PlanAnswer::class, PlanQuestion::class);
+        return $this->hasMany(AISuggestion::class);
     }
 
     /**
-     * Get pending questions for this plan.
+     * Check if the plan has complete data.
      */
-    public function pendingQuestions(): HasMany
+    public function hasCompleteData(): bool
     {
-        return $this->questions()->where('status', 'pending')->orderBy('order');
+        return !empty($this->ai_analysis) &&
+            is_array($this->ai_analysis) &&
+            count($this->ai_analysis) >= 6; // Expect 6 sections
     }
 
     /**
-     * Get answered questions for this plan.
+     * Get executive summary section.
      */
-    public function answeredQuestions(): HasMany
+    public function getExecutiveSummaryAttribute(): ?string
     {
-        return $this->questions()->where('status', 'answered')->orderBy('order');
+        return $this->ai_analysis['executive_summary'] ?? null;
     }
 
     /**
-     * Get required questions for this plan.
+     * Get market analysis section.
      */
-    public function requiredQuestions(): HasMany
+    public function getMarketAnalysisAttribute(): ?string
     {
-        return $this->questions()->where('is_required', true);
+        return $this->ai_analysis['market_analysis'] ?? null;
     }
 
     /**
-     * Get the next pending question.
+     * Get SWOT analysis section.
      */
-    public function getNextQuestion(): ?PlanQuestion
+    public function getSwotAnalysisAttribute(): ?string
     {
-        return $this->pendingQuestions()->first();
+        return $this->ai_analysis['swot_analysis'] ?? null;
     }
 
     /**
-     * Check if all required questions are answered.
+     * Get marketing strategy section.
      */
-    public function hasAnsweredAllRequiredQuestions(): bool
+    public function getMarketingStrategyAttribute(): ?string
     {
-        $requiredCount = $this->requiredQuestions()->count();
-        $answeredRequiredCount = $this->requiredQuestions()
-            ->where('status', 'answered')
-            ->count();
-
-        return $requiredCount === $answeredRequiredCount;
+        return $this->ai_analysis['marketing_strategy'] ?? null;
     }
 
     /**
-     * Get questioning progress percentage.
+     * Get financial plan section.
      */
-    public function getQuestioningProgress(): int
+    public function getFinancialPlanAttribute(): ?string
     {
-        $totalQuestions = $this->questions()->count();
-        $answeredQuestions = $this->answeredQuestions()->count();
-
-        if ($totalQuestions === 0) return 0;
-
-        return round(($answeredQuestions / $totalQuestions) * 100);
+        return $this->ai_analysis['financial_plan'] ?? null;
     }
 
     /**
-     * Check if plan is ready for AI generation.
+     * Get operational plan section.
      */
-    public function isReadyForGeneration(): bool
+    public function getOperationalPlanAttribute(): ?string
     {
-        // Check if minimum required questions are answered
-        $requiredTypes = ['business_model', 'target_market', 'competitive_advantage'];
-        $answeredTypes = $this->answeredQuestions()
-            ->pluck('question_type')
-            ->toArray();
-
-        foreach ($requiredTypes as $type) {
-            if (!in_array($type, $answeredTypes)) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->ai_analysis['operational_plan'] ?? null;
     }
 
     /**
-     * Get AI conversation context.
+     * Update PDF path.
      */
-    public function getAIContext(): array
+    public function updatePdfPath(string $path): void
     {
-        return array_merge([
-            'plan' => [
-                'id' => $this->id,
-                'title' => $this->title,
-                'summary' => $this->summary,
-            ],
-            'project' => $this->project->toArray(),
-            'answers' => $this->getAnswersSummary(),
-        ], $this->ai_conversation_context ?? []);
+        $this->update(['pdf_path' => $path]);
     }
 
     /**
-     * Update AI conversation context.
+     * Upgrade to completed status.
      */
-    public function updateAIContext(array $newContext): void
+    public function upgradeToCompleted(): void
     {
-        $currentContext = $this->ai_conversation_context ?? [];
         $this->update([
-            'ai_conversation_context' => array_merge($currentContext, $newContext)
+            'status' => self::STATUS_COMPLETED,
+            'progress_percentage' => 100
         ]);
     }
 
     /**
-     * Get summary of all answers for AI processing.
+     * Check if plan is in completed state.
      */
-    public function getAnswersSummary(): array
+    public function isCompleted(): bool
     {
-        return $this->answeredQuestions()
-            ->with('answer')
-            ->get()
-            ->map(function ($question) {
-                return [
-                    'type' => $question->question_type,
-                    'question' => $question->question_text,
-                    'answer' => $question->answer->answer_text,
-                    'structured_data' => $question->answer->answer_data,
-                    'keywords' => $question->answer->extractKeywords(),
-                ];
-            })
-            ->toArray();
+        return $this->status === self::STATUS_COMPLETED;
     }
 
     /**
-     * Get answers by question type.
+     * Check if plan is being generated.
      */
-    public function getAnswerByType(string $type): ?PlanAnswer
+    public function isGenerating(): bool
     {
-        return $this->questions()
-            ->where('question_type', $type)
-            ->with('answer')
-            ->first()
-            ?->answer;
+        return $this->status === self::STATUS_GENERATING;
     }
 
     /**
-     * Update questioning status.
+     * Check if plan generation failed.
      */
-    public function updateQuestioningStatus(string $status): void
+    public function hasFailed(): bool
     {
-        $this->update(['questioning_status' => $status]);
+        return $this->status === self::STATUS_FAILED;
     }
 
     /**
-     * Generate plan sections from answers.
-     */
-    public function generateFromAnswers(): array
-    {
-        $aiService = app(AIService::class);
-        return $aiService->generateDynamicPlan($this);
-    }
-
-    /**
-     * Check if plan has complete data.
-     */
-    public function hasCompleteData(): bool
-    {
-        // Check if all major sections are present
-        $requiredSections = ['executive_summary', 'market_analysis', 'swot_analysis'];
-        $aiAnalysis = $this->ai_analysis ?? [];
-
-        foreach ($requiredSections as $section) {
-            if (empty($aiAnalysis[$section])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Get completion score based on answered questions and generated content.
+     * Get completion score based on available sections.
      */
     public function getCompletionScore(): int
     {
-        $questioningProgress = $this->getQuestioningProgress();
-        $contentProgress = $this->getContentProgress();
+        if (empty($this->ai_analysis) || !is_array($this->ai_analysis)) {
+            return 0;
+        }
 
-        return round(($questioningProgress * 0.6) + ($contentProgress * 0.4));
-    }
-
-    /**
-     * Get content generation progress.
-     */
-    private function getContentProgress(): int
-    {
-        $possibleSections = 6; // Total sections in business plan
-        $generatedSections = 0;
-        $aiAnalysis = $this->ai_analysis ?? [];
-
-        $sections = [
+        $expectedSections = [
             'executive_summary',
             'market_analysis',
             'swot_analysis',
@@ -250,106 +224,107 @@ class Plan extends Model
             'operational_plan'
         ];
 
-        foreach ($sections as $section) {
-            if (!empty($aiAnalysis[$section])) {
-                $generatedSections++;
+        $completedSections = 0;
+        foreach ($expectedSections as $section) {
+            if (!empty($this->ai_analysis[$section])) {
+                $completedSections++;
             }
         }
 
-        return round(($generatedSections / $possibleSections) * 100);
+        return round(($completedSections / count($expectedSections)) * 100);
     }
 
     /**
-     * Start AI questioning process.
+     * Get all section titles and content.
      */
-    public function startAIQuestioning(): array
+    public function getAllSections(): array
     {
-        $aiService = app(AIService::class);
-        return $aiService->startDynamicQuestioning($this, [
-            'project_industry' => $this->project->industry ?? null,
-            'project_summary' => $this->summary,
-        ]);
-    }
+        $locale = app()->getLocale();
 
-    /**
-     * Process next AI question.
-     */
-    public function processNextQuestion(PlanQuestion $question, array $answerData): array
-    {
-        $aiService = app(AIService::class);
-        return $aiService->processAnswer($question, $answerData);
-    }
-
-    /**
-     * Upgrade plan status when complete.
-     */
-    public function upgradeToCompleted(): void
-    {
-        if ($this->getCompletionScore() >= 80) {
-            $this->update(['status' => 'completed']);
+        if ($locale === 'ar') {
+            $sectionTitles = [
+                'executive_summary' => 'الملخص التنفيذي',
+                'market_analysis' => 'تحليل السوق',
+                'swot_analysis' => 'تحليل SWOT',
+                'marketing_strategy' => 'الاستراتيجية التسويقية',
+                'financial_plan' => 'الخطة المالية',
+                'operational_plan' => 'الخطة التشغيلية'
+            ];
+        } else {
+            $sectionTitles = [
+                'executive_summary' => 'Executive Summary',
+                'market_analysis' => 'Market Analysis',
+                'swot_analysis' => 'SWOT Analysis',
+                'marketing_strategy' => 'Marketing Strategy',
+                'financial_plan' => 'Financial Plan',
+                'operational_plan' => 'Operational Plan'
+            ];
         }
+
+        $sections = [];
+        foreach ($sectionTitles as $key => $title) {
+            $sections[$key] = [
+                'title' => $title,
+                'content' => $this->ai_analysis[$key] ?? '',
+                'completed' => !empty($this->ai_analysis[$key])
+            ];
+        }
+
+        return $sections;
     }
 
     /**
-     * Update PDF path for the plan.
+     * Check if plan can be downloaded as PDF.
      */
-    public function updatePdfPath(string $path): void
+    public function canDownloadPdf(): bool
     {
-        $this->update(['pdf_path' => $path]);
+        return $this->isCompleted() && $this->hasCompleteData();
     }
 
     /**
-     * Update progress percentage.
+     * Get formatted status for display.
      */
-    public function updateProgress(): void
+    public function getFormattedStatusAttribute(): string
     {
-        $progress = $this->getCompletionScore();
-        $this->update(['progress_percentage' => $progress]);
+        $locale = app()->getLocale();
+
+        if ($locale === 'ar') {
+            $statusMap = [
+                self::STATUS_DRAFT => 'مسودة',
+                self::STATUS_GENERATING => 'جاري الإنشاء',
+                self::STATUS_PARTIALLY_COMPLETED => 'مكتمل جزئياً',
+                self::STATUS_COMPLETED => 'مكتمل',
+                self::STATUS_PREMIUM => 'مميز',
+                self::STATUS_FAILED => 'فشل'
+            ];
+        } else {
+            $statusMap = [
+                self::STATUS_DRAFT => 'Draft',
+                self::STATUS_GENERATING => 'Generating',
+                self::STATUS_PARTIALLY_COMPLETED => 'Partially Completed',
+                self::STATUS_COMPLETED => 'Completed',
+                self::STATUS_PREMIUM => 'Premium',
+                self::STATUS_FAILED => 'Failed'
+            ];
+        }
+
+        return $statusMap[$this->status] ?? $this->status;
     }
 
     /**
-     * Scopes
+     * Get status color for UI.
      */
-    public function scopeWithQuestioningData($query)
+    public function getStatusColorAttribute(): string
     {
-        return $query->with(['questions.answer', 'project']);
-    }
+        $colorMap = [
+            self::STATUS_DRAFT => 'gray',
+            self::STATUS_GENERATING => 'blue',
+            self::STATUS_PARTIALLY_COMPLETED => 'yellow',
+            self::STATUS_COMPLETED => 'green',
+            self::STATUS_PREMIUM => 'purple',
+            self::STATUS_FAILED => 'red'
+        ];
 
-    public function scopeReadyForGeneration($query)
-    {
-        return $query->whereHas('questions', function ($q) {
-            $q->where('question_type', 'business_model')
-                ->where('status', 'answered');
-        })
-            ->whereHas('questions', function ($q) {
-                $q->where('question_type', 'target_market')
-                    ->where('status', 'answered');
-            });
-    }
-
-    // Legacy methods for backwards compatibility with existing code
-    public function finance(): HasOne
-    {
-        return $this->hasOne(Finance::class);
-    }
-
-    public function market(): HasOne
-    {
-        return $this->hasOne(Market::class);
-    }
-
-    public function audiences(): HasMany
-    {
-        return $this->hasMany(Audience::class);
-    }
-
-    public function goals(): HasMany
-    {
-        return $this->hasMany(Goal::class);
-    }
-
-    public function aiSuggestions(): HasMany
-    {
-        return $this->hasMany(AISuggestion::class);
+        return $colorMap[$this->status] ?? 'gray';
     }
 }

@@ -1,4 +1,4 @@
-// Components/Create.jsx (Refactored)
+// Components/Create.jsx (Updated with AI Field Generation)
 import React from "react";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
@@ -21,6 +21,7 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
     const isRTL = i18n.dir() === "rtl";
 
     const {
+        // Existing state
         step,
         projectStatus,
         currentField,
@@ -34,6 +35,17 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
         getCurrentFieldIndex,
         getProgressPercentage,
         isLastField,
+
+        // NEW: AI Field Generation state
+        isGeneratingField,
+        generatingFieldName,
+        fieldErrors,
+
+        // Computed values
+        shouldShowAiButton,
+        isAiButtonDisabled,
+
+        // Navigation handlers
         handleStatusSelect,
         handleIndustrySelect,
         handleBusinessTypeSelect,
@@ -45,7 +57,10 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
         handleNextStep,
         setCurrentField,
         setData,
+
+        // AI functions
         enhanceAiDescription,
+        generateFieldSuggestion, // NEW: Field generation function
     } = useProjectCreation({ industries, businessTypes });
 
     // Debug: Log current step
@@ -118,12 +133,19 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
                                 onNextStep={handleNextStep}
                                 onPrevious={handlePrevious}
                                 isRTL={isRTL}
-                                // AI Enhancement props
+                                // AI Enhancement props (existing)
                                 onEnhanceDescription={enhanceAiDescription}
                                 isEnhancingDescription={isEnhancingDescription}
                                 hasMinimumWords={hasMinimumWords}
                                 hasRequiredDataForAI={hasRequiredDataForAI}
                                 setData={setData}
+                                // NEW: AI Field Generation props
+                                shouldShowAiButton={shouldShowAiButton}
+                                isAiButtonDisabled={isAiButtonDisabled}
+                                onGenerateField={generateFieldSuggestion}
+                                isGeneratingField={isGeneratingField}
+                                generatingFieldName={generatingFieldName}
+                                fieldErrors={fieldErrors}
                             />
                         )}
 

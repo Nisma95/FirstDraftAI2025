@@ -34,7 +34,7 @@ export default function GeneratingStep() {
             <p className="text-lg text-gray-600 dark:text-gray-400">
                 {t(
                     "analyzing_answers",
-                    "Analyzing your answers and generating a comprehensive business plan based on your selected project."
+                    "Analyzing your answers and creating your business plan..."
                 )}
             </p>
         </motion.div>

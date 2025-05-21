@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Head, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import TopTools from "@/Components/TopTools";
@@ -6,7 +6,23 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 
-// Import all components from AiPlanMaker folder
+// Define the ExclamationTriangleIcon as a custom component
+const ExclamationTriangleIcon = ({ className }) => (
+    <svg
+        className={className}
+        fill="none"
+        viewBox="0 0 24 24"
+        strokeWidth={1.5}
+        stroke="currentColor"
+    >
+        <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+        />
+    </svg>
+);
+
 import ProjectSelection from "./AiPlanMaker/ProjectSelection";
 import IntroStep from "./AiPlanMaker/IntroStep";
 import QuestionsStep from "./AiPlanMaker/QuestionsStep";
@@ -14,7 +30,7 @@ import GeneratingStep from "./AiPlanMaker/GeneratingStep";
 import ErrorMessage from "./AiPlanMaker/ErrorMessage";
 import useAIBusinessPlan from "./AiPlanMaker/useAIBusinessPlan";
 
-export default function AiPlanner({ auth, projects }) {
+export default function AiPlanner({ auth, projects, project_id = null }) {
     const { t } = useTranslation();
     const [step, setStep] = useState("intro");
     const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -35,8 +51,20 @@ export default function AiPlanner({ auth, projects }) {
         checkGenerationStatus,
     } = useAIBusinessPlan();
 
-    // Handle project selection - automatically start conversation
+    useEffect(() => {
+        if (project_id && projects && projects.length > 0) {
+            const preSelectedProject = projects.find(
+                (p) => p.id === parseInt(project_id)
+            );
+            if (preSelectedProject) {
+                console.log("Auto-selecting project:", preSelectedProject);
+                handleSelectProject(preSelectedProject);
+            }
+        }
+    }, [project_id, projects]);
+
     const handleSelectProject = async (project) => {
+        console.log("🚀 Selecting project:", project);
         setSelectedProject(project);
         setIsLoading(true);
         setError(null);
@@ -46,44 +74,61 @@ export default function AiPlanner({ auth, projects }) {
             const result = await startAIConversation(project);
             console.log("✅ AI conversation result:", result);
 
-            if (result.success) {
+            if (result && result.success && result.question) {
                 setCurrentQuestion(result.question);
                 setQuestionCount(1);
                 setStep("questions");
+                console.log("✅ Successfully moved to questions step");
             } else {
-                throw new Error(
-                    result.message ||
-                        t(
-                            "ai_conversation_failed",
-                            "Failed to start AI conversation"
-                        )
-                );
+                const errorMessage =
+                    result?.message ||
+                    t(
+                        "ai_conversation_failed",
+                        "Failed to start AI conversation"
+                    );
+                throw new Error(errorMessage);
             }
         } catch (error) {
             console.error("❌ Error starting AI conversation:", error);
-            setError(
-                t(
-                    "error_starting_conversation",
-                    "Error starting conversation"
-                ) + `: ${error.message}`
-            );
-            setSelectedProject(null); // Reset selection on error
+            // More specific error handling
+            let errorText;
+            if (error.message.includes("404")) {
+                errorText = t(
+                    "api_endpoint_not_found",
+                    "API endpoint not found. Please check your backend configuration."
+                );
+            } else if (error.message.includes("fetch")) {
+                errorText = t(
+                    "network_error",
+                    "Network error. Please check your internet connection."
+                );
+            } else {
+                errorText =
+                    t(
+                        "error_starting_conversation",
+                        "Error starting conversation"
+                    ) + `: ${error.message}`;
+            }
+            setError(errorText);
+            setSelectedProject(null);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Handle submitting answer
     const handleSubmitAnswer = async () => {
-        if (!data.answer.trim()) return;
+        if (!data.answer.trim()) {
+            setError(t("answer_required", "Please provide an answer"));
+            return;
+        }
 
         setIsLoading(true);
         setError(null);
 
         try {
             console.log("📝 Submitting answer:", data.answer);
+            console.log("📊 Current question count:", questionCount);
 
-            // Check if we reached 5 questions
             if (questionCount >= 5) {
                 console.log("🏁 Reached 5 questions, generating plan...");
                 await handleGeneratePlan();
@@ -98,45 +143,50 @@ export default function AiPlanner({ auth, projects }) {
             );
 
             console.log("✅ Answer submitted, result:", result);
-            setAnswers([...answers, newAnswer]);
+            const updatedAnswers = [...answers, newAnswer];
+            setAnswers(updatedAnswers);
 
             if (result.success) {
                 if (result.question && questionCount < 5) {
                     setCurrentQuestion(result.question);
                     setData("answer", "");
                     setQuestionCount((prev) => prev + 1);
+                    console.log(
+                        "➡️ Moving to next question:",
+                        result.question.question
+                    );
                 } else {
                     console.log("🏁 No more questions, generating plan...");
-                    await handleGeneratePlan();
+                    await handleGeneratePlan(updatedAnswers);
                 }
             } else {
-                throw new Error(
+                const errorMessage =
                     result.message ||
-                        t("error_next_question", "Error getting next question")
-                );
+                    t("error_next_question", "Error getting next question");
+                throw new Error(errorMessage);
             }
         } catch (error) {
             console.error("❌ Error submitting answer:", error);
-            setError(
+            const errorText =
                 t("error_submitting_answer", "Error submitting answer") +
-                    `: ${error.message}`
-            );
+                `: ${error.message}`;
+            setError(errorText);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Handle generating the plan
-    const handleGeneratePlan = async () => {
+    const handleGeneratePlan = async (answersToUse = null) => {
         console.log("🔨 Starting plan generation...");
         setStep("generating");
         setError(null);
 
         try {
-            console.log("📊 Generating plan with answers:", answers);
+            const finalAnswers = answersToUse || answers;
+            console.log("📊 Generating plan with answers:", finalAnswers);
             console.log("📊 Selected project:", selectedProject);
 
-            const result = await generatePlan(answers, selectedProject);
+            const result = await generatePlan(finalAnswers, selectedProject);
             console.log("✅ Plan generation result:", result);
 
             if (result.success) {
@@ -149,41 +199,46 @@ export default function AiPlanner({ auth, projects }) {
                             console.log(
                                 "📍 Successfully navigated to plan page"
                             );
-                            alert(
-                                t(
-                                    "plan_generation_started",
-                                    "Business plan generation has started. The page will update when complete."
-                                )
-                            );
                             checkGenerationStatus(result.plan.id);
                         },
                         onError: (errors) => {
                             console.error("❌ Navigation error:", errors);
+                            setError("Failed to navigate to plan page");
                         },
                     });
-                }, 2000);
+                }, 3000);
             } else {
-                throw new Error(
+                const errorMessage =
                     result.message ||
-                        t(
-                            "error_generating_plan",
-                            "Error generating business plan"
-                        )
-                );
+                    t(
+                        "error_generating_plan",
+                        "Error generating business plan"
+                    );
+                throw new Error(errorMessage);
             }
         } catch (error) {
             console.error("❌ Error generating plan:", error);
             setStep("error");
-            setError(
+            const errorText =
                 t("plan_generation_failed", "Plan generation failed") +
-                    `: ${error.message}`
-            );
+                `: ${error.message}`;
+            setError(errorText);
         }
+    };
+
+    const handleReset = () => {
+        setStep("intro");
+        setError(null);
+        setSelectedProject(null);
+        setAnswers([]);
+        setQuestionCount(0);
+        setCurrentQuestion(null);
+        setData("answer", "");
+        setResults(null);
     };
 
     return (
         <AuthenticatedLayout user={auth.user}>
-            {/* Top Right Tools - Mode and Language Switchers */}
             <div className="mb-10">
                 <TopTools />
             </div>
@@ -195,7 +250,6 @@ export default function AiPlanner({ auth, projects }) {
                 )}
             />
 
-            {/* Animated Error Message */}
             <AnimatePresence>
                 {error && (
                     <motion.div
@@ -205,22 +259,43 @@ export default function AiPlanner({ auth, projects }) {
                         exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ duration: 0.3 }}
                     >
-                        <div className="backdrop-blur-md bg-red-500/20 border border-red-500/30 rounded-2xl p-6 text-red-100 mb-6">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                    <svg
-                                        className="w-4 h-4 text-white"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
+                        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 mb-6">
+                            <div className="flex items-start space-x-3">
+                                <div className="flex-shrink-0">
+                                    <ExclamationTriangleIcon className="w-6 h-6 text-red-400" />
                                 </div>
-                                <span className="font-medium">{error}</span>
+                                <div className="flex-1">
+                                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                                        {t(
+                                            "error_occurred",
+                                            "An error occurred"
+                                        )}
+                                    </h3>
+                                    <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                                        {error}
+                                    </p>
+                                </div>
+                                <div className="flex-shrink-0">
+                                    <button
+                                        onClick={() => setError(null)}
+                                        className="inline-flex text-red-400 hover:text-red-600 dark:hover:text-red-200"
+                                    >
+                                        <span className="sr-only">
+                                            {t("dismiss", "Dismiss")}
+                                        </span>
+                                        <svg
+                                            className="w-5 h-5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -230,25 +305,18 @@ export default function AiPlanner({ auth, projects }) {
             <div className="py-12">
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <AnimatePresence mode="wait">
-                        {/* Introduction Step */}
                         {step === "intro" && (
                             <motion.div
                                 key="intro"
-                                initial={{ opacity: 0, x: -100 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 100 }}
-                                transition={{
-                                    duration: 0.5,
-                                    ease: "easeInOut",
-                                }}
-                                className="backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="text-center space-y-8"
                             >
-                                <div className="flex items-center justify-center space-x-8 mb-8">
+                                <div className="space-y-6">
                                     <motion.div
-                                        className="w-24 h-24 rounded-full flex items-center justify-center"
-                                        style={{
-                                            background: `linear-gradient(to right, #5956e9, #6077a1)`,
-                                        }}
+                                        className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         transition={{
@@ -261,83 +329,84 @@ export default function AiPlanner({ auth, projects }) {
                                     </motion.div>
 
                                     <motion.h1
-                                        className="text-5xl font-bold bg-clip-text text-transparent"
-                                        style={{
-                                            backgroundImage: `linear-gradient(to right, #5956e9, #6077a1, #5956e9)`,
-                                        }}
-                                        initial={{ scale: 0.9 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{
-                                            delay: 0.2,
-                                            duration: 0.3,
-                                        }}
+                                        className="text-4xl font-bold text-gray-900 dark:text-white"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.2 }}
                                     >
-                                        AI Business Planner
+                                        {t(
+                                            "ai_plan_intro_title",
+                                            "Let's Create Your Business Plan Together! 🚀"
+                                        )}
                                     </motion.h1>
+
+                                    <motion.p
+                                        className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        {t(
+                                            "ai_plan_intro_description",
+                                            "I'll ask you 5 smart questions about your business plan and create a comprehensive analysis based on your answers."
+                                        )}{" "}
+                                        {t(
+                                            "select_project_to_begin",
+                                            "Simply select a project to begin!"
+                                        )}
+                                    </motion.p>
                                 </div>
 
-                                {/* Modified IntroStep without icon and title */}
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -20 }}
-                                    className="text-center space-y-8"
-                                >
-                                    <p className="text-lg text-gray-600 dark:text-white/70 max-w-2xl mx-auto">
-                                        I'll ask you 5 smart questions about
-                                        your business plan and create a
-                                        comprehensive analysis based on your
-                                        answers. Simply select a project to
-                                        begin!
-                                    </p>
+                                {isLoading && (
+                                    <motion.div
+                                        className="flex items-center justify-center gap-2 text-purple-600"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                    >
+                                        <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                                        <span>
+                                            {t(
+                                                "starting_ai_conversation",
+                                                "Starting AI Conversation..."
+                                            )}
+                                        </span>
+                                    </motion.div>
+                                )}
 
-                                    {/* Loading state when a project is being processed */}
-                                    {isLoading && (
-                                        <div
-                                            className="flex items-center justify-center gap-2"
-                                            style={{ color: "#5956e9" }}
-                                        >
-                                            <div
-                                                className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin"
-                                                style={{
-                                                    borderColor: "#5956e9",
-                                                }}
-                                            />
-                                            <span>
-                                                Starting AI Conversation...
-                                            </span>
-                                        </div>
-                                    )}
-
-                                    {/* Project Selection */}
-                                    <ProjectSelection
-                                        projects={projects}
-                                        selectedProject={selectedProject}
-                                        onSelectProject={handleSelectProject}
-                                        onCreateNewProject={
-                                            handleCreateNewProject
-                                        }
-                                    />
-                                </motion.div>
+                                {!isLoading && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: 0.4 }}
+                                    >
+                                        <ProjectSelection
+                                            projects={projects}
+                                            selectedProject={selectedProject}
+                                            onSelectProject={
+                                                handleSelectProject
+                                            }
+                                            onCreateNewProject={
+                                                handleCreateNewProject
+                                            }
+                                        />
+                                    </motion.div>
+                                )}
                             </motion.div>
                         )}
 
-                        {/* Questions Step */}
                         {step === "questions" && currentQuestion && (
                             <motion.div
                                 key="questions"
-                                initial={{ opacity: 0, rotateY: -90 }}
-                                animate={{ opacity: 1, rotateY: 0 }}
-                                exit={{ opacity: 0, rotateY: 90 }}
-                                transition={{
-                                    duration: 0.6,
-                                    ease: "easeInOut",
-                                }}
-                                className="backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl"
+                                initial={{ opacity: 0, x: 100 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -100 }}
+                                transition={{ duration: 0.5 }}
+                                className="space-y-6"
                             >
                                 <QuestionsStep
                                     currentQuestion={currentQuestion}
                                     questionCount={questionCount}
+                                    totalQuestions={5}
                                     answer={data.answer}
                                     onAnswerChange={(value) =>
                                         setData("answer", value)
@@ -345,58 +414,86 @@ export default function AiPlanner({ auth, projects }) {
                                     onSubmit={handleSubmitAnswer}
                                     isLoading={isLoading}
                                 />
+
+                                <div className="flex justify-between items-center pt-6">
+                                    <button
+                                        onClick={handleReset}
+                                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                    >
+                                        ← {t("start_over", "Start Over")}
+                                    </button>
+
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t(
+                                            "question_progress",
+                                            "Question {{current}} of {{total}}",
+                                            {
+                                                current: questionCount,
+                                                total: 5,
+                                            }
+                                        )}
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
 
-                        {/* Generating Step */}
                         {step === "generating" && (
                             <motion.div
                                 key="generating"
-                                initial={{ opacity: 0, scale: 0.8 }}
+                                initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
                                 transition={{ duration: 0.5 }}
-                                className="backdrop-blur-xl bg-white/10 rounded-3xl p-12 border border-white/20 shadow-2xl text-center"
+                                className="text-center space-y-8"
                             >
-                                <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                        ease: "linear",
-                                    }}
-                                    className="w-24 h-24 mx-auto mb-8"
-                                >
-                                    <div
-                                        className="w-full h-full border-4 border-t-transparent rounded-full"
-                                        style={{
-                                            borderColor: "#5956e9",
-                                            borderTopColor: "transparent",
-                                        }}
-                                    />
-                                </motion.div>
-
-                                <h2 className="text-3xl font-bold text-white mb-4">
-                                    Creating Your Business Plan
-                                </h2>
-
-                                <motion.p
-                                    className="text-white/70 text-lg"
-                                    animate={{ opacity: [1, 0.5, 1] }}
-                                    transition={{
-                                        duration: 2,
-                                        repeat: Infinity,
-                                    }}
-                                >
-                                    Our AI is analyzing your responses and
-                                    generating a comprehensive business plan...
-                                </motion.p>
-
                                 <GeneratingStep />
+
+                                <div className="space-y-4">
+                                    <p className="text-lg text-gray-600 dark:text-gray-400">
+                                        {t(
+                                            "analyzing_answers",
+                                            "Analyzing your answers and creating your business plan..."
+                                        )}
+                                    </p>
+
+                                    <div className="max-w-md mx-auto">
+                                        <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <motion.div
+                                                className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                                                initial={{ width: 0 }}
+                                                animate={{ width: "100%" }}
+                                                transition={{
+                                                    duration: 2,
+                                                    repeat: Infinity,
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {results && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
+                                        >
+                                            <p className="text-green-800 dark:text-green-200 font-medium">
+                                                {t(
+                                                    "plan_created_successfully",
+                                                    "Plan created successfully!"
+                                                )}
+                                            </p>
+                                            <p className="text-green-600 dark:text-green-300 text-sm mt-1">
+                                                {t(
+                                                    "redirecting_to_plan",
+                                                    "Redirecting to your plan..."
+                                                )}
+                                            </p>
+                                        </motion.div>
+                                    )}
+                                </div>
                             </motion.div>
                         )}
 
-                        {/* Error Step */}
                         {step === "error" && (
                             <motion.div
                                 key="error"
@@ -404,7 +501,7 @@ export default function AiPlanner({ auth, projects }) {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -50 }}
                                 transition={{ duration: 0.5 }}
-                                className="backdrop-blur-xl bg-red-500/10 rounded-3xl p-12 border border-red-500/20 shadow-2xl text-center"
+                                className="text-center space-y-8"
                             >
                                 <motion.div
                                     initial={{ scale: 0 }}
@@ -414,45 +511,30 @@ export default function AiPlanner({ auth, projects }) {
                                         type: "spring",
                                         stiffness: 200,
                                     }}
-                                    className="w-24 h-24 mx-auto mb-8 bg-red-500/20 rounded-full flex items-center justify-center"
+                                    className="w-24 h-24 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center"
                                 >
-                                    <svg
-                                        className="w-12 h-12 text-red-400"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                    >
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
+                                    <ExclamationTriangleIcon className="w-12 h-12 text-red-500" />
                                 </motion.div>
 
-                                <h2 className="text-3xl font-bold text-red-300 mb-4">
-                                    {t(
-                                        "business_plan_generation_error",
-                                        "An error occurred during business plan generation"
-                                    )}
-                                </h2>
+                                <div className="space-y-4">
+                                    <h2 className="text-3xl font-bold text-red-600 dark:text-red-400">
+                                        {t(
+                                            "business_plan_generation_error",
+                                            "An error occurred during business plan generation"
+                                        )}
+                                    </h2>
 
-                                <p className="text-red-200/70 mb-8">
-                                    Don't worry, let's try again with a fresh
-                                    start.
-                                </p>
+                                    <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                                        {t(
+                                            "error_try_again",
+                                            "Don't worry, let's try again with a fresh start."
+                                        )}
+                                    </p>
+                                </div>
 
                                 <motion.button
-                                    onClick={() => {
-                                        setStep("intro");
-                                        setError(null);
-                                        setSelectedProject(null);
-                                        setAnswers([]);
-                                        setQuestionCount(0);
-                                    }}
-                                    className="text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                                    style={{
-                                        background: `linear-gradient(to right, #5956e9, #6077a1)`,
-                                    }}
+                                    onClick={handleReset}
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-200"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >

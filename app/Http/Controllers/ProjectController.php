@@ -61,9 +61,8 @@ class ProjectController extends Controller
             'status' => 'required|in:new_project,existed_project',
             'industry_id' => 'required|integer|exists:industries,id',
             'business_type_id' => 'required|integer|exists:business_types,id',
-            'target_market' => 'required|string',
-            'location' => 'required|string',
-            // إضافة الحقول الجديدة
+            'target_market' => 'required|string|max:500',
+            'location' => 'required|string|max:255',
             'main_product_service' => 'nullable|string',
             'team_size' => 'nullable|integer|min:1',
             'project_scale' => 'nullable|in:small,medium,large',
@@ -78,17 +77,11 @@ class ProjectController extends Controller
             return redirect()->route('login');
         }
 
-        // Debug: Log the validated data
-        Log::info('Project creation data:', $validated);
-
         // Ensure IDs are integers
         $validated['industry_id'] = (int) $validated['industry_id'];
         $validated['business_type_id'] = (int) $validated['business_type_id'];
 
         $project = $user->projects()->create($validated);
-
-        // Debug: Log the created project
-        Log::info('Created project:', $project->toArray());
 
         return redirect()->route('projects.index')
             ->with('success', 'تم إنشاء المشروع بنجاح');
@@ -144,7 +137,6 @@ class ProjectController extends Controller
             'business_type_id' => 'required|exists:business_types,id',
             'target_market' => 'required|string',
             'location' => 'required|string',
-            // إضافة الحقول الجديدة
             'main_product_service' => 'nullable|string',
             'team_size' => 'nullable|integer|min:1',
             'project_scale' => 'nullable|in:small,medium,large',
@@ -165,68 +157,93 @@ class ProjectController extends Controller
     }
 
     /**
-     * Generate AI description for project
+     * Generate AI field suggestion for new content
      */
-    public function generateDescription(Request $request)
+    public function generateFieldSuggestion(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|in:new_project,existed_project',
-            'industry_id' => 'required|exists:industries,id',
-            'business_type_id' => 'required|exists:business_types,id',
+            'field' => 'required|string|in:target_market,location,main_product_service,revenue_model,main_differentiator,description',
+            'project_data' => 'required|array',
+            'project_data.name' => 'required|string|max:255',
+            'project_data.description' => 'nullable|string',
+            'project_data.industry_id' => 'required|exists:industries,id',
+            'project_data.business_type_id' => 'required|exists:business_types,id',
             'language' => 'nullable|string|max:5',
         ]);
 
         $language = $validated['language'] ?? 'en';
+        $fieldName = $validated['field'];
+        $projectData = $validated['project_data'];
+
+        // Convert to the format expected by AiProjectHelper
+        $formattedData = [
+            'name' => $projectData['name'],
+            'description' => $projectData['description'] ?? '',
+            'industry_id' => $projectData['industry_id'],
+            'business_type_id' => $projectData['business_type_id'],
+        ];
 
         try {
             $aiHelper = new AiProjectHelper();
-            $description = $aiHelper->generateProjectDescription($validated, $language);
+            $suggestion = $aiHelper->generateFieldSuggestion($formattedData, $fieldName, $language);
 
             return response()->json([
                 'success' => true,
-                'description' => $description
+                'content' => $suggestion,
+                'field' => $fieldName
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to generate field suggestion: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate description'
+                'message' => 'Failed to generate AI suggestion: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Enhance an existing AI description for project
+     * Enhance existing field content using AI
      */
-    public function enhanceDescription(Request $request)
+    public function enhanceFieldContent(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'status' => 'required|in:new_project,existed_project',
-            'industry_id' => 'required|exists:industries,id',
-            'business_type_id' => 'required|exists:business_types,id',
-            'current_description' => 'required|string',
+            'field' => 'required|string|in:target_market,location,main_product_service,revenue_model,main_differentiator,description',
+            'current_content' => 'required|string',
+            'project_data' => 'required|array',
+            'project_data.name' => 'required|string|max:255',
+            'project_data.description' => 'nullable|string',
+            'project_data.industry_id' => 'required|exists:industries,id',
+            'project_data.business_type_id' => 'required|exists:business_types,id',
             'language' => 'nullable|string|max:5',
         ]);
 
         $language = $validated['language'] ?? 'en';
+        $fieldName = $validated['field'];
+        $currentContent = $validated['current_content'];
+        $projectData = $validated['project_data'];
+
+        // Convert to the format expected by AiProjectHelper
+        $formattedData = [
+            'name' => $projectData['name'],
+            'description' => $projectData['description'] ?? '',
+            'industry_id' => $projectData['industry_id'],
+            'business_type_id' => $projectData['business_type_id'],
+        ];
 
         try {
             $aiHelper = new AiProjectHelper();
-            $enhancedDescription = $aiHelper->enhanceProjectDescription(
-                $validated,
-                $validated['current_description'],
-                $language
-            );
+            $enhancedContent = $aiHelper->enhanceFieldContent($formattedData, $fieldName, $currentContent, $language);
 
             return response()->json([
                 'success' => true,
-                'description' => $enhancedDescription
+                'content' => $enhancedContent,
+                'field' => $fieldName
             ]);
         } catch (\Exception $e) {
+            Log::error('Failed to enhance field content: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to enhance description'
+                'message' => 'Failed to enhance content: ' . $e->getMessage()
             ], 500);
         }
     }

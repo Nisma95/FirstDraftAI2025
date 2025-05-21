@@ -15,7 +15,7 @@ export default function NextButton({ onNext, canProceed, isLastField, isRTL }) {
                     isRTL ? "flex-row-reverse" : ""
                 } justify-between rounded-lg py-4 px-5 text-lg font-bold transition-all duration-300 relative overflow-hidden ${
                     canProceed
-                        ? "Fdbg text-white"
+                        ? "bg-blue-600 text-white"
                         : "bg-gray-200 text-gray-800 dark:bg-white dark:text-black"
                 }`}
                 whileTap={{ scale: 0.95 }}

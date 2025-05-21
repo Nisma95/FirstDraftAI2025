@@ -140,6 +140,42 @@ function FallbackStarBackground({ isDarkMode }) {
     );
 }
 
+// Function to add data-lenis-prevent to all existing and new textareas
+const setupTextareaScrolling = () => {
+    // Add data-lenis-prevent to all existing textareas
+    document.querySelectorAll("textarea").forEach((textarea) => {
+        textarea.setAttribute("data-lenis-prevent", "");
+    });
+
+    // Watch for new textareas being added
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1) {
+                    // Element node
+                    // Check if the added node is a textarea or contains textareas
+                    if (node.tagName === "TEXTAREA") {
+                        node.setAttribute("data-lenis-prevent", "");
+                    } else if (node.querySelectorAll) {
+                        node.querySelectorAll("textarea").forEach(
+                            (textarea) => {
+                                textarea.setAttribute("data-lenis-prevent", "");
+                            }
+                        );
+                    }
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+
+    return observer;
+};
+
 // Main component with WebGL detection
 export default function StarBackground() {
     const [isDarkMode, setIsDarkMode] = useState(
@@ -152,11 +188,26 @@ export default function StarBackground() {
         // Check for WebGL support
         setHasWebGL(isWebGLAvailable());
 
+        // Setup textarea scrolling prevention
+        const textareaObserver = setupTextareaScrolling();
+
         // Set up smooth scrolling with Lenis
         const lenis = new Lenis({
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smooth: true,
+            // Prevent Lenis from handling specific elements
+            prevent: (node) => {
+                // Prevent Lenis from handling textareas and elements with data-lenis-prevent
+                return (
+                    node.tagName === "TEXTAREA" ||
+                    node.hasAttribute("data-lenis-prevent") ||
+                    node.classList.contains("lenis-prevent") ||
+                    node.closest("textarea") ||
+                    node.closest("[data-lenis-prevent]") ||
+                    node.closest(".lenis-prevent")
+                );
+            },
         });
 
         function raf(time) {
@@ -167,7 +218,7 @@ export default function StarBackground() {
         requestAnimationFrame(raf);
 
         // Listen for dark mode changes
-        const observer = new MutationObserver((mutations) => {
+        const darkModeObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (
                     mutation.type === "attributes" &&
@@ -181,14 +232,15 @@ export default function StarBackground() {
         });
 
         if (typeof document !== "undefined") {
-            observer.observe(document.documentElement, {
+            darkModeObserver.observe(document.documentElement, {
                 attributes: true,
             });
         }
 
         return () => {
             lenis.destroy();
-            observer.disconnect();
+            darkModeObserver.disconnect();
+            textareaObserver.disconnect();
         };
     }, []);
 

@@ -26,6 +26,25 @@ body {
     direction: ltr !important;
 }
 
+/* Prevent Lenis from handling scroll events on these elements */
+textarea,
+.lenis-prevent,
+.textarea-scrollable {
+    overscroll-behavior: contain;
+}
+
+/* For better textarea scrolling */
+textarea {
+    scroll-behavior: smooth;
+    overflow-y: auto;
+}
+
+/* If you're using Lenis, you might need to add this specific rule */
+[data-lenis-prevent],
+.lenis-prevent {
+    overscroll-behavior: contain;
+}
+
 /* Ensure your main container doesn't inherit unwanted direction */
 .app-container {
     direction: ltr;

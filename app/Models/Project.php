@@ -21,7 +21,6 @@ class Project extends Model
         'business_type_id',
         'target_market',
         'location',
-        // الحقول الجديدة
         'main_product_service',
         'team_size',
         'project_scale',
@@ -44,7 +43,6 @@ class Project extends Model
     const SCALE_MEDIUM = 'medium';
     const SCALE_LARGE = 'large';
 
-    // العلاقات
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -60,7 +58,7 @@ class Project extends Model
      */
     public function industry()
     {
-        return $this->belongsTo(Industry::class);
+        return $this->belongsTo(Industry::class, 'industry_id');
     }
 
     /**
@@ -68,23 +66,7 @@ class Project extends Model
      */
     public function businessType()
     {
-        return $this->belongsTo(BusinessType::class);
-    }
-
-    // Methods
-    public function getActivePlansCount(): int
-    {
-        return $this->plans()->whereIn('status', ['draft', 'completed', 'premium'])->count();
-    }
-
-    public function getCompletedPlansCount(): int
-    {
-        return $this->plans()->whereIn('status', ['completed', 'premium'])->count();
-    }
-
-    public function canDelete(): bool
-    {
-        return $this->plans()->count() === 0;
+        return $this->belongsTo(BusinessType::class, 'business_type_id');
     }
 
     // Helper methods for status
@@ -141,5 +123,17 @@ class Project extends Model
             self::SCALE_LARGE => 'مشروع كبير',
             default => 'غير محدد'
         };
+    }
+
+    // Get industry name
+    public function getIndustryNameAttribute(): string
+    {
+        return $this->industry ? $this->industry->industry_name : 'Not specified';
+    }
+
+    // Get business type name
+    public function getBusinessTypeNameAttribute(): string
+    {
+        return $this->businessType ? $this->businessType->business_type_name : 'Not specified';
     }
 }

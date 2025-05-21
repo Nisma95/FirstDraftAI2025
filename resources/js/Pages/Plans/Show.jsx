@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import StarBackground from "@/Components/StarBackground";
+import TopTools from "@/Components/TopTools";
+import { useTranslation } from "react-i18next";
 
 import {
     CheckCircleIcon,
@@ -21,16 +23,17 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
-    const [expandedSection, setExpandedSection] = useState("executive_summary");
+    const { t, i18n } = useTranslation();
+    const [expandedSection, setExpandedSection] = useState(null);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-    // Get user language preference
-    const isArabic = auth.user.language === "ar";
+    // Get current language
+    const isArabic = i18n.language === "ar";
 
     const handleGeneratePDF = async () => {
         setIsGeneratingPDF(true);
         try {
-            window.open(route("plans.pdf", plan.id), "_blank");
+            window.open(`/plans/${plan.id}/pdf`, "_blank");
         } catch (error) {
             console.error("Error generating PDF:", error);
         } finally {
@@ -39,204 +42,102 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
     };
 
     const getStatusInfo = () => {
-        const texts = {
-            ar: {
-                draft: "مسودة",
-                completed: "مكتملة",
-                generating: "جاري الإنشاء",
-                failed: "فشل",
-                premium: "متميزة",
-                unknown: "غير محدد",
+        const statusMap = {
+            draft: {
+                icon: ClockIcon,
+                text: t("plans.status.draft"),
+                color: "text-yellow-600",
+                bgColor: "bg-yellow-100 dark:bg-yellow-900/20",
+                borderColor: "border-yellow-300 dark:border-yellow-700",
             },
-            en: {
-                draft: "Draft",
-                completed: "Completed",
-                generating: "Generating",
-                failed: "Failed",
-                premium: "Premium",
-                unknown: "Unknown",
+            completed: {
+                icon: CheckCircleIcon,
+                text: t("plans.status.completed"),
+                color: "text-green-600 dark:text-green-400",
+                bgColor: "bg-green-100 dark:bg-green-900/20",
+                borderColor: "border-green-300 dark:border-green-700",
+            },
+            generating: {
+                icon: ClockIcon,
+                text: t("plans.status.generating"),
+                color: "text-blue-600 dark:text-blue-400",
+                bgColor: "bg-blue-100 dark:bg-blue-900/20",
+                borderColor: "border-blue-300 dark:border-blue-700",
+            },
+            failed: {
+                icon: ClockIcon,
+                text: t("plans.status.failed"),
+                color: "text-red-600 dark:text-red-400",
+                bgColor: "bg-red-100 dark:bg-red-900/20",
+                borderColor: "border-red-300 dark:border-red-700",
+            },
+            premium: {
+                icon: SparklesIcon,
+                text: t("plans.status.premium"),
+                color: "text-purple-600 dark:text-purple-400",
+                bgColor: "bg-purple-100 dark:bg-purple-900/20",
+                borderColor: "border-purple-300 dark:border-purple-700",
             },
         };
 
-        const currentTexts = isArabic ? texts.ar : texts.en;
-
-        switch (plan.status) {
-            case "draft":
-                return {
-                    icon: ClockIcon,
-                    text: currentTexts.draft,
-                    color: "text-yellow-600",
-                    bgColor: "bg-yellow-100",
-                    borderColor: "border-yellow-300",
-                };
-            case "completed":
-                return {
-                    icon: CheckCircleIcon,
-                    text: currentTexts.completed,
-                    color: "text-green-600",
-                    bgColor: "bg-green-100",
-                    borderColor: "border-green-300",
-                };
-            case "generating":
-                return {
-                    icon: ClockIcon,
-                    text: currentTexts.generating,
-                    color: "text-blue-600",
-                    bgColor: "bg-blue-100",
-                    borderColor: "border-blue-300",
-                };
-            case "failed":
-                return {
-                    icon: ClockIcon,
-                    text: currentTexts.failed,
-                    color: "text-red-600",
-                    bgColor: "bg-red-100",
-                    borderColor: "border-red-300",
-                };
-            case "premium":
-                return {
-                    icon: SparklesIcon,
-                    text: currentTexts.premium,
-                    color: "text-purple-600",
-                    bgColor: "bg-purple-100",
-                    borderColor: "border-purple-300",
-                };
-            default:
-                return {
-                    icon: ClockIcon,
-                    text: currentTexts.unknown,
-                    color: "text-gray-600",
-                    bgColor: "bg-gray-100",
-                    borderColor: "border-gray-300",
-                };
-        }
+        return (
+            statusMap[plan.status] || {
+                icon: ClockIcon,
+                text: t("plans.status.unknown"),
+                color: "text-gray-600 dark:text-gray-400",
+                bgColor: "bg-gray-100 dark:bg-gray-900/20",
+                borderColor: "border-gray-300 dark:border-gray-700",
+            }
+        );
     };
-
-    // Define translations object
-    const translations = {
-        ar: {
-            edit: "تعديل",
-            overall_progress: "التقدم العام",
-            sections_completed: (completed, total) =>
-                `${completed} من ${total} أقسام مكتملة`,
-            project_info: "معلومات المشروع",
-            project_name: "اسم المشروع",
-            industry: "الصناعة",
-            target_market: "السوق المستهدف",
-            location: "الموقع",
-            not_specified: "غير محدد",
-            sections: {
-                executive_summary: "الملخص التنفيذي",
-                market_analysis: "تحليل السوق",
-                swot_analysis: "تحليل SWOT",
-                marketing_strategy: "الاستراتيجية التسويقية",
-                financial_plan: "الخطة المالية",
-                operational_plan: "الخطة التشغيلية",
-            },
-            completed_section: "مكتمل",
-            incomplete: "غير مكتمل",
-            premium_content: "محتوى متميز",
-            premium_only: "هذا القسم متاح للمشتركين المتميزين فقط",
-            upgrade_subscription: "ترقية الاشتراك",
-            section_not_completed: "لم يتم إكمال هذا القسم بعد",
-            start_filling_info: "ابدأ بتعبئة المعلومات المطلوبة لهذا القسم",
-            complete_section: "إكمال القسم",
-            last_updated: "آخر تحديث",
-            ai_suggestions: "اقتراحات الذكاء الاصطناعي",
-            suggestions_available: (count) => `${count} اقتراح متاح`,
-            suggestion_types: {
-                business: "استراتيجية عمل",
-                marketing: "تسويق",
-                financial: "مالية",
-                operational: "تشغيلية",
-                other: "عامة",
-            },
-            view_all_suggestions: (remaining) =>
-                `عرض جميع الاقتراحات (${remaining} أكثر)`,
-            generating_pdf: "جاري التحميل...",
-            download_pdf: "تحميل PDF",
-        },
-        en: {
-            edit: "Edit",
-            overall_progress: "Overall Progress",
-            sections_completed: (completed, total) =>
-                `${completed} of ${total} sections completed`,
-            project_info: "Project Information",
-            project_name: "Project Name",
-            industry: "Industry",
-            target_market: "Target Market",
-            location: "Location",
-            not_specified: "Not specified",
-            sections: {
-                executive_summary: "Executive Summary",
-                market_analysis: "Market Analysis",
-                swot_analysis: "SWOT Analysis",
-                marketing_strategy: "Marketing Strategy",
-                financial_plan: "Financial Plan",
-                operational_plan: "Operational Plan",
-            },
-            completed_section: "Completed",
-            incomplete: "Incomplete",
-            premium_content: "Premium Content",
-            premium_only:
-                "This section is available to premium subscribers only",
-            upgrade_subscription: "Upgrade Subscription",
-            section_not_completed: "This section has not been completed yet",
-            start_filling_info:
-                "Start filling in the required information for this section",
-            complete_section: "Complete Section",
-            last_updated: "Last updated",
-            ai_suggestions: "AI Suggestions",
-            suggestions_available: (count) => `${count} suggestions available`,
-            suggestion_types: {
-                business: "Business Strategy",
-                marketing: "Marketing",
-                financial: "Financial",
-                operational: "Operational",
-                other: "General",
-            },
-            view_all_suggestions: (remaining) =>
-                `View all suggestions (${remaining} more)`,
-            generating_pdf: "Generating...",
-            download_pdf: "Download PDF",
-        },
-    };
-
-    const t = isArabic ? translations.ar : translations.en;
 
     const statusInfo = getStatusInfo();
     const StatusIcon = statusInfo.icon;
 
     // Get sections from ai_analysis if available
-    const aiAnalysis = plan.ai_analysis || {};
+    let aiAnalysis = {};
+
+    // Check if plan.ai_analysis exists and handle different data types
+    if (plan.ai_analysis) {
+        if (typeof plan.ai_analysis === "string") {
+            try {
+                aiAnalysis = JSON.parse(plan.ai_analysis);
+            } catch (e) {
+                aiAnalysis = {};
+            }
+        } else if (typeof plan.ai_analysis === "object") {
+            aiAnalysis = plan.ai_analysis;
+        }
+    }
+
     const sectionsData = {
         executive_summary: {
-            title: t.sections.executive_summary,
+            title: t("plans.sections.executive_summary"),
             content: aiAnalysis.executive_summary,
             completed: !!aiAnalysis.executive_summary,
         },
         market_analysis: {
-            title: t.sections.market_analysis,
+            title: t("plans.sections.market_analysis"),
             content: aiAnalysis.market_analysis,
             completed: !!aiAnalysis.market_analysis,
         },
         swot_analysis: {
-            title: t.sections.swot_analysis,
+            title: t("plans.sections.swot_analysis"),
             content: aiAnalysis.swot_analysis,
             completed: !!aiAnalysis.swot_analysis,
         },
         marketing_strategy: {
-            title: t.sections.marketing_strategy,
+            title: t("plans.sections.marketing_strategy"),
             content: aiAnalysis.marketing_strategy,
             completed: !!aiAnalysis.marketing_strategy,
         },
         financial_plan: {
-            title: t.sections.financial_plan,
+            title: t("plans.sections.financial_plan"),
             content: aiAnalysis.financial_plan,
             completed: !!aiAnalysis.financial_plan,
         },
         operational_plan: {
-            title: t.sections.operational_plan,
+            title: t("plans.sections.operational_plan"),
             content: aiAnalysis.operational_plan,
             completed: !!aiAnalysis.operational_plan,
         },
@@ -260,62 +161,66 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
     };
 
     return (
-        <AuthenticatedLayout
-            user={auth.user}
-            header={
-                <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <h2 className="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                            {plan.title}
-                        </h2>
-                        <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}
-                        >
-                            <StatusIcon className="h-4 w-4 ml-1.5" />
-                            {statusInfo.text}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <Link
-                            href={route("plans.edit", plan.id)}
-                            className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-                        >
-                            <PencilIcon className="h-4 w-4" />
-                            {t.edit}
-                        </Link>
-                        {canGeneratePDF && (
-                            <button
-                                onClick={handleGeneratePDF}
-                                disabled={isGeneratingPDF}
-                                className="fdButton flex items-center gap-2 disabled:opacity-50"
-                            >
-                                <DocumentArrowDownIcon className="h-4 w-4" />
-                                {isGeneratingPDF
-                                    ? t.generating_pdf
-                                    : t.download_pdf}
-                            </button>
-                        )}
-                    </div>
-                </div>
-            }
-        >
+        <AuthenticatedLayout user={auth.user}>
+            {/* Top Right Tools - Mode and Language Switchers */}
+            <div className="mb-20">
+                <TopTools />
+            </div>
+
             <Head title={plan.title} />
             <StarBackground />
 
             <div className="py-8 relative z-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header Section */}
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-4">
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                    {plan.title}
+                                </h1>
+                                <span
+                                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${statusInfo.bgColor} ${statusInfo.color} ${statusInfo.borderColor}`}
+                                >
+                                    <StatusIcon className="h-4 w-4 mr-1.5" />
+                                    {statusInfo.text}
+                                </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Link
+                                    href={`/plans/${plan.id}/edit`}
+                                    className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                                >
+                                    <PencilIcon className="h-4 w-4" />
+                                    {t("common.edit")}
+                                </Link>
+                                {canGeneratePDF && (
+                                    <button
+                                        onClick={handleGeneratePDF}
+                                        disabled={isGeneratingPDF}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4" />
+                                        {isGeneratingPDF
+                                            ? t("plans.generating_pdf")
+                                            : t("plans.download_pdf")}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Progress Overview */}
-                    <div className="fdDiveCard p-6 mb-6">
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
                         <div className="flex justify-between items-center mb-4">
                             <div>
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                    {t.overall_progress}
+                                    {t("plans.overall_progress")}
                                 </h3>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                    {t.sections_completed(
-                                        completedSections,
-                                        totalSections
-                                    )}
+                                    {isArabic
+                                        ? `${completedSections} من ${totalSections} أقسام مكتملة`
+                                        : `${completedSections} of ${totalSections} sections completed`}
                                 </p>
                             </div>
                             <div className="text-right">
@@ -333,7 +238,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                     style={{
                                         width: `${completionPercentage}%`,
                                     }}
-                                    className="Fdbg h-4 rounded-full transition-all duration-500"
+                                    className="bg-indigo-600 h-4 rounded-full transition-all duration-500"
                                 ></div>
                             </div>
                         </div>
@@ -341,14 +246,14 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
 
                     {/* Project Info */}
                     {plan.project && (
-                        <div className="fdDiveCard p-6 mb-6">
+                        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
                             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-                                {t.project_info}
+                                {t("plans.project_info")}
                             </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t.project_name}
+                                        {t("plans.project_name")}
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
                                         {plan.project.name}
@@ -356,29 +261,67 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t.industry}
+                                        {t("plans.industry")}
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                        {plan.project.industry ||
-                                            t.not_specified}
+                                        {plan.project.industry?.industry_name ||
+                                            t("common.not_specified")}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t.target_market}
+                                        Business Type
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.business_type
+                                            ?.business_type_name ||
+                                            t("common.not_specified")}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {t("plans.target_market")}
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
                                         {plan.project.target_market ||
-                                            t.not_specified}
+                                            t("common.not_specified")}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t.location}
+                                        {t("plans.location")}
                                     </p>
                                     <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
                                         {plan.project.location ||
-                                            t.not_specified}
+                                            t("common.not_specified")}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Project Scale
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.project_scale ||
+                                            t("common.not_specified")}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Team Size
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.team_size
+                                            ? `${plan.project.team_size} people`
+                                            : t("common.not_specified")}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        Revenue Model
+                                    </p>
+                                    <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+                                        {plan.project.revenue_model ||
+                                            t("common.not_specified")}
                                     </p>
                                 </div>
                             </div>
@@ -386,251 +329,195 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                     )}
 
                     {/* Plan Sections */}
-                    <div className="space-y-4">
-                        {Object.entries(sectionsData).map(([key, section]) => {
-                            const Icon = sectionIcons[key] || ChartBarIcon;
-                            const isPremiumSection = [
-                                "swot_analysis",
-                                "operational_plan",
-                            ].includes(key);
-                            const isLocked =
-                                isPremiumSection &&
-                                !isPremium &&
-                                !section.content;
+                    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
+                            {isArabic
+                                ? "أقسام خطة العمل"
+                                : "Business Plan Sections"}
+                        </h3>
 
-                            return (
-                                <div
-                                    key={key}
-                                    className="fdDiveCard overflow-hidden"
-                                >
-                                    <button
-                                        onClick={() =>
-                                            setExpandedSection(
-                                                expandedSection === key
-                                                    ? null
-                                                    : key
-                                            )
-                                        }
-                                        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className={`p-2 rounded-lg ${
-                                                    section.completed
-                                                        ? "bg-green-100 text-green-600"
-                                                        : "bg-gray-100 dark:bg-gray-700 text-gray-400"
-                                                }`}
+                        {/* Sections */}
+                        <div className="space-y-4">
+                            {Object.entries(sectionsData).map(
+                                ([key, section]) => {
+                                    const SectionIcon =
+                                        sectionIcons[key] || ChartBarIcon;
+                                    const isExpanded = expandedSection === key;
+                                    // Temporarily disable premium lock since payment system is not implemented yet
+                                    const isPremiumSection = false; // Set to false to show all sections
+                                    const isLocked = false; // Set to false to allow access to all sections
+
+                                    return (
+                                        <div
+                                            key={key}
+                                            className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                                        >
+                                            <button
+                                                onClick={() =>
+                                                    setExpandedSection(
+                                                        isExpanded ? null : key
+                                                    )
+                                                }
+                                                className="w-full flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                                disabled={isLocked}
                                             >
-                                                <Icon className="h-5 w-5" />
-                                            </div>
-                                            <div className="text-right">
-                                                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                                                    {section.title}
+                                                <div className="flex items-center gap-3">
+                                                    <SectionIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                                                        {section.title}
+                                                    </span>
+                                                    {section.completed &&
+                                                        !isLocked && (
+                                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
+                                                                {t(
+                                                                    "plans.status.completed_section"
+                                                                )}
+                                                            </span>
+                                                        )}
                                                     {isLocked && (
-                                                        <LockClosedIcon className="h-4 w-4 text-purple-600" />
-                                                    )}
-                                                </h3>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                    {section.completed
-                                                        ? t.completed_section
-                                                        : t.incomplete}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {section.completed ? (
-                                                <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                                            ) : (
-                                                <ClockIcon className="h-5 w-5 text-gray-400" />
-                                            )}
-                                            {expandedSection === key ? (
-                                                <ChevronUpIcon className="h-5 w-5 text-gray-400" />
-                                            ) : (
-                                                <ChevronDownIcon className="h-5 w-5 text-gray-400" />
-                                            )}
-                                        </div>
-                                    </button>
-
-                                    {expandedSection === key && (
-                                        <div className="border-t border-gray-200 dark:border-gray-700">
-                                            <div className="px-6 py-4">
-                                                {isLocked ? (
-                                                    <div className="text-center py-8">
-                                                        <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 dark:bg-purple-900/20 mb-4">
-                                                            <LockClosedIcon className="h-6 w-6 text-purple-600" />
-                                                        </div>
-                                                        <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                            {t.premium_content}
-                                                        </h4>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                                            {t.premium_only}
-                                                        </p>
-                                                        <Link
-                                                            href={route(
-                                                                "payments.checkout"
+                                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">
+                                                            {t(
+                                                                "plans.premium_content"
                                                             )}
-                                                            className="fdButton inline-flex items-center gap-2"
-                                                        >
-                                                            <SparklesIcon className="h-4 w-4" />
-                                                            {
-                                                                t.upgrade_subscription
-                                                            }
-                                                        </Link>
-                                                    </div>
-                                                ) : section.content ? (
-                                                    <div className="prose dark:prose-invert max-w-none">
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {isLocked ? (
+                                                    <LockClosedIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                                                ) : isExpanded ? (
+                                                    <ChevronUpIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                                ) : (
+                                                    <ChevronDownIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                                )}
+                                            </button>
+
+                                            {isExpanded && !isLocked && (
+                                                <div className="p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+                                                    {section.completed &&
+                                                    section.content ? (
                                                         <div
+                                                            className="prose prose-gray dark:prose-invert max-w-none"
                                                             dangerouslySetInnerHTML={{
                                                                 __html: section.content,
                                                             }}
                                                         />
-                                                    </div>
-                                                ) : (
-                                                    <div className="text-center py-8">
-                                                        <ClockIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                                                        <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-                                                            {
-                                                                t.section_not_completed
-                                                            }
-                                                        </h4>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                                            {
-                                                                t.start_filling_info
-                                                            }
-                                                        </p>
-                                                        <Link
-                                                            href={route(
-                                                                "plans.edit",
-                                                                plan.id
-                                                            )}
-                                                            className="fdButton inline-flex items-center gap-2"
-                                                        >
-                                                            <PencilIcon className="h-4 w-4" />
-                                                            {t.complete_section}
-                                                        </Link>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {section.content && !isLocked && (
-                                                <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-6 py-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                            {t.last_updated}:{" "}
-                                                            {new Date(
-                                                                plan.updated_at
-                                                            ).toLocaleDateString(
-                                                                isArabic
-                                                                    ? "ar-AE"
-                                                                    : "en-US"
-                                                            )}
-                                                        </span>
-                                                        <Link
-                                                            href={route(
-                                                                "plans.edit",
-                                                                plan.id
-                                                            )}
-                                                            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                                                        >
-                                                            {t.edit}
-                                                        </Link>
-                                                    </div>
+                                                    ) : (
+                                                        <div className="text-center py-8">
+                                                            <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                                                {t(
+                                                                    "plans.section_not_completed"
+                                                                )}
+                                                            </h4>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                                                {t(
+                                                                    "plans.start_filling_info"
+                                                                )}
+                                                            </p>
+                                                            <Link
+                                                                href={`/plans/${plan.id}/edit`}
+                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                                            >
+                                                                {t(
+                                                                    "plans.complete_section"
+                                                                )}
+                                                            </Link>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
 
-                    {/* AI Suggestions */}
-                    {plan.ai_suggestions && plan.ai_suggestions.length > 0 && (
-                        <div className="mt-8 fdDiveCard p-6">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className="fdRoundedIcon">
-                                    <SparklesIcon className="h-6 w-6" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                        {t.ai_suggestions}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        {t.suggestions_available(
-                                            plan.ai_suggestions.length
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                {plan.ai_suggestions
-                                    .slice(0, 3)
-                                    .map((suggestion) => (
-                                        <div
-                                            key={suggestion.id}
-                                            className="border-b border-gray-100 dark:border-gray-700 last:border-0 pb-4 last:pb-0"
-                                        >
-                                            <div className="flex items-start gap-3">
-                                                <div
-                                                    className={`p-2 rounded-lg flex-shrink-0 ${
-                                                        suggestion.suggestion_type ===
-                                                        "business"
-                                                            ? "bg-blue-100 text-blue-600"
-                                                            : suggestion.suggestion_type ===
-                                                              "marketing"
-                                                            ? "bg-green-100 text-green-600"
-                                                            : suggestion.suggestion_type ===
-                                                              "financial"
-                                                            ? "bg-purple-100 text-purple-600"
-                                                            : "bg-gray-100 text-gray-600"
-                                                    }`}
-                                                >
-                                                    <SparklesIcon className="h-4 w-4" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                                            {t.suggestion_types[
-                                                                suggestion
-                                                                    .suggestion_type
-                                                            ] ||
-                                                                t
-                                                                    .suggestion_types
-                                                                    .other}
-                                                        </span>
-                                                        <span className="text-xs text-gray-400 dark:text-gray-500">
-                                                            {new Date(
-                                                                suggestion.created_at
-                                                            ).toLocaleDateString(
-                                                                isArabic
-                                                                    ? "ar-AE"
-                                                                    : "en-US"
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                    <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                                                        {
-                                                            suggestion.suggestion_content
-                                                        }
+                                            {isExpanded && isLocked && (
+                                                <div className="p-6 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center">
+                                                    <LockClosedIcon className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+                                                    <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                                                        {isArabic
+                                                            ? "محتوى مدفوع"
+                                                            : "Premium Content"}
+                                                    </h4>
+                                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                                        {isArabic
+                                                            ? "الخطة المالية والخطة التشغيلية متاحة للمشتركين المدفوعين فقط."
+                                                            : "Financial and operational plans are available to premium subscribers only."}
                                                     </p>
+                                                    <Link
+                                                        href="/subscription"
+                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                                                    >
+                                                        {t(
+                                                            "plans.upgrade_subscription"
+                                                        )}
+                                                    </Link>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                {plan.ai_suggestions.length > 3 && (
-                                    <div className="text-center pt-4">
-                                        <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                                            {t.view_all_suggestions(
-                                                plan.ai_suggestions.length - 3
                                             )}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                                        </div>
+                                    );
+                                }
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
+
+            {/* Enhanced CSS for content display */}
+            <style>{`
+                .prose {
+                    line-height: 1.75;
+                }
+                .prose h2 {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    margin-top: 1.5rem;
+                    color: #111827;
+                    border-bottom: 2px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                .dark .prose h2 {
+                    color: #f9fafb;
+                    border-bottom-color: #374151;
+                }
+                .prose h3 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-bottom: 0.75rem;
+                    margin-top: 1.25rem;
+                    color: #111827;
+                }
+                .dark .prose h3 {
+                    color: #f9fafb;
+                }
+                .prose p {
+                    margin-bottom: 1rem;
+                    line-height: 1.7;
+                    color: #374151;
+                    text-align: justify;
+                }
+                .dark .prose p {
+                    color: #d1d5db;
+                }
+                .prose strong {
+                    font-weight: 600;
+                    color: #111827;
+                }
+                .dark .prose strong {
+                    color: #f9fafb;
+                }
+                .prose ul, .prose ol {
+                    margin: 1rem 0;
+                    padding-left: 1.5rem;
+                }
+                .prose li {
+                    margin-bottom: 0.5rem;
+                    color: #374151;
+                }
+                .dark .prose li {
+                    color: #d1d5db;
+                }
+                .prose br {
+                    display: block;
+                    margin: 0.5rem 0;
+                }
+            `}</style>
         </AuthenticatedLayout>
     );
 }

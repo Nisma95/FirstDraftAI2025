@@ -44,42 +44,6 @@ return [
 
 
 
-    'meeser' => [
-        'api_key' => env('MEESER_API_KEY'),
-        'secret_key' => env('MEESER_SECRET_KEY'),
-        'public_key' => env('MEESER_PUBLIC_KEY'),
-        'environment' => env('MEESER_ENVIRONMENT', 'test'), // 'test' or 'production'
-        'webhook_secret' => env('MEESER_WEBHOOK_SECRET'),
 
-        // Test credentials (these will be provided by Meeser)
-        'test' => [
-            'api_key' => env('MEESER_TEST_API_KEY'),
-            'secret_key' => env('MEESER_TEST_SECRET_KEY'),
-            'public_key' => env('MEESER_TEST_PUBLIC_KEY'),
-        ],
-
-        // Production credentials
-        'production' => [
-            'api_key' => env('MEESER_PRODUCTION_API_KEY'),
-            'secret_key' => env('MEESER_PRODUCTION_SECRET_KEY'),
-            'public_key' => env('MEESER_PRODUCTION_PUBLIC_KEY'),
-        ],
-
-        // Default currency
-        'currency' => 'SAR',
-
-        // Payment methods to enable
-        'enabled_methods' => [
-            'card',
-            'bank_transfer',
-            'wallet',
-            'installments',
-        ],
-
-        // Redirect URLs
-        'success_url' => env('MEESER_SUCCESS_URL', '/payments/success'),
-        'failure_url' => env('MEESER_FAILURE_URL', '/payments/failure'),
-        'callback_url' => env('MEESER_CALLBACK_URL', '/payments/callback'),
-    ],
 
 ];

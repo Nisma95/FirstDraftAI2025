@@ -9,11 +9,8 @@ class Industry extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'industries';
+
     protected $fillable = [
         'industry_name',
         'industry_description',
@@ -21,10 +18,18 @@ class Industry extends Model
     ];
 
     /**
-     * Get the projects for the industry.
+     * Get all projects that belong to this industry.
      */
     public function projects()
     {
         return $this->hasMany(Project::class);
+    }
+
+    /**
+     * Get the display name for the industry.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        return $this->industry_name;
     }
 }

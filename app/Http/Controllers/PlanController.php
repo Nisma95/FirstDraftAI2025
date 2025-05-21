@@ -4,390 +4,620 @@ namespace App\Http\Controllers;
 
 use App\Models\Plan;
 use App\Models\Project;
-use App\Services\AIService;
-use App\Services\PDFService;
+use App\Services\AIPlannerService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+
 use Inertia\Inertia;
 
 class PlanController extends Controller
 {
-    protected $aiService;
-    protected $pdfService;
+    /**
+     * The AI planner service instance.
+     *
+     * @var \App\Services\AIPlannerService
+     */
+    protected $aiPlanner;
 
-    public function __construct(AIService $aiService, PDFService $pdfService)
+    /**
+     * Create a new controller instance.
+     *
+     * @param  \App\Services\AIPlannerService  $aiPlanner
+     * @return void
+     */
+    public function __construct(AIPlannerService $aiPlanner)
     {
-        $this->aiService = $aiService;
-        $this->pdfService = $pdfService;
+        $this->aiPlanner = $aiPlanner;
     }
 
     /**
-     * Display a listing of the plans.
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $user = Auth::user();
-        $plans = Plan::whereHas('project', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-            ->with(['project', 'finance', 'market'])
-            ->latest()
-            ->get();
-
+        $plans = Plan::with('project')->latest()->paginate(20);
         return Inertia::render('Plans/Index', [
-            'plans' => $plans,
-            'projects' => $user->projects
+            'plans' => $plans
         ]);
     }
 
     /**
-     * Show the form for creating a new plan.
-     * 
-     * Fixed: Remove status filter to show all projects, including launched ones
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create()
     {
-        $user = Auth::user();
-
-        // Get the project_id from query parameters if provided
-        $projectId = $request->query('project_id');
-
-        // Debug logging
-        Log::info('PlanController@create called', [
-            'user_id' => $user->id,
-            'project_id' => $projectId,
-            'query_params' => $request->query(),
-            'all_input' => $request->all()
+        $projects = Project::all();
+        return Inertia::render('Plans/AiPlanner', [
+            'projects' => $projects
         ]);
-
-        // Get all user projects - remove the status filter
-        $projects = $user->projects()
-            ->select('id', 'name', 'status') // Only select needed fields
-            ->orderBy('created_at', 'desc') // Show newest first
-            ->get();
-
-        // If user has no projects, redirect to create project with message
-        if ($projects->isEmpty()) {
-            return redirect()->route('projects.create')
-                ->with('info', 'يجب إنشاء مشروع أولاً قبل إنشاء خطة عمل.');
-        }
-
-        // If project_id is provided, validate that the user owns this project
-        $selectedProject = null;
-        if ($projectId) {
-            $selectedProject = $projects->firstWhere('id', (int)$projectId);
-            if (!$selectedProject) {
-                // Project doesn't exist or user doesn't own it
-                Log::warning('Invalid project_id provided', [
-                    'project_id' => $projectId,
-                    'user_id' => $user->id
-                ]);
-                // Redirect without the project_id parameter
-                return redirect()->route('plans.create')
-                    ->with('error', 'المشروع المحدد غير موجود أو غير مصرح لك بالوصول إليه.');
-            }
-        }
-
-        // Debug what we're passing to React
-        $responseData = [
-            'projects' => $projects,
-            'project_id' => $projectId ? (int)$projectId : null, // Ensure it's an integer
-            'selected_project' => $selectedProject, // Add this for extra clarity
-            'auth' => [
-                'user' => $user
-            ]
-        ];
-
-        Log::info('Passing data to React', $responseData);
-
-        return Inertia::render('Plans/AiPlanner', $responseData);
     }
 
     /**
-     * Store a newly created plan in storage.
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'project_id' => 'required|exists:projects,id|integer',
+            'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
-            'summary' => 'nullable|string|max:2000',
+            'summary' => 'nullable|string',
+            'status' => 'required|in:draft,generating,partially_completed,completed,premium,failed',
+            'progress_percentage' => 'required|integer|min:0|max:100',
         ]);
 
-        // Ensure user owns the project
-        $project = Project::where('id', $validated['project_id'])
-            ->where('user_id', Auth::id())
-            ->first();
+        $plan = Plan::create($validated);
 
-        if (!$project) {
-            return back()->withErrors(['project_id' => 'المشروع المحدد غير موجود أو غير مصرح لك بالوصول إليه.']);
+        // Initialize AI conversation if not in draft mode
+        if ($plan->status !== Plan::STATUS_DRAFT) {
+            $project = Project::findOrFail($plan->project_id);
+            $this->aiPlanner->initializeConversation($project);
+
+            // Save the initial conversation
+            // The service will update the plan with the conversation file path
         }
 
-        DB::beginTransaction();
-        try {
-            $plan = Plan::create([
-                'project_id' => $project->id,
-                'title' => $validated['title'],
-                'summary' => $validated['summary'],
-                'status' => 'draft'
-            ]);
-
-            // Initialize related records
-            $plan->finance()->create([]);
-            $plan->market()->create([]);
-
-            // Generate initial AI analysis if summary provided
-            if (!empty($validated['summary'])) {
-                $this->generateAIAnalysis($plan);
-            }
-
-            DB::commit();
-
-            return redirect()->route('plans.show', ['plan' => $plan->id])
-                ->with('success', 'تم إنشاء خطة العمل بنجاح');
-        } catch (\Exception $e) {
-            DB::rollBack();
-
-            // Log the error for debugging
-            Log::error('Error creating plan: ' . $e->getMessage());
-
-            return back()
-                ->withInput()
-                ->with('error', 'حدث خطأ أثناء إنشاء خطة العمل. يرجى المحاولة مرة أخرى.');
-        }
+        return redirect("/plans/{$plan->id}");
     }
 
     /**
-     * Display the specified plan.
-     */
-    public function show(Plan $plan)
-    {
-        $this->authorize('view', $plan);
-
-        $plan->load([
-            'project',
-            'finance',
-            'market',
-            'audiences',
-            'goals.tasks',
-            'aiSuggestions'
-        ]);
-
-        return Inertia::render('Plans/Show', [
-            'plan' => $plan,
-            'sections' => $this->getPlanSections($plan),
-            'canGeneratePDF' => $this->canGeneratePDF($plan),
-            'isPremium' => $plan->status === 'premium'
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified plan.
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
      */
     public function edit(Plan $plan)
     {
-        $this->authorize('update', $plan);
-
-        $plan->load(['project', 'finance', 'market', 'audiences', 'goals']);
-
+        $projects = Project::all();
         return Inertia::render('Plans/Edit', [
-            'plan' => $plan
+            'plan' => $plan,
+            'projects' => $projects
         ]);
     }
 
     /**
-     * Update the specified plan in storage.
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Plan $plan)
     {
-        $this->authorize('update', $plan);
-
         $validated = $request->validate([
-            'title' => 'string|max:255',
+            'project_id' => 'required|exists:projects,id',
+            'title' => 'required|string|max:255',
             'summary' => 'nullable|string',
-            'finance' => 'array',
-            'market' => 'array',
-            'audiences' => 'array',
-            'goals' => 'array'
+            'status' => 'required|in:draft,generating,partially_completed,completed,premium,failed',
+            'progress_percentage' => 'required|integer|min:0|max:100',
         ]);
 
-        DB::beginTransaction();
-        try {
-            // Update plan
-            if (isset($validated['title']) || isset($validated['summary'])) {
-                $plan->update([
-                    'title' => $validated['title'] ?? $plan->title,
-                    'summary' => $validated['summary'] ?? $plan->summary
-                ]);
-            }
+        $plan->update($validated);
 
-            // Update finance
-            if (isset($validated['finance'])) {
-                $plan->finance()->updateOrCreate([], $validated['finance']);
-            }
-
-            // Update market
-            if (isset($validated['market'])) {
-                $plan->market()->updateOrCreate([], $validated['market']);
-            }
-
-            // Update audiences
-            if (isset($validated['audiences'])) {
-                $plan->audiences()->delete();
-                foreach ($validated['audiences'] as $audience) {
-                    $plan->audiences()->create($audience);
-                }
-            }
-
-            // Update goals
-            if (isset($validated['goals'])) {
-                foreach ($validated['goals'] as $goalData) {
-                    if (isset($goalData['id'])) {
-                        $goal = $plan->goals()->find($goalData['id']);
-                        if ($goal) {
-                            $goal->update($goalData);
-                        }
-                    } else {
-                        $plan->goals()->create($goalData);
-                    }
-                }
-            }
-
-            // Generate updated AI analysis
-            $this->generateAIAnalysis($plan);
-
-            // Upgrade status if complete
-            if ($plan->hasCompleteData() && $plan->status === 'draft') {
-                $plan->upgradeToCompleted();
-            }
-
-            DB::commit();
-
-            return back()->with('success', 'تم تحديث خطة العمل بنجاح');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'حدث خطأ أثناء تحديث خطة العمل');
-        }
+        return redirect()->route('Plans.show', $plan)
+            ->with('success', 'Plan updated successfully.');
     }
 
     /**
-     * Remove the specified plan from storage.
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
      */
     public function destroy(Plan $plan)
     {
-        $this->authorize('delete', $plan);
+        // Delete associated files if they exist
+        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path)) {
+            Storage::delete($plan->ai_analysis_path);
+        }
 
-        // Delete PDF file if exists
-        if ($plan->pdf_path && Storage::exists($plan->pdf_path)) {
+        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path)) {
+            Storage::delete($plan->conversation_file_path);
+        }
+
+        if (!empty($plan->pdf_path) && Storage::exists($plan->pdf_path)) {
             Storage::delete($plan->pdf_path);
         }
 
         $plan->delete();
 
-        return redirect()->route('plans.index')
-            ->with('success', 'تم حذف خطة العمل بنجاح');
+        return redirect()->route('Plans.index')
+            ->with('success', 'Plan deleted successfully.');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Plan $plan)
+    {
+        // Load the related project
+        $plan->load('project');
+
+        // Parse ai_analysis if it's a JSON string
+        $aiAnalysis = null;
+        if (!empty($plan->ai_analysis)) {
+            if (is_string($plan->ai_analysis)) {
+                try {
+                    $aiAnalysis = json_decode($plan->ai_analysis, true);
+                } catch (\Exception $e) {
+                    Log::error('Error decoding ai_analysis JSON: ' . $e->getMessage());
+                    $aiAnalysis = null;
+                }
+            } else if (is_array($plan->ai_analysis)) {
+                $aiAnalysis = $plan->ai_analysis;
+            }
+        }
+
+        // Check if this is a premium plan or user has premium access
+        $isPremium = $plan->status === Plan::STATUS_PREMIUM ||
+            (auth()->user() && auth()->user()->hasSubscription && auth()->user()->hasSubscription());
+
+        // Determine if user can generate PDF
+        $canGeneratePDF = $plan->isCompleted() && !empty($aiAnalysis);
+
+        // Get the analysis and conversation content if paths exist
+        $analysisContent = null;
+        $conversationContent = null;
+
+        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path)) {
+            $analysisContent = Storage::get($plan->ai_analysis_path);
+        }
+
+        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path)) {
+            $conversationContent = Storage::get($plan->conversation_file_path);
+        }
+
+        return Inertia::render('Plans/Show', [
+            'plan' => [
+                'id' => $plan->id,
+                'title' => $plan->title,
+                'summary' => $plan->summary,
+                'status' => $plan->status,
+                'progress_percentage' => $plan->progress_percentage,
+                'ai_analysis' => $aiAnalysis, // Pass parsed data directly
+                'ai_analysis_path' => $plan->ai_analysis_path,
+                'pdf_path' => $plan->pdf_path,
+                'conversation_file_path' => $plan->conversation_file_path,
+                'created_at' => $plan->created_at,
+                'updated_at' => $plan->updated_at,
+                'project' => $plan->project,
+                'completion_score' => $plan->getCompletionScore(),
+                'is_completed' => $plan->isCompleted(),
+                'is_generating' => $plan->isGenerating(),
+                'has_failed' => $plan->hasFailed()
+            ],
+            'analysisContent' => $analysisContent,
+            'conversationContent' => $conversationContent,
+            'canGeneratePDF' => $canGeneratePDF,
+            'isPremium' => $isPremium
+        ]);
+    }
+
+    /**
+     * Initialize AI conversation.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function initializeAIConversation(Plan $plan)
+    {
+        $project = Project::findOrFail($plan->project_id);
+        $result = $this->aiPlanner->initializeConversation($project);
+
+        if ($result['success']) {
+            $plan->update([
+                'status' => Plan::STATUS_GENERATING,
+                'progress_percentage' => 10,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message']
+        ], 500);
+    }
+
+    /**
+     * Continue AI conversation.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function continueAIConversation(Request $request, Plan $plan)
+    {
+        $validated = $request->validate([
+            'message' => 'required|string',
+        ]);
+
+        $result = $this->aiPlanner->continueConversation($validated['message'], $plan);
+
+        if ($result['success']) {
+            // Update progress percentage
+            $plan->update([
+                'progress_percentage' => min(90, $plan->progress_percentage + 5),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => $result['message']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message']
+        ], 500);
+    }
+
+    /**
+     * Generate final analysis.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function generateAnalysis(Plan $plan)
+    {
+        $result = $this->aiPlanner->generateAnalysis($plan);
+
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'analysis' => $result['analysis']
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => $result['message']
+        ], 500);
     }
 
     /**
      * Generate PDF for the plan.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
      */
     public function generatePDF(Plan $plan)
     {
-        $this->authorize('view', $plan);
+        $result = $this->aiPlanner->generatePDF($plan);
 
-        if (!$this->canGeneratePDF($plan)) {
-            return back()->with('error', 'لا يمكن توليد ملف PDF لهذه الخطة حاليا');
+        if ($result['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => $result['message'],
+                'pdfPath' => $result['pdfPath']
+            ]);
         }
 
-        $user = $plan->project->user;
-        $isPremium = $user->subscription_type === 'premium';
-
-        $pdfPath = $this->pdfService->generatePlanPDF($plan, $isPremium);
-        $plan->updatePdfPath($pdfPath);
-
-        return response()->download(storage_path('app/' . $pdfPath));
+        return response()->json([
+            'success' => false,
+            'message' => $result['message']
+        ], 500);
     }
 
     /**
-     * Generate AI analysis for the plan.
+     * Download the AI analysis file.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
      */
-    private function generateAIAnalysis(Plan $plan)
+    public function downloadAnalysis(Plan $plan)
+    {
+        if (empty($plan->ai_analysis_path) || !Storage::exists($plan->ai_analysis_path)) {
+            return back()->with('error', 'Analysis file not found.');
+        }
+
+        return Storage::download($plan->ai_analysis_path, $plan->title . ' - Analysis.md');
+    }
+
+    /**
+     * Download the conversation file.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadConversation(Plan $plan)
+    {
+        if (empty($plan->conversation_file_path) || !Storage::exists($plan->conversation_file_path)) {
+            return back()->with('error', 'Conversation file not found.');
+        }
+
+        return Storage::download($plan->conversation_file_path, $plan->title . ' - Conversation.txt');
+    }
+
+    /**
+     * Download the PDF file.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadPDF(Plan $plan)
+    {
+        if (empty($plan->pdf_path) || !Storage::exists($plan->pdf_path)) {
+            return back()->with('error', 'PDF file not found.');
+        }
+
+        return Storage::download($plan->pdf_path, $plan->title . ' - Business Plan.pdf');
+    }
+
+    /**
+     * API version of store method.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function apiStore(Request $request)
+    {
+        $validated = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'title' => 'required|string|max:255',
+            'summary' => 'nullable|string',
+            'status' => 'required|in:draft,generating,partially_completed,completed,premium,failed',
+            'progress_percentage' => 'required|integer|min:0|max:100',
+        ]);
+
+        $plan = Plan::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Plan created successfully.',
+            'plan' => $plan
+        ]);
+    }
+
+    /**
+     * Check the status of a plan.
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function checkStatus(Plan $plan)
+    {
+        return response()->json([
+            'status' => $plan->status,
+            'progress_percentage' => $plan->progress_percentage,
+            'current_section' => 'Business plan analysis' // You can make this more detailed if needed
+        ]);
+    }
+
+    /**
+     * Check generation status (for React frontend).
+     *
+     * @param  \App\Models\Plan  $plan
+     * @return \Illuminate\Http\Response
+     */
+    public function checkGenerationStatus(Plan $plan)
     {
         try {
-            $analysisData = $this->aiService->generatePlanAnalysis([
-                'plan' => $plan,
-                'project' => $plan->project,
-                'finance' => $plan->finance,
-                'market' => $plan->market,
-                'audiences' => $plan->audiences
-            ]);
-
-            $plan->update([
-                'ai_analysis' => $analysisData
-            ]);
-
-            // Generate suggestions
-            if (isset($analysisData['suggestions']) && is_array($analysisData['suggestions'])) {
-                foreach ($analysisData['suggestions'] as $suggestion) {
-                    $plan->aiSuggestions()->create([
-                        'suggestion_type' => $suggestion['type'] ?? 'general',
-                        'suggestion_content' => $suggestion['content'] ?? ''
-                    ]);
-                }
+            // Ensure the authenticated user owns this plan
+            if ($plan->project->user_id !== auth()->id()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
             }
+
+            return response()->json([
+                'status' => $plan->status,
+                'progress' => $plan->progress_percentage ?? 0,
+                'completion_score' => $plan->getCompletionScore(),
+                'id' => $plan->id,
+                'title' => $plan->title,
+                'has_analysis' => !empty($plan->ai_analysis),
+                'is_completed' => $plan->isCompleted(),
+                'is_generating' => $plan->isGenerating(),
+                'has_failed' => $plan->hasFailed()
+            ]);
         } catch (\Exception $e) {
-            // Log AI analysis error but don't fail the plan creation
-            Log::warning('AI analysis failed for plan ' . $plan->id . ': ' . $e->getMessage());
+            Log::error('Error checking plan status: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'unknown',
+                'progress' => 0,
+                'error' => 'Unable to check status'
+            ], 500);
         }
     }
 
     /**
-     * Get plan sections for display.
+     * Start business plan creation with AI.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    private function getPlanSections(Plan $plan): array
+    public function startBusinessPlan(Request $request)
     {
-        return [
-            'executive_summary' => [
-                'title' => 'الملخص التنفيذي',
-                'content' => $plan->executive_summary,
-                'completed' => !empty($plan->executive_summary)
-            ],
-            'market_analysis' => [
-                'title' => 'تحليل السوق',
-                'content' => $plan->market_analysis,
-                'completed' => $plan->market()->exists()
-            ],
-            'marketing_plan' => [
-                'title' => 'خطة التسويق',
-                'content' => $plan->ai_analysis['marketing_plan'] ?? '',
-                'completed' => $plan->audiences()->exists()
-            ],
-            'financial_resources' => [
-                'title' => 'الموارد المالية',
-                'content' => $plan->ai_analysis['financial_plan'] ?? '',
-                'completed' => $plan->finance()->exists()
-            ],
-            'swot_analysis' => [
-                'title' => 'SWOT التحليل',
-                'content' => $plan->swot_analysis,
-                'completed' => !empty($plan->swot_analysis)
-            ],
-            'operational_plan' => [
-                'title' => 'خطة التشغيل',
-                'content' => $plan->operational_plan,
-                'completed' => $plan->goals()->exists()
-            ]
-        ];
+        $validated = $request->validate([
+            'business_idea' => 'required|string',
+            'project_id' => 'required|exists:projects,id',
+            'project_name' => 'required|string',
+            'project_description' => 'nullable|string',
+        ]);
+
+        try {
+            $project = Project::findOrFail($validated['project_id']);
+
+            // Use your AI service to generate the first question
+            $questionData = $this->aiPlanner->generateFirstQuestion(
+                $validated['business_idea'],
+                $validated['project_name'],
+                $validated['project_description']
+            );
+
+            return response()->json([
+                'success' => true,
+                'question' => $questionData,
+                'message' => 'AI conversation started successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error starting business plan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * Check if PDF can be generated.
+     * Get next question based on previous answer.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    private function canGeneratePDF(Plan $plan): bool
+    public function getNextQuestion(Request $request)
     {
-        return $plan->status !== 'draft' && $plan->hasCompleteData();
+        $validated = $request->validate([
+            'answer' => 'required|string',
+            'previous_answers' => 'required|array',
+            'business_idea' => 'required|string',
+            'question_count' => 'required|integer',
+        ]);
+
+        try {
+            $questionCount = $validated['question_count'];
+
+            // If we've reached 5 questions, indicate completion
+            if ($questionCount >= 5) {
+                return response()->json([
+                    'success' => true,
+                    'question' => null,
+                    'message' => 'All questions completed'
+                ]);
+            }
+
+            // Use your AI service to generate the next question
+            $questionData = $this->aiPlanner->generateNextQuestion(
+                $validated['previous_answers'],
+                $validated['business_idea'],
+                $questionCount
+            );
+
+            if ($questionData) {
+                return response()->json([
+                    'success' => true,
+                    'question' => $questionData,
+                    'message' => 'Next question generated'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => true,
+                    'question' => null,
+                    'message' => 'All questions completed'
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error getting next question: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Generate final business plan from all answers.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function generatePlanFromAnswers(Request $request)
+    {
+        $validated = $request->validate([
+            'answers' => 'required|array',
+            'business_idea' => 'required|string',
+            'project_id' => 'required|exists:projects,id',
+            'project_name' => 'required|string',
+            'project_description' => 'nullable|string',
+        ]);
+
+        try {
+            $project = Project::findOrFail($validated['project_id']);
+
+            // Generate a title for the plan using your AI service
+            $title = $this->aiPlanner->generateTitleFromAnswers(
+                $validated['answers'],
+                $validated['project_name'],
+                $validated['project_description']
+            );
+
+            // Create the plan
+            $plan = Plan::create([
+                'project_id' => $project->id,
+                'title' => $title ?: ($validated['project_name'] . ' - AI Business Plan'),
+                'summary' => 'AI-generated business plan based on interview questions',
+                'status' => Plan::STATUS_GENERATING,
+                'progress_percentage' => 20,
+            ]);
+
+            // Prepare data for the AI service
+            $planData = [
+                'business_idea' => $validated['business_idea'],
+                'project_name' => $validated['project_name'],
+                'project_description' => $validated['project_description'],
+                'answers' => $validated['answers']
+            ];
+
+            // Generate the complete business plan using your AI service
+            $analysisData = $this->aiPlanner->generateCompleteBusinessPlan($planData);
+
+            // Update the plan with the generated analysis
+            // Ensure we store the data as JSON string
+            $analysisJson = is_array($analysisData) ? json_encode($analysisData) : $analysisData;
+
+            $plan->update([
+                'ai_analysis' => $analysisJson,
+                'status' => Plan::STATUS_COMPLETED,
+                'progress_percentage' => 100,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'plan' => [
+                    'id' => $plan->id,
+                    'title' => $plan->title
+                ],
+                'message' => 'Business plan generated successfully'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error generating plan from answers: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

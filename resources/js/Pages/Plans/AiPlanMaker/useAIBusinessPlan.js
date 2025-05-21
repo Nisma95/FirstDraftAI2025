@@ -21,13 +21,16 @@ export default function useAIBusinessPlan() {
             "New business project";
 
         try {
+            // Make sure we're using the correct endpoint that matches your routes
             const response = await fetch("/api/ai/start-business-plan", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute("content"),
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                    Accept: "application/json",
                 },
                 body: JSON.stringify({
                     business_idea: businessIdea,
@@ -37,8 +40,42 @@ export default function useAIBusinessPlan() {
                 }),
             });
 
+            // Debug logging
+            console.log("API Response Status:", response.status);
+            console.log(
+                "API Response Headers:",
+                Object.fromEntries(response.headers)
+            );
+
             // Check if response is ok
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error("HTTP Error:", response.status, errorText);
+
+                // More specific error messages
+                if (response.status === 404) {
+                    throw new Error(
+                        t(
+                            "api_not_found",
+                            "API endpoint not found. Please check if the backend is running and routes are properly configured."
+                        )
+                    );
+                } else if (response.status === 403) {
+                    throw new Error(
+                        t(
+                            "api_unauthorized",
+                            "Unauthorized access. Please refresh the page and try again."
+                        )
+                    );
+                } else if (response.status === 500) {
+                    throw new Error(
+                        t(
+                            "server_error",
+                            "Internal server error. Please try again later."
+                        )
+                    );
+                }
+
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
@@ -58,9 +95,30 @@ export default function useAIBusinessPlan() {
                 );
             }
 
-            return await response.json();
+            const result = await response.json();
+            console.log("Start AI conversation result:", result);
+
+            // Check if the response indicates success
+            if (!result.success) {
+                throw new Error(
+                    result.message || "Failed to start AI conversation"
+                );
+            }
+
+            return result;
         } catch (error) {
             console.error("Error in startAIConversation:", error);
+
+            // If it's a network error, provide helpful message
+            if (error.message.includes("Failed to fetch")) {
+                throw new Error(
+                    t(
+                        "network_error",
+                        "Network error. Please check your internet connection and that the server is running."
+                    )
+                );
+            }
+
             throw error;
         }
     };
@@ -70,13 +128,21 @@ export default function useAIBusinessPlan() {
         currentQuestion,
         answers,
         selectedProject,
-        questionCount
+        questionCount,
+        customAnswer = null
     ) => {
+        // Use custom answer if provided (for cost breakdown questions)
+        const answerToSubmit = customAnswer || data.answer;
+
         const newAnswer = {
             question: currentQuestion.question,
-            question_type: currentQuestion.type,
-            answer: data.answer,
+            question_type: currentQuestion.type || "text",
+            answer: answerToSubmit,
             timestamp: new Date(),
+            // Store additional metadata for cost breakdown questions
+            ...(currentQuestion.type === "cost_breakdown" && {
+                cost_breakdown_details: JSON.parse(answerToSubmit),
+            }),
         };
 
         const updatedAnswers = [...answers, newAnswer];
@@ -86,12 +152,14 @@ export default function useAIBusinessPlan() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute("content"),
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                    Accept: "application/json",
                 },
                 body: JSON.stringify({
-                    answer: data.answer,
+                    answer: answerToSubmit,
                     previous_answers: updatedAnswers,
                     business_idea:
                         selectedProject.description ||
@@ -103,12 +171,30 @@ export default function useAIBusinessPlan() {
 
             // Check if response is ok
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error("HTTP Error:", response.status, errorText);
+
+                if (response.status === 404) {
+                    throw new Error(
+                        t("api_not_found", "API endpoint not found.")
+                    );
+                }
+
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
                 const result = await response.json();
+                console.log("Next question result:", result);
+
+                // Check if the response indicates success
+                if (!result.success) {
+                    throw new Error(
+                        result.message || "Failed to get next question"
+                    );
+                }
+
                 return { result, newAnswer };
             } else {
                 const htmlResponse = await response.text();
@@ -133,6 +219,16 @@ export default function useAIBusinessPlan() {
             }
         } catch (error) {
             console.error("Error in submitAnswer:", error);
+
+            if (error.message.includes("Failed to fetch")) {
+                throw new Error(
+                    t(
+                        "network_error",
+                        "Network error. Please check your connection."
+                    )
+                );
+            }
+
             throw error;
         }
     };
@@ -145,13 +241,23 @@ export default function useAIBusinessPlan() {
             "New business project";
 
         try {
+            console.log("Generating plan with data:", {
+                answers,
+                business_idea: businessIdea,
+                project_id: selectedProject.id,
+                project_name: selectedProject.name,
+                project_description: selectedProject.description,
+            });
+
             const response = await fetch("/api/ai/generate-plan", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute("content"),
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                    Accept: "application/json",
                 },
                 body: JSON.stringify({
                     answers: answers,
@@ -164,12 +270,35 @@ export default function useAIBusinessPlan() {
 
             // Check if response is ok
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error(
+                    "Generate plan HTTP Error:",
+                    response.status,
+                    errorText
+                );
+
+                if (response.status === 404) {
+                    throw new Error(
+                        t("api_not_found", "API endpoint not found.")
+                    );
+                }
+
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
-                return await response.json();
+                const result = await response.json();
+                console.log("Generate plan result:", result);
+
+                // Check if the response indicates success
+                if (!result.success) {
+                    throw new Error(
+                        result.message || "Failed to generate business plan"
+                    );
+                }
+
+                return result;
             } else {
                 const textResponse = await response.text();
                 console.error(
@@ -185,6 +314,16 @@ export default function useAIBusinessPlan() {
             }
         } catch (error) {
             console.error("Error in generatePlan:", error);
+
+            if (error.message.includes("Failed to fetch")) {
+                throw new Error(
+                    t(
+                        "network_error",
+                        "Network error. Please check your connection."
+                    )
+                );
+            }
+
             throw error;
         }
     };
@@ -194,13 +333,24 @@ export default function useAIBusinessPlan() {
         let checking = true;
         let attempts = 0;
         let consecutiveErrors = 0;
+        const maxAttempts = 120; // 2 minutes with 1-second intervals
+        const checkInterval = 1000; // 1 second
 
-        while (checking && attempts < 60) {
-            // Increased max attempts
+        console.log(`Starting status check for plan ${planId}`);
+
+        while (checking && attempts < maxAttempts) {
             attempts++;
 
             try {
-                const response = await fetch(`/api/plans/${planId}/status`);
+                const response = await fetch(`/api/plans/${planId}/status`, {
+                    headers: {
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                });
 
                 if (!response.ok) {
                     consecutiveErrors++;
@@ -208,9 +358,9 @@ export default function useAIBusinessPlan() {
                         `Status check failed: ${response.status} ${response.statusText}`
                     );
 
-                    if (consecutiveErrors >= 3) {
+                    if (consecutiveErrors >= 5) {
                         console.log(
-                            "Multiple consecutive errors, checking page reload"
+                            "Multiple consecutive errors, will reload page"
                         );
                         window.location.reload();
                         checking = false;
@@ -218,7 +368,7 @@ export default function useAIBusinessPlan() {
                     }
 
                     // Wait longer after errors
-                    await new Promise((resolve) => setTimeout(resolve, 10000));
+                    await new Promise((resolve) => setTimeout(resolve, 5000));
                     continue;
                 }
 
@@ -228,18 +378,20 @@ export default function useAIBusinessPlan() {
                 if (contentType && contentType.includes("application/json")) {
                     const result = await response.json();
 
-                    console.log(
-                        `Status check attempt ${attempts}:`,
-                        result.status
-                    );
+                    console.log(`Status check attempt ${attempts}:`, result);
 
-                    if (result.status === "completed") {
+                    // Handle different status responses
+                    if (result.status === "completed" || result.is_completed) {
                         console.log(
                             "Plan generation completed, reloading page"
                         );
                         window.location.reload();
                         checking = false;
-                    } else if (result.status === "failed") {
+                    } else if (
+                        result.status === "failed" ||
+                        result.has_failed
+                    ) {
+                        console.error("Plan generation failed:", result);
                         alert(
                             t(
                                 "plan_generation_failed_alert",
@@ -247,17 +399,26 @@ export default function useAIBusinessPlan() {
                             )
                         );
                         checking = false;
-                    } else {
+                    } else if (
+                        result.is_generating ||
+                        result.status === "generating"
+                    ) {
                         // Show progress if available
-                        if (result.current_section) {
-                            console.log(
-                                `Currently generating: ${result.current_section}`
-                            );
-                        }
+                        const progress =
+                            result.progress || result.completion_score || 0;
+                        console.log(`Generation in progress: ${progress}%`);
 
-                        // Check again in 3 seconds for better responsiveness
+                        // Check again after interval
                         await new Promise((resolve) =>
-                            setTimeout(resolve, 3000)
+                            setTimeout(resolve, checkInterval)
+                        );
+                    } else {
+                        // Unknown status, continue checking
+                        console.log(
+                            `Unknown status: ${result.status}, continuing...`
+                        );
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, checkInterval)
                         );
                     }
                 } else {
@@ -270,6 +431,12 @@ export default function useAIBusinessPlan() {
 
                 if (consecutiveErrors >= 5) {
                     console.log("Too many errors, giving up");
+                    alert(
+                        t(
+                            "status_check_failed",
+                            "Unable to check plan status. Please refresh the page to see if your plan is ready."
+                        )
+                    );
                     checking = false;
                 } else {
                     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -277,8 +444,14 @@ export default function useAIBusinessPlan() {
             }
         }
 
-        if (attempts >= 60) {
+        if (attempts >= maxAttempts) {
             console.log("Maximum attempts reached, reloading page");
+            alert(
+                t(
+                    "generation_timeout",
+                    "Plan generation is taking longer than expected. Refreshing the page to check the current status."
+                )
+            );
             window.location.reload();
         }
     };
