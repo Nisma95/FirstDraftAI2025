@@ -57,7 +57,7 @@ export default function useProjectCreation({
             label: t("target_market"),
             placeholder: t("enter_target_market"),
             type: "textarea",
-            maxLength: 500,
+            maxLength: 800,
             showAiButton: true,
         },
         {

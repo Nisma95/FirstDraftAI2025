@@ -10,7 +10,8 @@ import {
     Building2,
     Target,
     Activity,
-    Trash2,
+    Lock,
+    Unlock,
     X,
     Star,
     Sparkles,
@@ -26,71 +27,78 @@ export default function Index({ auth, projects }) {
     const isRTL = i18n.dir() === "rtl";
 
     // State to track deleted projects (front-end only, persisted in localStorage)
-    const [deletedProjects, setDeletedProjects] = useState(new Set());
-    const [projectToDelete, setProjectToDelete] = useState(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [lockedProjects, setLockedProjects] = useState(new Set());
+    const [projectToLock, setProjectToLock] = useState(null);
+    const [showLockModal, setShowLockModal] = useState(false);
     const [hoveredCard, setHoveredCard] = useState(null);
 
     // Load deleted projects from localStorage on component mount
+    // Load locked projects from localStorage on component mount
     useEffect(() => {
-        const savedDeletedProjects = localStorage.getItem(
-            `deletedProjects_${auth.user.id}`
+        const savedLockedProjects = localStorage.getItem(
+            `lockedProjects_${auth.user.id}`
         );
-        if (savedDeletedProjects) {
-            setDeletedProjects(new Set(JSON.parse(savedDeletedProjects)));
+        if (savedLockedProjects) {
+            setLockedProjects(new Set(JSON.parse(savedLockedProjects)));
         }
     }, [auth.user.id]);
 
-    // Filter out deleted projects from display
-    const visibleProjects = projects.filter(
-        (project) => !deletedProjects.has(project.id)
-    );
+    // Show all projects (locked and unlocked)
+    const visibleProjects = projects;
 
     const handleCreatePlan = (projectId) => {
         // Use Inertia's router with query parameters
         router.get(route("plans.create"), { project_id: projectId });
     };
-    const handleDeleteProject = (projectId) => {
-        // Add project ID to deleted set (front-end only)
-        const newDeletedProjects = new Set([...deletedProjects, projectId]);
-        setDeletedProjects(newDeletedProjects);
+    const handleToggleLock = (projectId) => {
+        const newLockedProjects = new Set(lockedProjects);
+
+        if (newLockedProjects.has(projectId)) {
+            // Unlock the project
+            newLockedProjects.delete(projectId);
+        } else {
+            // Lock the project
+            newLockedProjects.add(projectId);
+        }
+
+        setLockedProjects(newLockedProjects);
 
         // Save to localStorage to persist across page refreshes
         localStorage.setItem(
-            `deletedProjects_${auth.user.id}`,
-            JSON.stringify([...newDeletedProjects])
+            `lockedProjects_${auth.user.id}`,
+            JSON.stringify([...newLockedProjects])
         );
 
-        setShowDeleteModal(false);
-        setProjectToDelete(null);
+        setShowLockModal(false);
+        setProjectToLock(null);
     };
 
-    const showDeleteConfirmation = (project) => {
-        setProjectToDelete(project);
-        setShowDeleteModal(true);
+    const showLockConfirmation = (project) => {
+        setProjectToLock(project);
+        setShowLockModal(true);
     };
 
-    const cancelDelete = () => {
-        setShowDeleteModal(false);
-        setProjectToDelete(null);
+    const cancelLock = () => {
+        setShowLockModal(false);
+        setProjectToLock(null);
     };
 
     // Status colors and translations with enhanced styling
     const getStatusInfo = (status) => {
         const statusMap = {
             new_project: {
-                color: "bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/30",
+                color: "bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg shadow-green-500/30",
                 icon: Sparkles,
                 label: t("new_project_status", "جديد"),
                 bgGradient:
-                    "bg-gradient-to-br from-blue-500/10 to-cyan-400/10 dark:from-blue-500/20 dark:to-cyan-400/20",
+                    "bg-gradient-to-br from-green-500/10 to-emerald-400/10 dark:from-green-500/20 dark:to-emerald-400/20",
             },
             existed_project: {
-                color: "bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg shadow-green-500/30",
+                color: "bg-gradient-to-r from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/30",
                 icon: Star,
                 label: t("existing_project_status", "قائم"),
                 bgGradient:
-                    "bg-gradient-to-br from-green-500/10 to-emerald-400/10 dark:from-green-500/20 dark:to-emerald-400/20",
+                    "bg-gradient-to-br from-blue-500/10 to-cyan-400/10 dark:from-blue-500/20 dark:to-cyan-400/20",
             },
         };
         return (
@@ -200,8 +208,8 @@ export default function Index({ auth, projects }) {
             </div>
 
             <div className="min-h-screen py-8 px-2 relative">
-                {/* Delete Confirmation Modal */}
-                {showDeleteModal && (
+                {/* Lock/Unlock Confirmation Modal */}
+                {showLockModal && (
                     <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
                         <motion.div
                             initial={{ opacity: 0, scale: 0.8, y: 50 }}
@@ -211,10 +219,15 @@ export default function Index({ auth, projects }) {
                         >
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {t("delete_project", "حذف المشروع")}
+                                    {lockedProjects.has(projectToLock?.id)
+                                        ? t(
+                                              "unlock_project",
+                                              "إلغاء قفل المشروع"
+                                          )
+                                        : t("lock_project", "قفل المشروع")}
                                 </h3>
                                 <motion.button
-                                    onClick={cancelDelete}
+                                    onClick={cancelLock}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
                                     className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -222,23 +235,33 @@ export default function Index({ auth, projects }) {
                                     <X size={20} />
                                 </motion.button>
                             </div>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                {t(
-                                    "delete_project_confirmation",
-                                    "هل أنت متأكد من حذف المشروع"
-                                )}{" "}
-                                "{projectToDelete?.name}"؟
+                            <p className="text-gray-600 dark:text-gray-400 mb-6 text-center">
+                                {lockedProjects.has(projectToLock?.id)
+                                    ? t(
+                                          "unlock_project_confirmation",
+                                          "هل أنت متأكد من إلغاء قفل المشروع"
+                                      )
+                                    : t(
+                                          "lock_project_confirmation",
+                                          "هل أنت متأكد من قفل المشروع"
+                                      )}{" "}
+                                "{projectToLock?.name}"؟
                                 <br />
-                                <span className="text-sm text-amber-600 dark:text-amber-400 mt-2 block">
-                                    {t(
-                                        "delete_frontend_persistent",
-                                        "ملاحظة: سيتم حذف المشروع من الواجهة نهائياً ولكن لن يتم حذفه من قاعدة البيانات"
-                                    )}
+                                <span className="text-sm text-pink-600 dark:text-pink-400 mt-2 block text-center">
+                                    {lockedProjects.has(projectToLock?.id)
+                                        ? t(
+                                              "unlock_note",
+                                              "سيتم إلغاء قفل المشروع وإتاحة الوصول إليه"
+                                          )
+                                        : t(
+                                              "lock_note",
+                                              "سيتم قفل المشروع وتعطيل الوصول إليه مؤقتاً"
+                                          )}
                                 </span>
                             </p>
                             <div className="flex gap-3 justify-end">
                                 <motion.button
-                                    onClick={cancelDelete}
+                                    onClick={cancelLock}
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-xl transition-all duration-300"
@@ -247,13 +270,19 @@ export default function Index({ auth, projects }) {
                                 </motion.button>
                                 <motion.button
                                     onClick={() =>
-                                        handleDeleteProject(projectToDelete.id)
+                                        handleToggleLock(projectToLock.id)
                                     }
                                     whileHover={{ scale: 1.02 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 rounded-xl transition-all duration-300 shadow-lg shadow-red-500/30"
+                                    className={`px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 shadow-lg ${
+                                        lockedProjects.has(projectToLock?.id)
+                                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/30"
+                                            : "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-pink-500/30"
+                                    }`}
                                 >
-                                    {t("delete", "حذف")}
+                                    {lockedProjects.has(projectToLock?.id)
+                                        ? t("unlock", "إلغاء القفل")
+                                        : t("lock", "قفل")}
                                 </motion.button>
                             </div>
                         </motion.div>
@@ -411,28 +440,59 @@ export default function Index({ auth, projects }) {
                                         style={{ isolation: "isolate" }}
                                     >
                                         <div
-                                            className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/20 dark:border-gray-700/30 ${statusInfo.bgGradient}`}
+                                            className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/20 dark:border-gray-700/30 ${
+                                                statusInfo.bgGradient
+                                            } ${
+                                                lockedProjects.has(project.id)
+                                                    ? "opacity-60 grayscale blur-sm hover:blur-none hover:opacity-80 hover:grayscale-0"
+                                                    : ""
+                                            }`}
                                         >
                                             {/* Shimmer Effect */}
                                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
 
-                                            {/* Delete Button - Positioned in top left corner */}
-                                            <motion.button
-                                                onClick={() =>
-                                                    showDeleteConfirmation(
-                                                        project
-                                                    )
-                                                }
-                                                className={`absolute top-4 left-4 z-10 transition-all duration-300 p-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 hover:text-red-700 dark:bg-red-900/30 dark:hover:bg-red-900/50 dark:text-red-400 dark:hover:text-red-300 backdrop-blur-sm border border-red-500/20 ${
+                                            <motion.div
+                                                className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-300 ${
                                                     hoveredCard === project.id
-                                                        ? "opacity-100 scale-100"
-                                                        : "opacity-0 scale-90"
+                                                        ? "opacity-100 bg-black/10 backdrop-blur-sm"
+                                                        : "opacity-0 pointer-events-none"
                                                 }`}
-                                                whileHover={{ scale: 1.1 }}
-                                                whileTap={{ scale: 0.95 }}
                                             >
-                                                <Trash2 size={16} />
-                                            </motion.button>
+                                                <motion.button
+                                                    onClick={() =>
+                                                        showLockConfirmation(
+                                                            project
+                                                        )
+                                                    }
+                                                    className="p-4 rounded-full bg-pink-50/90 hover:bg-pink-100/90 text-pink-500 hover:text-pink-600 backdrop-blur-sm border-2 border-pink-500/50 shadow-xl"
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                    initial={{ scale: 0.8 }}
+                                                    animate={{
+                                                        scale:
+                                                            hoveredCard ===
+                                                            project.id
+                                                                ? 1
+                                                                : 0.8,
+                                                        rotate:
+                                                            hoveredCard ===
+                                                            project.id
+                                                                ? 0
+                                                                : -90,
+                                                    }}
+                                                    transition={{
+                                                        duration: 0.2,
+                                                    }}
+                                                >
+                                                    {lockedProjects.has(
+                                                        project.id
+                                                    ) ? (
+                                                        <Unlock size={20} />
+                                                    ) : (
+                                                        <Lock size={20} />
+                                                    )}
+                                                </motion.button>
+                                            </motion.div>
 
                                             {/* Project Header */}
                                             <div className="p-8 border-b border-gray-100/50 dark:border-gray-700/50">
@@ -463,26 +523,6 @@ export default function Index({ auth, projects }) {
                                                                                 "no_industry",
                                                                                 "غير محدد"
                                                                             )}
-                                                                    </span>
-                                                                </motion.div>
-                                                            )}
-                                                            {project.target_market && (
-                                                                <motion.div
-                                                                    className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400"
-                                                                    whileHover={{
-                                                                        x: 5,
-                                                                    }}
-                                                                >
-                                                                    <Target
-                                                                        size={
-                                                                            16
-                                                                        }
-                                                                        className="text-green-500"
-                                                                    />
-                                                                    <span className="font-medium">
-                                                                        {
-                                                                            project.target_market
-                                                                        }
                                                                     </span>
                                                                 </motion.div>
                                                             )}
@@ -552,29 +592,61 @@ export default function Index({ auth, projects }) {
                                             )}
 
                                             {/* Actions */}
-                                            <div className="px-8 py-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-700/30 dark:to-gray-600/30 flex gap-4">
+                                            <div className="px-8 py-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-700/30 dark:to-gray-600/30 flex gap-3">
                                                 <motion.button
                                                     onClick={() =>
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        ) &&
                                                         handleCreatePlan(
                                                             project.id
                                                         )
                                                     }
-                                                    whileHover={{ scale: 1.02 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md shadow-indigo-500/20"
-                                                >
-                                                    <Plus size={16} />
-                                                    {t(
-                                                        "create_plan",
-                                                        "إنشاء خطة"
+                                                    whileHover={
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? { scale: 1.02 }
+                                                            : {}
+                                                    }
+                                                    whileTap={
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? { scale: 0.98 }
+                                                            : {}
+                                                    }
+                                                    disabled={lockedProjects.has(
+                                                        project.id
                                                     )}
+                                                    className={`flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md ${
+                                                        lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                                                            : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-indigo-500/20"
+                                                    }`}
+                                                >
+                                                    <Plus
+                                                        size={16}
+                                                        className="flex-shrink-0"
+                                                    />
+                                                    <span className="truncate text-center">
+                                                        {t(
+                                                            "create_plan",
+                                                            "إنشاء خطة"
+                                                        )}
+                                                    </span>
                                                     <Sparkles
                                                         size={14}
-                                                        className="text-yellow-300"
+                                                        className="text-yellow-300 flex-shrink-0"
                                                     />
                                                 </motion.button>
                                                 <motion.button
                                                     onClick={() =>
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        ) &&
                                                         router.get(
                                                             route(
                                                                 "projects.show",
@@ -582,15 +654,41 @@ export default function Index({ auth, projects }) {
                                                             )
                                                         )
                                                     }
-                                                    whileHover={{ scale: 1.02 }}
-                                                    whileTap={{ scale: 0.98 }}
-                                                    className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md border border-gray-200 dark:border-gray-600"
-                                                >
-                                                    <Eye size={16} />
-                                                    {t(
-                                                        "view_project",
-                                                        "عرض المشروع"
+                                                    whileHover={
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? { scale: 1.02 }
+                                                            : {}
+                                                    }
+                                                    whileTap={
+                                                        !lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? { scale: 0.98 }
+                                                            : {}
+                                                    }
+                                                    disabled={lockedProjects.has(
+                                                        project.id
                                                     )}
+                                                    className={`flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md border ${
+                                                        lockedProjects.has(
+                                                            project.id
+                                                        )
+                                                            ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
+                                                            : "bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white border-gray-200 dark:border-gray-600"
+                                                    }`}
+                                                >
+                                                    <Eye
+                                                        size={16}
+                                                        className="flex-shrink-0"
+                                                    />
+                                                    <span className="truncate text-center">
+                                                        {t(
+                                                            "view_project",
+                                                            "عرض المشروع"
+                                                        )}
+                                                    </span>
                                                 </motion.button>
                                             </div>
                                         </div>

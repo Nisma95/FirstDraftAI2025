@@ -125,109 +125,230 @@ class AiProjectHelper
         if ($language === 'ar') {
             $prompts = [
                 'description' => "اكتب وصفاً سهل الفهم للمشروع التالي:
-        اسم المشروع: \"{$context['project_name']}\"
-        نوع العمل: {$context['business_type']}
-        الصناعة: {$context['industry']}
+                        اسم المشروع: \"{$context['project_name']}\"
+                                                   نوع العمل: {$context['business_type']}
+                                                   الصناعة: {$context['industry']}
+                                                   
+                                                   اكتب الوصف بالطريقة التالية:
+                                                   - استخدم لغة بسيطة ومباشرة كأنك تشرح لصديق
+                                                   - اذكر بوضوح ماهية المشروع ووظيفته والفئة المستهدفة
+                                                   - تجنب المصطلحات المعقدة والجمل الطويلة
+                                                   - ابدأ الوصف باسم المشروع بأحرف كبيرة متبوعاً بنقطتين، ثم الوصف
         
-        اكتب الوصف بالطريقة التالية:
-        - استخدم لغة بسيطة ومباشرة كأنك تشرح لصديق
-        - اذكر بوضوح ماهية المشروع ووظيفته والفئة المستهدفة
-        - تجنب المصطلحات المعقدة والجمل الطويلة
-        - ابدأ الوصف باسم المشروع بأحرف كبيرة متبوعاً بنقطتين، ثم الوصف
-        
-        اكتب الوصف في 80-120 كلمة باللغة العربية بأسلوب بسيط ومفهوم.",
+                                                   اكتب الوصف في 80-120 كلمة باللغة العربية بأسلوب بسيط ومفهوم.",
 
                 'target_market' => "حدد شرائح السوق المستهدفة بشكل محدد جدًا لـ: \"{$context['project_name']}\" بناءً على هذا الوصف الدقيق للمشروع: \"{$context['description']}\"
 
-يجب عليك إنشاء قائمة مرقمة من 10 شرائح عملاء محددة ستستخدم هذا التطبيق/الخدمة.
-كل شريحة يجب أن:
-1. تكون وصفًا مفصلاً (6-10 كلمات على الأقل) لمجموعة مستخدمين محددة
-2. تذكر احتياجاتهم أو أهدافهم المحددة التي يعالجها هذا التطبيق
-3. تكون مستندة مباشرة إلى الميزات المذكورة في وصف المشروع
-4. تتضمن دوافعهم لاستخدام التطبيق
+                                     يجب عليك إنشاء قائمة مرقمة من 10 شرائح عملاء محددة ستستخدم هذا التطبيق/الخدمة.
+                           كل شريحة يجب أن:
+                           1. تكون وصفًا مفصلاً (6-10 كلمات على الأقل) لمجموعة مستخدمين محددة
+                           2. تذكر احتياجاتهم أو أهدافهم المحددة التي يعالجها هذا التطبيق
+                           3. تكون مستندة مباشرة إلى الميزات المذكورة في وصف المشروع
+                           4. تتضمن دوافعهم لاستخدام التطبيق
 
-على سبيل المثال، إذا كان التطبيق عبارة عن تطبيق سفر، فلا تكتب فقط 'المسافرين' - بدلاً من ذلك اكتب 'مسافرو الأعمال الذين يتطلعون إلى الاستفادة القصوى من وقت فراغهم المحدود في مدن جديدة'
+                                 على سبيل المثال، إذا كان التطبيق عبارة عن تطبيق سفر، فلا تكتب فقط 'المسافرين' - بدلاً من ذلك اكتب 'مسافرو الأعمال الذين يتطلعون إلى الاستفادة القصوى من وقت فراغهم المحدود في مدن جديدة'
 
-لا تستخدم مصطلحات عامة. كن محددًا ومفصلاً لكل شريحة.
-لا تستخدم تنسيق الخط الغامق.
-قدم 10 شرائح بالضبط، كل منها وصفية ومحددة قدر الإمكان.",
-                'location' => "حدد استراتيجية الموقع المناسبة للمشروع: \"{$context['project_name']}\" في مجال {$context['industry']}.
-هام جداً: اجعل إجابتك مختصرة للغاية (5-10 كلمات فقط).
-إذا كان منتجاً رقمياً (تطبيق/موقع ويب)، اكتب فقط \"تواجد رقمي عالمي\" دون شرح.
-إذا كان مشروعاً مادياً، اذكر نوع المنطقة الأفضل باختصار دون شرح.",
+                                    لا تستخدم مصطلحات عامة. كن محددًا ومفصلاً لكل شريحة.
+                                    لا تستخدم تنسيق الخط الغامق.
+                                    قدم 10 شرائح بالضبط، كل منها وصفية ومحددة قدر الإمكان.",
 
-                'main_product_service' => "حيوي جداً: اقرأ وصف المشروع التالي بعناية فائقة لفهم نوع المشروع بالضبط:
+                'location' => "حلل هذا المشروع المحدد وحدد استراتيجية الموقع المثلى:
 
-اسم المشروع: \"{$context['project_name']}\"
-وصف المشروع: \"{$context['description']}\"
-الصناعة: {$context['industry']}
+                          اسم المشروع: \"{$context['project_name']}\"
+                          وصف المشروع: \"{$context['description']}\"
+                          نوع العمل: {$context['business_type']}
+                          الصناعة: {$context['industry']}
 
-مهمتك هي إدراج 10 منتجات أو خدمات رئيسية سيقدمها هذا المشروع المحدد استناداً فقط إلى المعلومات الواردة في الوصف أعلاه.
+                            تحليل مطلوب بعناية:
+                            1. اقرأ وصف المشروع بعناية لفهم ما إذا كان هذا:
+                               - منتج رقمي (تطبيق، موقع ويب، منصة إلكترونية، برنامج) = أجب \"تواجد رقمي عالمي\"
+                               - عمل مادي (مطعم، متجر، عيادة، مكتب) = حدد نوع الموقع المطلوب
+                               - عمل خدمي = حدد أين ستُقدم الخدمات
 
-- يجب أن يكون كل عنصر مرتبطاً مباشرة بغرض المشروع الفعلي
-- لا تدرج ميزات عامة أو تخترع خدمات غير مذكورة في الوصف
-- اجعل كل عنصر موجزاً (2-4 كلمات) ولكن واضحاً
-- ركز على القيمة الأساسية التي يقدمها المشروع
-- لا تفترض نوع المشروع أبداً - استخدم فقط ما هو موجود فعلاً في الوصف
+                            2. أسس إجابتك فقط على ما هو المشروع فعلاً، وليس نصائح عامة.
 
-قدم قائمة مرقمة من 10 عناصر بالضبط تعكس بدقة ما يقدمه هذا المشروع المحدد.",
-                'revenue_model' => "اقترح نماذج إيرادات مناسبة للمشروع: \"{$context['project_name']}\" في مجال {$context['industry']} بناءً على طبيعة المشروع. إذا كان تطبيقاً/منصة رقمية، اقترح نماذج مثل الاشتراكات والإعلانات والمشتريات داخل التطبيق. قدم قائمة مرقمة من 3-5 نماذج واقعية بلغة بسيطة يفهمها الشخص العادي.",
+                            3. إذا كان مشروعاً رقمياً بوضوح (تطبيق، منصة، خدمة إلكترونية)، أجب بالضبط: \"تواجد رقمي عالمي\"
 
-                'main_differentiator' => "اذكر المميزات التنافسية للمشروع: \"{$context['project_name']}\" في مجال {$context['industry']}. حدد ما يميز هذا المشروع عن منافسيه بناءً على المعلومات المقدمة في الوصف. قدم قائمة مرقمة من 3-5 مميزات واضحة بلغة غير تقنية تشرح قيمة المشروع الفريدة."
+                            4. إذا كان عملاً مادياً، كن محدداً حول نوع الموقع (مثل: \"مجمع تجاري\"، \"حي سكني\"، \"منطقة أعمال\")
+
+                            5. اجعل الإجابة مختصرة للغاية (5 كلمات كحد أقصى).
+
+                            حلل وصف المشروع أعلاه وقدم استراتيجية الموقع المناسبة:",
+
+
+                'main_product_service' => "حلل وصف هذا المشروع واذكر المنتجات أو الخدمات المحددة الملموسة التي سيقدمها هذا العمل:
+
+                            اسم المشروع: \"{$context['project_name']}\"
+                            وصف المشروع: \"{$context['description']}\"
+                            الصناعة: {$context['industry']}
+
+                            مهم جداً: يجب أن تذكر منتجات/خدمات فعلية يمكن للعملاء شراؤها أو استخدامها، وليس أوصافاً عامة.
+
+                            أمثلة على الإجابات الصحيحة:
+                            - مطعم: \"قائمة الإفطار\"، \"عروض الغداء\"، \"باقات العشاء\"، \"خدمات التموين\"
+                            - تطبيق: \"تخطيط المسارات\"، \"نظام الحجز\"، \"معالجة المدفوعات\"، \"مراجعات المستخدمين\"
+                            - عيادة: \"فحوصات عامة\"، \"تحاليل الدم\"، \"التطعيمات\"، \"استشارات صحية\"
+
+                            أمثلة على الإجابات الخاطئة (لا تستخدمها):
+                            - \"طعام جيد\"، \"تجربة لطيفة\"، \"خدمة عالية الجودة\"، \"نهج حديث\"
+
+                            القواعد:
+                            1. كل عنصر يجب أن يكون شيئاً يمكن للعميل طلبه/شراؤه/استخدامه تحديداً
+                            2. استخدم 2-4 كلمات كحد أقصى لكل عنصر
+                            3. كن محدداً وملموساً، وليس وصفياً
+                            4. فكر: \"ما الذي سيظهر في قائمة الطعام/قائمة الأسعار/كتالوج الخدمات؟\"
+                            5. قدم 10 عناصر محددة بالضبط
+
+                            بناءً على وصف المشروع، ما هي العشرة منتجات أو خدمات الرئيسية التي يمكن للعملاء الحصول عليها فعلياً من هذا العمل؟",
+
+
+
+                'revenue_model' => "اذكر 5 مصادر إيرادات بسيطة لـ {$context['project_name']} في صناعة {$context['industry']}.
+
+                                المشروع: {$context['project_name']}
+                                الوصف: {$context['description']}
+                                الصناعة: {$context['industry']}
+
+                                المتطلبات:
+                                - اجعل كل عنصر بسيط وواضح (2-4 كلمات كحد أقصى)
+                                - ركز على مصادر إيرادات واقعية لهذا النوع من الأعمال
+                                - بدون شروحات أو أوصاف معقدة
+                                - فقط اذكر أسماء مصادر الإيرادات
+
+                                أمثلة للمطعم: مبيعات الطعام الداخلي، طلبات التوصيل، خدمات التموين، حجوزات المناسبات، منتجات العلامة التجارية
+
+                                قدم 5 مصادر إيرادات بسيطة:",
+
+
+
+
+                'main_differentiator' => "اذكر ما يميز {$context['project_name']} عن المنافسين في صناعة {$context['industry']}.
+
+                            المشروع: {$context['project_name']}
+                            الوصف: {$context['description']}
+                            الصناعة: {$context['industry']}
+
+                            المتطلبات:
+                            - كل ميزة يجب أن تكون قصيرة (3-5 كلمات كحد أقصى)
+                            - ركز على ما يجعل هذا المشروع فريداً
+                            - بدون شروحات أو أوصاف طويلة
+                            - فقط اذكر المزايا الأساسية
+
+                            أمثلة للمطعم: خيارات قائمة مميزة، خدمة توصيل على مدار الساعة، عروض طبخ مباشرة، مكونات فاخرة فقط، تقنية طاولات تفاعلية
+
+                            قدم 5 مزايا تنافسية قصيرة:",
+
+
             ];
         } else {
             $prompts = [
                 'description' => "Write an easy-to-understand description for the following project:
-        Project Name: \"{$context['project_name']}\"
-        Business Type: {$context['business_type']}
-        Industry: {$context['industry']}
-        
-        Structure the description as follows:
-        - Use simple, direct language as if explaining to a friend
-        - Clearly state what the project is, what it does, and who it's for
-        - Avoid complex terminology and long sentences
-        - Start the description with the project name in ALL CAPS followed by a colon, then the description
-        
-        Write the description in 80-120 words in English using a simple, conversational tone in the format: \"[PROJECT NAME IN CAPS]: [simple clear description]\"",
+                                Project Name: \"{$context['project_name']}\"
+                                Business Type: {$context['business_type']}
+                                Industry: {$context['industry']}
+                                
+                                Structure the description as follows:
+                                - Write like a business description, not casual conversation
+                                - Use professional but accessible language
+                                - Clearly state what the project is, what it does, and who it's for
+                                - Avoid complex terminology and long sentences
+                                - Start the description with the project name
+                                Write the description in 80-120 words in English using a simple, conversational tone in the format",
 
                 'target_market' => "Identify SPECIFIC target market segments for: \"{$context['project_name']}\" based on this EXACT project description: \"{$context['description']}\"
 
-You MUST create a numbered list of 10 specific customer segments who would use this app/service.
-Each segment should:
-1. Be a detailed description (at least 6-10 words) of a specific user group
-2. Mention their specific needs or goals that this app addresses
-3. Be directly based on features mentioned in the project description
-4. Include their motivation for using the app
+                                    You MUST create a numbered list of 10 specific customer segments who would use this app/service.
+                                    Each segment should:
+                                    1. Be a detailed description (at least 6-10 words) of a specific user group
+                                    2. Mention their specific needs or goals that this app addresses
+                                    3. Be directly based on features mentioned in the project description
+                                    4. Include their motivation for using the app
 
-For example, if the app is a travel app, don't just write 'Travelers' - instead write 'Business travelers looking to maximize their limited free time in new cities'
+                                    For example, if the app is a travel app, don't just write 'Travelers' - instead write 'Business travelers looking to maximize their limited free time in new cities'
 
-DO NOT use generic terms. BE SPECIFIC and DETAILED for EACH segment.
-DO NOT use bold formatting.
-Provide EXACTLY 10 segments, each as descriptive and specific as possible.",
-                'location' => "Specify the optimal location strategy for project: \"{$context['project_name']}\" in the {$context['industry']} industry.
-IMPORTANT: Keep your answer extremely brief (5-10 words only).
-If it's a digital product (app/website), simply state \"Global digital presence\" without explanation.
-If it's a physical business, briefly name the best region type without explanation.",
+                                    DO NOT use generic terms. BE SPECIFIC and DETAILED for EACH segment.
+                                    DO NOT use bold formatting.
+                                    Provide EXACTLY 10 segments, each as descriptive and specific as possible.",
+                'location' => "Analyze this specific project and determine the optimal location strategy:
 
-                'main_product_service' => "CRITICAL: Read the following project description VERY CAREFULLY to understand exactly what type of project this is:
+                                    Project Name: \"{$context['project_name']}\"
+                                    Project Description: \"{$context['description']}\"
+                                    Business Type: {$context['business_type']}
+                                    Industry: {$context['industry']}
 
-Project Name: \"{$context['project_name']}\"
-Project Description: \"{$context['description']}\"
-Industry: {$context['industry']}
+                                    CRITICAL ANALYSIS REQUIRED:
+                                    1. Read the project description carefully to understand if this is:
+                                    - A digital product (app, website, online platform, software) = Answer \"Global digital presence\"
+                                    - A physical business (restaurant, store, clinic, office) = Specify the location type needed
+                                    - A service business = Specify where services would be delivered
 
-Your task is to list the 10 main products or services that THIS SPECIFIC PROJECT would provide based SOLELY on the information in the description above.
+                                    2. Base your answer ONLY on what the project actually is, not generic business advice.
 
-- Each item must be directly connected to the actual project purpose
-- Do not list generic features or invent services not implied by the description
-- Keep each item brief (2-4 words) but clear
-- Focus on the core value proposition of the project
-- Never assume the project type - only use what's actually in the description
+                                    3. If it's clearly a digital project (app, platform, online service), respond with exactly: \"Global digital presence\"
 
-Provide a numbered list of exactly 10 items that accurately reflect what this specific project offers.",
+                                    4. If it's a physical business, be specific about the location type needed (e.g., \"Shopping mall food court\", \"Residential neighborhood\", \"Business district\")
 
-                'revenue_model' => "Suggest appropriate revenue models for project: \"{$context['project_name']}\" in the {$context['industry']} industry based on the nature of the project. If it's an app/digital platform, suggest models like subscriptions, ads, in-app purchases. Provide a numbered list of 3-5 realistic models explained in simple terms an average person would understand.",
+                                    5. Keep the answer extremely brief (maximum 5 words).
 
-                'main_differentiator' => "List competitive advantages for project: \"{$context['project_name']}\" in the {$context['industry']} industry. Identify what makes this project stand out from competitors based on the information provided in the description. Provide a numbered list of 3-5 clear advantages using everyday language that explains the project's unique value."
+                                    Analyze the project description above and provide the appropriate location strategy:",
+                'main_product_service' => "Analyze this project description and list the SPECIFIC TANGIBLE products or services this business will offer:
+
+                                    Project Name: \"{$context['project_name']}\"
+                                    Project Description: \"{$context['description']}\"
+                                    Industry: {$context['industry']}
+
+                                    CRITICAL: You must list ACTUAL products/services that customers can buy or use, NOT vague descriptions.
+
+                                    EXAMPLES OF GOOD ANSWERS:
+                                    - Restaurant: \"Breakfast menu\", \"Lunch specials\", \"Dinner packages\", \"Catering services\"
+                                    - App: \"Route planning\", \"Booking system\", \"Payment processing\", \"User reviews\"
+                                    - Clinic: \"General checkups\", \"Blood tests\", \"Vaccinations\", \"Health consultations\"
+
+                                    EXAMPLES OF BAD ANSWERS (DO NOT USE):
+                                    - \"Good food\", \"Nice experience\", \"Quality service\", \"Modern approach\"
+
+                                    RULES:
+                                    1. Each item must be something a customer can specifically request/buy/use
+                                    2. Use 2-4 words maximum per item
+                                    3. Be concrete and specific, not descriptive
+                                    4. Think: \"What would appear on a menu/price list/service catalog?\"
+                                    5. Provide exactly 10 specific items
+
+                                    Based on the project description, what are the 10 main products or services customers can actually get from this business?",
+
+                'revenue_model' => "List 5 simple revenue streams for {$context['project_name']} in the {$context['industry']} industry.
+
+                                    Project: {$context['project_name']}
+                                    Description: {$context['description']}
+                                    Industry: {$context['industry']}
+
+                                    Requirements:
+                                    - Keep each item simple and clear (2-4 words maximum)
+                                    - Focus on realistic revenue sources for this business type
+                                    - No complex explanations or descriptions
+                                    - Just list the revenue stream names
+
+                                    Examples for restaurant: Dine-In Sales, Takeaway Orders, Catering Services, Event Bookings, Branded Merchandise
+
+                                    Provide 5 simple revenue streams:",
+
+
+                'main_differentiator' => "List what makes {$context['project_name']} different from competitors in the {$context['industry']} industry.
+
+                                    Project: {$context['project_name']}
+                                    Description: {$context['description']}
+                                    Industry: {$context['industry']}
+
+                                    Requirements:
+                                    - Each differentiator must be SHORT (3-5 words maximum)
+                                    - Focus on what makes THIS project unique
+                                    - No long explanations or descriptions
+                                    - Just list the key advantages
+
+                                    Examples for restaurant: Fusion Menu Options, 24/7 Delivery Service, Live Cooking Shows, Premium Ingredients Only, Interactive Table Technology
+
+                                    Provide 5 short competitive advantages:",
+
             ];
         }
 
@@ -347,65 +468,95 @@ Provide a numbered list of 3-5 clear advantages that highlight the project's uni
             $messages = [
                 'description' => "أنت خبير في كتابة أوصاف المشاريع بأسلوب بسيط ومفهوم. اكتب وصفاً واضحاً بلغة بسيطة وسهلة الفهم كأنك تشرح لصديق. تجنب المصطلحات التقنية المعقدة وركز على التوصيل الواضح للأفكار. اكتب باللغة العربية في 80-120 كلمة.",
                 'target_market' => "أنت محلل سوق متخصص في تحديد الفئات المستهدفة بدقة عالية. مهمتك هي تحليل وصف المشروع بعناية واستخراج شرائح السوق المستهدفة المرتبطة مباشرة بهذا المشروع المحدد. 
-تجنب تمامًا الاقتراحات العامة التي يمكن أن تنطبق على أي مشروع. 
-ركز على: 
-1. تحليل وصف المشروع لفهم الغرض الأساسي والقيمة المقدمة 
-2. تحديد من سيستفيد من هذا المشروع تحديدًا وسبب حاجتهم له 
-3. صياغة كل شريحة بعبارة كاملة مفهومة توضح الفئة المستهدفة وسبب استخدامهم للمشروع
-4. التأكد من أن كل شريحة مستهدفة تتعلق مباشرة بالوصف الفعلي للمشروع وليست عامة",
-                'location' => "أنت مستشار استراتيجي للمواقع. للمنتجات الرقمية (التطبيقات، مواقع الويب، المنصات)، اكتب فقط \"تواجد رقمي عالمي\" دون شرح. للأعمال المادية، اذكر نوع المنطقة باختصار. اجعل الإجابات مختصرة للغاية (5-10 كلمات كحد أقصى).",
+                                تجنب تمامًا الاقتراحات العامة التي يمكن أن تنطبق على أي مشروع. 
+                                ركز على: 
+                                1. تحليل وصف المشروع لفهم الغرض الأساسي والقيمة المقدمة 
+                                2. تحديد من سيستفيد من هذا المشروع تحديدًا وسبب حاجتهم له 
+                                3. صياغة كل شريحة بعبارة كاملة مفهومة توضح الفئة المستهدفة وسبب استخدامهم للمشروع
+                                4. التأكد من أن كل شريحة مستهدفة تتعلق مباشرة بالوصف الفعلي للمشروع وليست عامة",
 
-                'main_product_service' => "أنت خبير في تحليل أوصاف المشاريع بعناية لاستخراج الغرض الدقيق وميزات المشروع. لديك هذه القدرات الأساسية:
 
-1. يمكنك تحديد النوع الدقيق للمشروع من معلومات محدودة
-2. لا تقوم أبداً بافتراضات أو إضافة ميزات عامة
-3. تحدد فقط الخدمات الأساسية المذكورة مباشرة أو المشار إليها بقوة في وصف المشروع
-4. تقوم بتبسيط المفاهيم المعقدة إلى أوصاف خدمات بسيطة وواضحة
 
-منهجك:
-- اقرأ وصف المشروع بعناية عدة مرات
-- حدد الغرض الأساسي للمشروع (تطبيق سفر، تجارة إلكترونية، إلخ)
-- استخرج فقط الميزات/الخدمات المحددة التي سيقدمها هذا المشروع بالتحديد
-- عبّر عن كل خدمة في 2-4 كلمات واضحة
-- لا تضف أبداً ميزات الطقس إلا إذا كان المشروع يتعلق صراحة بالطقس
-- لا تضف ميزات تقنية عامة غير خاصة بهذا المشروع
+                'location' => "أنت استراتيجي مواقع ذكي يقرأ ويفهم أوصاف المشاريع فعلاً.
 
-هدفك هو إنتاج أدق قائمة بالخدمات الفعلية التي سيقدمها هذا المشروع المحدد.",
-                'revenue_model' => "أنت خبير نماذج الإيرادات. اقترح نماذج مناسبة لطبيعة المشروع. للتطبيقات والمنصات الرقمية، فكر في نماذج مثل الاشتراكات والإعلانات والمشتريات داخل التطبيق. للمشاريع المادية، فكر في نماذج البيع المباشر والخدمات المميزة. استخدم لغة بسيطة مفهومة للجميع وليس فقط للخبراء.",
-                'main_differentiator' => "أنت استراتيجي تنافسي. حدد ما يميز هذا المشروع عن منافسيه بناءً على وصف المشروع. ركز على القيمة الفريدة والميزات المميزة التي تجعل هذا المشروع مختلفاً. اذكر المميزات التنافسية بلغة بسيطة وواضحة كأنك تشرح لشخص بدون خبرة تقنية."
+                                مهمتك الوحيدة: تحديد ما إذا كان هذا منتجاً رقمياً أم عملاً مادياً من خلال قراءة الوصف.
+
+                                المنتجات الرقمية (تطبيقات، مواقع، منصات، برامج، خدمات إلكترونية):
+                                - أجب دائماً بالضبط \"تواجد رقمي عالمي\" - لا شيء آخر!
+
+                                الأعمال المادية (مطاعم، متاجر، عيادات، مكاتب):
+                                - حدد نوع الموقع المطلوب بالضبط في 3-5 كلمات
+                                - أمثلة: \"موقع في مجمع تجاري\"، \"حي سكني\"، \"مكتب في منطقة أعمال\"
+
+                                اقرأ وصف المشروع بعناية. لا تعطِ نصائح عامة. كن محدداً لما هو المشروع فعلاً.",
+
+
+
+                'main_product_service' => "أنت محلل أعمال يحدد المنتجات والخدمات المحددة الملموسة التي يمكن للعملاء شراؤها أو استخدامها.
+
+                                لا تذكر أوصافاً عامة مثل 'طعام جيد' أو 'تجربة لطيفة'.
+                                اذكر عناصر محددة مثل 'قائمة الإفطار' أو 'خدمة التوصيل'.
+
+                                فكر كعميل: ما الأشياء المحددة التي يمكنني شراؤها/طلبها/الحصول عليها من هذا العمل؟
+                                فكر كقائمة طعام/كتالوج: ما العناصر المحددة التي ستُدرج مع الأسعار؟
+
+                                مهمتك هي تحديد منتجات/خدمات ملموسة قابلة للشراء، وليس أوصافاً تسويقية.",
+
+
+
+                'revenue_model' => "تذكر أسماء مصادر الإيرادات البسيطة والواضحة. اجعل كل عنصر من 2-4 كلمات كحد أقصى. بدون علامات اقتباس، بدون شروحات، فقط أسماء مصادر الإيرادات النظيفة. ركز على الطرق الواقعية التي يكسب بها هذا النوع من الأعمال المال.",
+
+
+
+                'main_differentiator' => "اذكر مزايا تنافسية قصيرة ومؤثرة. اجعل كل عنصر من 3-5 كلمات كحد أقصى. بدون علامات اقتباس، بدون شروحات طويلة، فقط أسماء المزايا النظيفة. ركز على ما يجعل هذا العمل المحدد فريداً عن المنافسين.",
             ];
         } else {
             $messages = [
                 'description' => "You are an expert in writing project descriptions in a simple, conversational style. Write like you're explaining to a friend, using everyday language. Avoid overly formal or technical language. Make it easy to understand while still being professional. The description should mention what the project is, what it does, and who it's for. Keep it between 80-120 words in English.",
                 'target_market' => "You are a market analysis expert specialized in identifying precisely targeted segments. Your task is to carefully analyze the project description and extract target market segments directly related to this specific project.
-Completely avoid generic suggestions that could apply to any project.
-Focus on:
-1. Analyzing the project description to understand the core purpose and value proposition
-2. Identifying who would specifically benefit from this project and why they need it
-3. Formulating each segment as a complete understandable phrase that explains the target group and their reason for using the project
-4. Ensuring each target segment relates directly to the actual project description and is not generic",
-                'location' => "You are a location strategist. For digital products (apps, websites, platforms), simply state \"Global digital presence\" without explanation. For physical businesses, briefly name the region type. Keep answers extremely brief (5-10 words max).",
-
-                'main_product_service' => "You are an expert at carefully analyzing project descriptions to extract the exact purpose and features of a project. You have these key abilities:
-
-1. You can determine the precise type of project from limited information
-2. You never make assumptions or add generic features
-3. You identify only the core services that are directly mentioned or strongly implied in the project description
-4. You distill complex concepts into simple, clear service descriptions
-
-Your approach:
-- Read the project description carefully multiple times
-- Identify the fundamental purpose of the project (travel app, e-commerce, etc.)
-- Extract ONLY the specific features/services that this particular project would offer
-- Express each service in 2-4 clear words
-- Never add weather features unless the project is explicitly about weather
-- Never add generic tech features that aren't specific to this project
-
-Your goal is to produce the most accurate list of actual services this specific project would provide.",
+                                Completely avoid generic suggestions that could apply to any project.
+                                Focus on:
+                                1. Analyzing the project description to understand the core purpose and value proposition
+                                2. Identifying who would specifically benefit from this project and why they need it
+                                3. Formulating each segment as a complete understandable phrase that explains the target group and their reason for using the project
+                                4. Ensuring each target segment relates directly to the actual project description and is not generic",
 
 
-                'revenue_model' => "You are a revenue model expert. Suggest models appropriate to the nature of the project. For digital apps and platforms, consider models like subscriptions, ads, in-app purchases. For physical projects, consider direct sales models and premium services. Use simple language understandable to everyone, not just experts.",
-                'main_differentiator' => "You are a competitive strategist. Identify what makes this project stand out from competitors based on the project description. Focus on the unique value and distinctive features that make this project different. List competitive advantages in simple, clear language as if explaining to someone without technical expertise."
+
+                'location' => "You are a smart location strategist who actually reads and understands project descriptions. 
+
+                                YOUR ONLY JOB: Determine if this is a digital product or physical business by reading the description.
+
+                                DIGITAL PRODUCTS (apps, websites, platforms, software, online services): 
+                                - Always respond with exactly \"Global digital presence\" - nothing else!
+
+                                PHYSICAL BUSINESSES (restaurants, stores, clinics, offices):
+                                - Specify the exact location type needed in 3-5 words
+                                - Examples: \"Shopping mall location\", \"Residential neighborhood\", \"Business district office\"
+
+                                READ THE PROJECT DESCRIPTION CAREFULLY. Don't give generic advice. Be specific to what the project actually is.",
+
+
+
+                'main_product_service' => "You are a business analyst who identifies SPECIFIC, TANGIBLE products and services that customers can purchase or use.
+
+                                DO NOT list vague descriptions like 'good food' or 'nice experience'. 
+                                DO list specific items like 'breakfast menu' or 'delivery service'.
+
+                                Think like a customer: What exact things can I buy/order/request from this business?
+                                Think like a menu/catalog: What specific items would be listed with prices?
+
+                                Your job is to identify concrete, purchasable products/services, not marketing descriptions.",
+
+
+
+
+                'revenue_model' => "You list simple, clear revenue stream names. Keep each item to 2-4 words maximum. No quotes, no explanations, just clean revenue source names. Focus on realistic ways this specific business type makes money.",
+
+
+
+
+                'main_differentiator' => "You list short, punchy competitive advantages. Keep each item to 3-5 words maximum. No quotes, no long explanations, just clean advantage names. Focus on what makes this specific business unique from competitors.",
             ];
         }
 
@@ -449,29 +600,22 @@ Your goal is to produce the most accurate list of actual services this specific 
         $response = str_replace(['**', '__'], '', $response);
 
         // For description field, handle project name and formatting
-        if ($fieldName === 'description') {
-            // Preserve project name format if it exists (PROJECT_NAME: description)
-            $projectNamePrefix = '';
-            if (preg_match('/^([A-Z0-9_]+)\s*:\s*(.*)$/s', $response, $matches)) {
-                $projectNamePrefix = $matches[1] . ': ';
-                $response = $matches[2]; // Get just the description part
-            }
 
-            // If no project name prefix found but we have a global project name, add it
-            if (empty($projectNamePrefix) && isset($GLOBALS['current_project_name'])) {
-                $projectName = strtoupper($GLOBALS['current_project_name']);
-                $projectNamePrefix = $projectName . ': ';
+        // For description field, handle project name and formatting
+        if ($fieldName === 'description') {
+            // Extract just the description part, removing any project name prefix
+            $cleanDescription = $response;
+
+            if (preg_match('/^([A-Z0-9_\s]+)\s*:\s*(.*)$/s', $response, $matches)) {
+                $cleanDescription = $matches[2]; // Get just the description part without prefix
             }
 
             // Clean up the description
-            $response = $this->cleanDescription($response);
+            $cleanDescription = $this->cleanDescription($cleanDescription);
 
-            // Add back the project name prefix
-            if (!empty($projectNamePrefix)) {
-                $response = $projectNamePrefix . $response;
-            }
+            // Return only the clean description without project name
+            $response = $cleanDescription;
         }
-
         // Remove common intro phrases
         $intros = [
             'Based on the project information',
@@ -550,55 +694,31 @@ Your goal is to produce the most accurate list of actual services this specific 
 
         // Format as list for appropriate fields
         if (in_array($fieldName, ['target_market', 'main_product_service', 'revenue_model', 'main_differentiator'])) {
-            // Handle target market separately
+
             if ($fieldName === 'target_market') {
                 $lines = explode("\n", $response);
                 $formattedLines = [];
                 $count = 0;
 
-                // Extract numbered items and make them short
+                // Extract numbered items and preserve complete descriptions
                 foreach ($lines as $line) {
-                    if (preg_match('/^\s*\d+\.\s/', $line) && $count < 10) {
+                    if (preg_match('/^\s*\d+\.\s/', $line)) {
                         $count++;
                         $content = preg_replace('/^\s*\d+\.\s/', '', $line);
                         $content = str_replace(['**', '__'], '', $content); // Remove bold formatting
 
-                        // Shorten content significantly - take just first 2-5 words
+                        // Keep it short but complete - limit to 6-8 words max
                         $words = explode(' ', $content);
-                        if (count($words) > 5) {
-                            $content = implode(' ', array_slice($words, 0, 3));
-
-                            // If last word ends with "ing" or "ers", add one more word
-                            $lastWord = end($words);
-                            if (substr($lastWord, -3) === 'ing' || substr($lastWord, -3) === 'ers') {
-                                $content = implode(' ', array_slice($words, 0, 4));
-                            }
+                        if (count($words) > 8) {
+                            $content = implode(' ', array_slice($words, 0, 7));
                         }
 
-                        $formattedLines[] = ($count) . '. ' . trim($content);
-                    }
-                }
-
-                // If we have fewer than 10 items, add from default list
-                if ($count < 10) {
-                    $defaultSegments = [
-                        "Frequent travelers",
-                        "Solo adventurers",
-                        "Local event-goers",
-                        "Digital nomads",
-                        "Social travelers",
-                        "City explorers",
-                        "Weekend trip planners",
-                        "Business travelers",
-                        "Expats in new cities",
-                        "Travel bloggers"
-                    ];
-
-                    foreach ($defaultSegments as $segment) {
-                        if ($count < 10) {
-                            $count++;
-                            $formattedLines[] = $count . '. ' . $segment;
+                        // Make sure it doesn't end with incomplete words
+                        if (preg_match('/\b(seeking|looking|wanting|needing|in|for|to|who)$/', $content)) {
+                            $content .= " solutions";
                         }
+
+                        $formattedLines[] = $count . '. ' . trim($content);
                     }
                 }
 
@@ -607,10 +727,35 @@ Your goal is to produce the most accurate list of actual services this specific 
                 }
             }
 
-            // For other fields
+            // Handle revenue_model formatting specifically
+            if ($fieldName === 'revenue_model') {
+                $lines = explode("\n", $response);
+                $formattedLines = [];
+                $count = 0;
+
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (empty($line)) continue;
+
+                    // Remove existing numbering if present
+                    $content = preg_replace('/^\s*\d+\.\s*/', '', $line);
+                    $content = str_replace(['**', '__'], '', $content); // Remove bold formatting
+                    $content = trim($content);
+
+                    if (!empty($content)) {
+                        $count++;
+                        $formattedLines[] = $count . '. ' . $content;
+                    }
+                }
+
+                if (!empty($formattedLines)) {
+                    return implode("\n", $formattedLines);
+                }
+            }
+
+            // For other fields (main_product_service, main_differentiator)
             $response = $this->formatAsList($response);
         }
-
         // Clean description specifically
         if ($fieldName === 'description' && strpos($response, ':') === false) {
             $response = $this->cleanDescription($response);
@@ -711,36 +856,63 @@ Your goal is to produce the most accurate list of actual services this specific 
     }
 
     /**
-     * Simplify a list item
+     * Simplify a list item - FIXED VERSION
      */
     private function simplifyListItem(string $item): string
     {
-        // إزالة علامات التنسيق الغامق
+        // Remove bold formatting
         $item = str_replace(['**', '__'], '', $item);
 
-        // للأسواق المستهدفة، نريد عبارات كاملة
+        // Clean up the item first
+        $item = trim($item);
+
+        // For target market, we want complete meaningful phrases
+        // Don't truncate at punctuation for target market items
         $wordCount = str_word_count($item);
-        if ($wordCount < 4) {
-            if (stripos($item, 'who') === false && stripos($item, 'seeking') === false && stripos($item, 'looking') === false) {
-                $item .= " who need this specific solution";
+
+        // If the item is too short and doesn't seem complete, try to complete it
+        if ($wordCount < 6) {
+            // Check if it ends with common incomplete patterns
+            $incompletePatterns = [
+                '/seeking$/',
+                '/looking$/',
+                '/wanting$/',
+                '/needing$/',
+                '/searching$/',
+                '/in$/',
+                '/for$/',
+                '/to$/',
+                '/who$/',
+                '/that$/'
+            ];
+
+            $isIncomplete = false;
+            foreach ($incompletePatterns as $pattern) {
+                if (preg_match($pattern, $item)) {
+                    $isIncomplete = true;
+                    break;
+                }
+            }
+
+            if ($isIncomplete) {
+                $item .= " convenient solutions";
             }
         }
 
-        // Remove everything after the first sentence, but only if it's long enough
-        if ($wordCount > 10) {
-            $simplified = preg_replace('/[.,:;].*$/s', '', $item);
-        } else {
-            $simplified = $item;
-        }
+        // Only remove content after sentence-ending punctuation (not commas/colons)
+        // This preserves "Young professionals seeking work-life balance" instead of cutting at comma
+        $simplified = preg_replace('/[.!?]+.*$/s', '', $item);
 
-        // If still too long, take first 10-12 words (increased from 6-8)
+        // If still too long, take first 15 words (increased from 12 to allow complete thoughts)
         $words = explode(' ', $simplified);
-        if (count($words) > 12) {
-            $simplified = implode(' ', array_slice($words, 0, 12));
+        if (count($words) > 15) {
+            $simplified = implode(' ', array_slice($words, 0, 15));
         }
 
         return trim($simplified);
     }
+
+
     /**
      * Clean description specifically
      */
