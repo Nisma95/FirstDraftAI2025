@@ -11,6 +11,13 @@ export default function ProjectSelection({
 }) {
     const { t } = useTranslation();
 
+    console.log("ProjectSelection rendering with:", {
+        selectedProject: selectedProject
+            ? `ID: ${selectedProject.id}, Name: ${selectedProject.name}`
+            : "none",
+        projects: projects.map((p) => `ID: ${p.id}, Name: ${p.name}`),
+    });
+
     // Always show exactly 4 cards: 3 projects + 1 create new
     // Take first 3 projects and add the create new card
     const displayProjects = projects?.slice(0, 3) || [];
@@ -63,7 +70,10 @@ export default function ProjectSelection({
                     <div key={project.id} className="h-full">
                         <ProjectSelectionCard
                             project={project}
-                            isSelected={selectedProject?.id === project.id}
+                            isSelected={
+                                selectedProject &&
+                                selectedProject.id === project.id
+                            }
                             onSelect={onSelectProject}
                         />
                     </div>

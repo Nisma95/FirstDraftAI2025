@@ -49,11 +49,16 @@ class PlanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         $projects = Project::all();
+
+        // Get project_id from the request and ensure it's properly cast to an integer
+        $project_id = $request->has('project_id') ? (int)$request->input('project_id') : null;
+
         return Inertia::render('Plans/AiPlanner', [
-            'projects' => $projects
+            'projects' => $projects,
+            'project_id' => $project_id // This was missing!
         ]);
     }
 

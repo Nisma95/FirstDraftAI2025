@@ -12,8 +12,6 @@ import { useTranslation } from "react-i18next";
 export default function AIQuestionCard({
     question,
     questionType = "text",
-    questionCount = 1,
-    totalQuestions = 5,
     questionDetails = null, // New prop for detailed breakdowns
 }) {
     const { t } = useTranslation();
@@ -135,11 +133,6 @@ export default function AIQuestionCard({
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 {getQuestionTypeLabel()}
                             </p>
-                        </div>
-
-                        {/* Question counter */}
-                        <div className="text-xs text-gray-500 dark:text-gray-400 bg-white/50 dark:bg-gray-800/50 px-2 py-1 rounded-md">
-                            {questionCount}/{totalQuestions}
                         </div>
                     </div>
 

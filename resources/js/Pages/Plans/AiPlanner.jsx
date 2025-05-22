@@ -53,16 +53,17 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
 
     useEffect(() => {
         if (project_id && projects && projects.length > 0) {
-            const preSelectedProject = projects.find(
-                (p) => p.id === parseInt(project_id)
+            // Find the project with matching ID
+            const projectToSelect = projects.find(
+                (p) => p.id === parseInt(project_id, 10)
             );
-            if (preSelectedProject) {
-                console.log("Auto-selecting project:", preSelectedProject);
-                handleSelectProject(preSelectedProject);
+
+            if (projectToSelect) {
+                console.log("Auto-selecting project:", projectToSelect);
+                setSelectedProject(projectToSelect);
             }
         }
     }, [project_id, projects]);
-
     const handleSelectProject = async (project) => {
         console.log("🚀 Selecting project:", project);
         setSelectedProject(project);

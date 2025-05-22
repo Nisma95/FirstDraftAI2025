@@ -69,7 +69,8 @@ export default function ProjectSelectionCard({
             whileHover={{ scale: 1.02 }}
             onClick={handleClick}
         >
-            <div className="rounded-lg p-4 transition-all duration-300">
+            <div className="rounded-lg p-4 transition-all duration-300 flex flex-col justify-center items-center h-full">
+                {" "}
                 <h2
                     className={`text-xl font-semibold transition-all duration-300 ${
                         isSelected
@@ -99,13 +100,6 @@ export default function ProjectSelectionCard({
                         {getBadgeText()}
                     </span>
                 </div>
-
-                {/* Show project ID for debugging */}
-                {process.env.NODE_ENV === "development" && (
-                    <div className="mt-2 text-xs opacity-50">
-                        ID: {project.id}
-                    </div>
-                )}
             </div>
         </motion.div>
     );
