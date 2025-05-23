@@ -1,0 +1,1 @@
+import{j as e}from"./app-Q2KDsHL9.js";const o=()=>e.jsx("div",{className:"min-h-screen w-full bg-cover bg-center bg-no-repeat",style:{backgroundImage:"url('your_image_url_here')"}});export{o as default};
