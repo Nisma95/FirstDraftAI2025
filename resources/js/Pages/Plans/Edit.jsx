@@ -8,7 +8,7 @@ import {
     CurrencyDollarIcon,
     UsersIcon,
     CheckIcon,
-    TargetIcon,
+    FlagIcon,
     Cog6ToothIcon,
     SparklesIcon,
     ArrowPathIcon,
@@ -27,7 +27,7 @@ export default function Edit({ auth, plan }) {
         },
         { id: "market", label: "تحليل السوق", icon: ChartBarIcon },
         { id: "audiences", label: "الجمهور المستهدف", icon: UsersIcon },
-        { id: "goals", label: "الأهداف والمهام", icon: TargetIcon },
+        { id: "goals", label: "الأهداف والمهام", icon: FlagIcon },
         { id: "operations", label: "العمليات", icon: Cog6ToothIcon },
     ];
 
@@ -349,7 +349,7 @@ const GoalsSection = ({ plan }) => {
                 </p>
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
-                <TargetIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <FlagIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <p className="text-gray-500 dark:text-gray-400">
                     محتوى قسم الأهداف والمهام
                 </p>
