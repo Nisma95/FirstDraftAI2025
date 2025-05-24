@@ -82,13 +82,16 @@
             }
         },
         "signIn": "Sign in",
+        "loginDesc": "Welcome back! Please sign in to your account",
+        "noAccount": "Don't have an account?",
+        "createAccount": "Create one here",
+        "forgotPassword": "Forgot your password?",
         "login": "Login",
         "register": "Register",
         "logout": "Logout",
         "email": "Email",
         "password": "Password",
         "remember_me": "Remember me",
-        "forgot_password": "Forgot password?",
         "reset_password": "Reset Password",
         "confirm_password": "Confirm Password"
     },
