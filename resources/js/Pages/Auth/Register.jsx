@@ -1,8 +1,6 @@
 import InputError from "@/Components/InputError";
 import TextInput from "@/Components/TextInput";
-import ApplicationLogo from "@/Components/ApplicationLogo";
-import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
-import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
+import TopTools from "@/Components/TopTools";
 import StarBackground from "@/Components/StarBackground";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useState, useEffect, useRef } from "react";
@@ -120,7 +118,7 @@ export default function Register() {
         });
     };
 
-    const businessImageUrl = "/images/loginPix.png";
+    const businessImageUrl = "/images/loginPix.jpeg";
     const currentField = fields[currentStep];
     const isPasswordField = currentField.name === "password";
     const isConfirmPasswordField =
@@ -131,8 +129,11 @@ export default function Register() {
 
     return (
         <div
-            className="relative flex h-screen w-screen items-center justify-center p-4"
+            className={`relative flex h-screen w-screen items-center justify-center p-4 ${
+                isRtl ? "rtl" : "ltr"
+            }`}
             style={{ fontFamily }}
+            dir={isRtl ? "rtl" : "ltr"}
         >
             <StarBackground />
             <Head title={t("auth.register.title")} />
@@ -149,7 +150,7 @@ export default function Register() {
             >
                 {/* Background image */}
                 <div
-                    className="absolute inset-0 bg-cover bg-center"
+                    className="absolute inset-0 bg-center bg-no-repeat bg-cover"
                     style={{
                         backgroundImage: `url(${businessImageUrl})`,
                     }}
@@ -163,16 +164,32 @@ export default function Register() {
                     <div className="flex justify-center items-center min-h-[500px] p-8">
                         <motion.div className="w-full max-w-md">
                             <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl text-white mb-6">
-                                {/* Controls bar - Language and Mode Switcher */}
-                                <div className="flex justify-center items-center gap-4 p-4">
-                                    <ModeSwitcher />
-                                    <LanguageSwitcher />
+                                {/* Controls bar - Fixed positioning for TopTools */}
+                                <div
+                                    className="flex justify-center items-center gap-4 p-4 my-10"
+                                    dir="ltr"
+                                >
+                                    <TopTools />
                                 </div>
 
                                 {/* Header - Title and Steps side by side */}
                                 <div className="px-6 pb-2">
-                                    <div className="flex items-center justify-between">
-                                        <h1 className="text-2xl font-bold fdGradientColorzTX">
+                                    <div
+                                        className={`flex items-center justify-between ${
+                                            isRtl ? "text-right" : "text-left"
+                                        }`}
+                                    >
+                                        <h1
+                                            className={`text-2xl font-bold fdGradientColorzTX ${
+                                                isRtl
+                                                    ? "text-right"
+                                                    : "text-left"
+                                            }`}
+                                            style={{
+                                                textShadow:
+                                                    "0 1px 2px rgba(0, 0, 0, 0.15)",
+                                            }}
+                                        >
                                             {t("auth.register.heading")}
                                         </h1>
                                         <div className="fdIcon w-12 h-12 flex items-center justify-center text-sm">
@@ -195,7 +212,11 @@ export default function Register() {
                                             <div>
                                                 <label
                                                     htmlFor={currentField.name}
-                                                    className="mb-4 block text-lg font-medium text-white"
+                                                    className={`mb-4 block text-lg font-medium text-white ${
+                                                        isRtl
+                                                            ? "text-right"
+                                                            : "text-left"
+                                                    }`}
                                                 >
                                                     {currentField.label}
                                                 </label>
@@ -222,7 +243,11 @@ export default function Register() {
                                                                     .name
                                                             ]
                                                         }
-                                                        className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
+                                                        className={`w-full rounded-xl border-0 p-4 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white ${
+                                                            isRtl
+                                                                ? "text-right pl-12 pr-4"
+                                                                : "text-left pr-12 pl-4"
+                                                        }`}
                                                         placeholder={
                                                             currentField.placeholder
                                                         }
@@ -239,6 +264,11 @@ export default function Register() {
                                                             handleKeyPress
                                                         }
                                                         required
+                                                        dir={
+                                                            isRtl
+                                                                ? "rtl"
+                                                                : "ltr"
+                                                        }
                                                     />
 
                                                     {(isPasswordField ||
@@ -313,7 +343,14 @@ export default function Register() {
                                                                   )
                                                         }
                                                     >
-                                                        <ArrowRight size={18} />
+                                                        <ArrowRight
+                                                            size={18}
+                                                            className={
+                                                                isRtl
+                                                                    ? "rotate-180"
+                                                                    : ""
+                                                            }
+                                                        />
                                                     </button>
                                                 </div>
 
@@ -323,7 +360,11 @@ export default function Register() {
                                                             currentField.name
                                                         ]
                                                     }
-                                                    className="mt-2"
+                                                    className={`mt-2 ${
+                                                        isRtl
+                                                            ? "text-right"
+                                                            : "text-left"
+                                                    }`}
                                                 />
                                             </div>
 
@@ -335,7 +376,11 @@ export default function Register() {
                                                             currentStep - 1
                                                         )
                                                     }
-                                                    className="mt-4 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                                                    className={`mt-4 text-xs text-indigo-400 hover:text-indigo-300 transition-colors ${
+                                                        isRtl
+                                                            ? "text-right"
+                                                            : "text-left"
+                                                    }`}
                                                 >
                                                     {isRtl ? "→" : "←"}{" "}
                                                     {t("auth.register.goBack")}
@@ -347,8 +392,16 @@ export default function Register() {
                             </div>
 
                             {/* Registration link outside the card */}
-                            <div className="text-center px-4">
-                                <p className="text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full">
+                            <div
+                                className={`text-center px-4 ${
+                                    isRtl ? "text-right" : "text-left"
+                                }`}
+                            >
+                                <p
+                                    className={`text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full ${
+                                        isRtl ? "text-right" : "text-left"
+                                    }`}
+                                >
                                     {t("auth.register.alreadyHaveAccount")}{" "}
                                     <Link
                                         href={route("login")}

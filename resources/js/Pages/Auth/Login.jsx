@@ -3,11 +3,8 @@ import { Head, Link, useForm } from "@inertiajs/react";
 import { ArrowRight, Eye } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-
+import TopTools from "@/Components/TopTools";
 import InputError from "@/Components/InputError";
-import ApplicationLogo from "@/Components/ApplicationLogo";
-import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
-import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
 import StarBackground from "@/Components/StarBackground";
 
 // Import the shared media CSS file
@@ -178,7 +175,7 @@ export default function Login({ status, canResetPassword }) {
     };
 
     // Background image URL
-    const businessImageUrl = "/images/loginPix.png";
+    const businessImageUrl = "/images/loginPix.jpeg";
 
     return (
         <div
@@ -210,21 +207,12 @@ export default function Login({ status, canResetPassword }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
 
                 <div className="relative h-full w-full">
-                    {/* Controls at the top - centered with logo */}
-                    <div className="absolute top-0 left-0 right-0 flex justify-center p-4 z-10">
-                        <div className="flex items-center justify-center gap-4 bg-gray-800/50 backdrop-blur-md rounded-full px-4 py-2 w-full max-w-md">
-                            <div className="rounded-full p-2 fdRoundedIcon">
-                                <ApplicationLogo
-                                    className="h-8 w-8"
-                                    style={{
-                                        minWidth: "24px",
-                                        minHeight: "24px",
-                                    }}
-                                />
-                            </div>
-                            <ModeSwitcher />
-                            <LanguageSwitcher />
-                        </div>
+                    {/* Controls bar - Fixed positioning for TopTools */}
+                    <div
+                        className="flex justify-center items-center gap-4 p-4 my-10"
+                        dir="ltr"
+                    >
+                        <TopTools />
                     </div>
 
                     {/* Centered login card */}

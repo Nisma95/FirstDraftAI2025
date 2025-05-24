@@ -53,6 +53,12 @@
         "thanks_message": "Thank you!"
     },
     "auth": {
+        "signIn": "Sign in",
+        "loginDesc": "Welcome back! Please sign in to your account",
+        "noAccount": "Don't have an account?",
+        "createAccount": "Create one here",
+        "forgotPassword": "Forgot your password?",
+        "login": "Login",
         "register": {
             "title": "Sign up",
             "heading": "Sign up",
@@ -81,13 +87,6 @@
                 }
             }
         },
-        "signIn": "Sign in",
-        "loginDesc": "Welcome back! Please sign in to your account",
-        "noAccount": "Don't have an account?",
-        "createAccount": "Create one here",
-        "forgotPassword": "Forgot your password?",
-        "login": "Login",
-        "register": "Register",
         "logout": "Logout",
         "email": "Email",
         "password": "Password",
@@ -469,7 +468,6 @@
     "overall_progress": "Overall Progress",
     "sections_completed": "{{completed}} of {{total}} sections completed",
     "not_specified": "Not specified",
-
     "ai_generating": "AI is generating...",
     "ai_answer_for_you": "Let AI answer for you",
     "ai_enhance_for_you": "Let AI enhance it for you",
@@ -478,19 +476,16 @@
     "validation_error": "Please fill in all required fields before using AI assistance.",
     "ai_suggestion_applied": "AI suggestion applied successfully",
     "ai_enhance_field": "Enhance with AI",
-
     "target_market_hint": "Describe your ideal customers, their demographics, and market size",
     "location_hint": "Consider proximity to customers, costs, and business environment",
     "main_product_service_hint": "Detail your core offering and its unique value proposition",
     "revenue_model_hint": "Explain how your business will generate income",
     "main_differentiator_hint": "What makes your business unique compared to competitors",
-
     "ai_suggest_target_market": "Let AI suggest target market",
     "ai_suggest_location": "Let AI recommend location",
     "ai_suggest_product_service": "Let AI describe your offering",
     "ai_suggest_revenue_model": "Let AI suggest revenue model",
     "ai_suggest_differentiator": "Let AI identify differentiators",
-
     "ai_analyzing_project": "AI is analyzing your project...",
     "ai_suggestion_ready": "AI suggestion is ready!",
     "ai_suggestion_error": "Failed to generate suggestion. Please try again."
