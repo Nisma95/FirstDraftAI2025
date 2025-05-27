@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Head, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { motion } from "framer-motion";
 import {
     Plus,
     Eye,
-    ChevronRight,
     Folder,
     Building2,
-    Target,
-    Activity,
-    Lock,
-    Unlock,
-    X,
     Star,
     Sparkles,
     Zap,
-    Palette,
     Heart,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -26,61 +19,13 @@ export default function Index({ auth, projects }) {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.dir() === "rtl";
 
-    // State to track deleted projects (front-end only, persisted in localStorage)
-    const [lockedProjects, setLockedProjects] = useState(new Set());
-    const [projectToLock, setProjectToLock] = useState(null);
-    const [showLockModal, setShowLockModal] = useState(false);
     const [hoveredCard, setHoveredCard] = useState(null);
 
-    // Load deleted projects from localStorage on component mount
-    // Load locked projects from localStorage on component mount
-    useEffect(() => {
-        const savedLockedProjects = localStorage.getItem(
-            `lockedProjects_${auth.user.id}`
-        );
-        if (savedLockedProjects) {
-            setLockedProjects(new Set(JSON.parse(savedLockedProjects)));
-        }
-    }, [auth.user.id]);
-
-    // Show all projects (locked and unlocked)
+    // Show all projects
     const visibleProjects = projects;
 
     const handleCreatePlan = (projectId) => {
-        // Use Inertia's router with query parameters
         router.get(route("plans.create"), { project_id: projectId });
-    };
-    const handleToggleLock = (projectId) => {
-        const newLockedProjects = new Set(lockedProjects);
-
-        if (newLockedProjects.has(projectId)) {
-            // Unlock the project
-            newLockedProjects.delete(projectId);
-        } else {
-            // Lock the project
-            newLockedProjects.add(projectId);
-        }
-
-        setLockedProjects(newLockedProjects);
-
-        // Save to localStorage to persist across page refreshes
-        localStorage.setItem(
-            `lockedProjects_${auth.user.id}`,
-            JSON.stringify([...newLockedProjects])
-        );
-
-        setShowLockModal(false);
-        setProjectToLock(null);
-    };
-
-    const showLockConfirmation = (project) => {
-        setProjectToLock(project);
-        setShowLockModal(true);
-    };
-
-    const cancelLock = () => {
-        setShowLockModal(false);
-        setProjectToLock(null);
     };
 
     // Status colors and translations with enhanced styling
@@ -208,87 +153,6 @@ export default function Index({ auth, projects }) {
             </div>
 
             <div className="min-h-screen py-8 px-2 relative">
-                {/* Lock/Unlock Confirmation Modal */}
-                {showLockModal && (
-                    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[9999]">
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.8, y: 50 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.8, y: 50 }}
-                            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md mx-4 shadow-2xl border border-white/20"
-                        >
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {lockedProjects.has(projectToLock?.id)
-                                        ? t(
-                                              "unlock_project",
-                                              "إلغاء قفل المشروع"
-                                          )
-                                        : t("lock_project", "قفل المشروع")}
-                                </h3>
-                                <motion.button
-                                    onClick={cancelLock}
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                                >
-                                    <X size={20} />
-                                </motion.button>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6 text-center">
-                                {lockedProjects.has(projectToLock?.id)
-                                    ? t(
-                                          "unlock_project_confirmation",
-                                          "هل أنت متأكد من إلغاء قفل المشروع"
-                                      )
-                                    : t(
-                                          "lock_project_confirmation",
-                                          "هل أنت متأكد من قفل المشروع"
-                                      )}{" "}
-                                "{projectToLock?.name}"؟
-                                <br />
-                                <span className="text-sm text-pink-600 dark:text-pink-400 mt-2 block text-center">
-                                    {lockedProjects.has(projectToLock?.id)
-                                        ? t(
-                                              "unlock_note",
-                                              "سيتم إلغاء قفل المشروع وإتاحة الوصول إليه"
-                                          )
-                                        : t(
-                                              "lock_note",
-                                              "سيتم قفل المشروع وتعطيل الوصول إليه مؤقتاً"
-                                          )}
-                                </span>
-                            </p>
-                            <div className="flex gap-3 justify-end">
-                                <motion.button
-                                    onClick={cancelLock}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 rounded-xl transition-all duration-300"
-                                >
-                                    {t("cancel", "إلغاء")}
-                                </motion.button>
-                                <motion.button
-                                    onClick={() =>
-                                        handleToggleLock(projectToLock.id)
-                                    }
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                    className={`px-4 py-2 text-sm font-medium text-white rounded-xl transition-all duration-300 shadow-lg ${
-                                        lockedProjects.has(projectToLock?.id)
-                                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/30"
-                                            : "bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 shadow-pink-500/30"
-                                    }`}
-                                >
-                                    {lockedProjects.has(projectToLock?.id)
-                                        ? t("unlock", "إلغاء القفل")
-                                        : t("lock", "قفل")}
-                                </motion.button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-
                 <div className="max-w-[88rem] mx-auto">
                     {/* Header Section */}
                     <motion.div
@@ -440,59 +304,10 @@ export default function Index({ auth, projects }) {
                                         style={{ isolation: "isolate" }}
                                     >
                                         <div
-                                            className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/20 dark:border-gray-700/30 ${
-                                                statusInfo.bgGradient
-                                            } ${
-                                                lockedProjects.has(project.id)
-                                                    ? "opacity-60 grayscale blur-sm hover:blur-none hover:opacity-80 hover:grayscale-0"
-                                                    : ""
-                                            }`}
+                                            className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden border border-white/20 dark:border-gray-700/30 ${statusInfo.bgGradient}`}
                                         >
                                             {/* Shimmer Effect */}
                                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-
-                                            <motion.div
-    className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-300 ${
-        hoveredCard === project.id
-            ? "opacity-100 bg-black/10 backdrop-blur-sm"
-            : "opacity-0 pointer-events-none"
-    }`}
->
-                                                <motion.button
-                                                    onClick={() =>
-                                                        showLockConfirmation(
-                                                            project
-                                                        )
-                                                    }
-                                                    className="p-4 rounded-full bg-pink-50/90 hover:bg-pink-100/90 text-pink-500 hover:text-pink-600 backdrop-blur-sm border-2 border-pink-500/50 shadow-xl"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                    initial={{ scale: 0.8 }}
-                                                    animate={{
-                                                        scale:
-                                                            hoveredCard ===
-                                                            project.id
-                                                                ? 1
-                                                                : 0.8,
-                                                        rotate:
-                                                            hoveredCard ===
-                                                            project.id
-                                                                ? 0
-                                                                : -90,
-                                                    }}
-                                                    transition={{
-                                                        duration: 0.2,
-                                                    }}
-                                                >
-                                                    {lockedProjects.has(
-                                                        project.id
-                                                    ) ? (
-                                                        <Unlock size={20} />
-                                                    ) : (
-                                                        <Lock size={20} />
-                                                    )}
-                                                </motion.button>
-                                            </motion.div>
 
                                             {/* Project Header */}
                                             <div className="p-8 border-b border-gray-100/50 dark:border-gray-700/50">
@@ -595,37 +410,13 @@ export default function Index({ auth, projects }) {
                                             <div className="px-8 py-6 bg-gradient-to-r from-gray-50/50 to-gray-100/50 dark:from-gray-700/30 dark:to-gray-600/30 flex gap-3">
                                                 <motion.button
                                                     onClick={() =>
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        ) &&
                                                         handleCreatePlan(
                                                             project.id
                                                         )
                                                     }
-                                                    whileHover={
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? { scale: 1.02 }
-                                                            : {}
-                                                    }
-                                                    whileTap={
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? { scale: 0.98 }
-                                                            : {}
-                                                    }
-                                                    disabled={lockedProjects.has(
-                                                        project.id
-                                                    )}
-                                                    className={`flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md ${
-                                                        lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? "bg-gray-400 text-gray-600 cursor-not-allowed"
-                                                            : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-indigo-500/20"
-                                                    }`}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-indigo-500/20"
                                                 >
                                                     <Plus
                                                         size={16}
@@ -644,9 +435,6 @@ export default function Index({ auth, projects }) {
                                                 </motion.button>
                                                 <motion.button
                                                     onClick={() =>
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        ) &&
                                                         router.get(
                                                             route(
                                                                 "projects.show",
@@ -654,30 +442,9 @@ export default function Index({ auth, projects }) {
                                                             )
                                                         )
                                                     }
-                                                    whileHover={
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? { scale: 1.02 }
-                                                            : {}
-                                                    }
-                                                    whileTap={
-                                                        !lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? { scale: 0.98 }
-                                                            : {}
-                                                    }
-                                                    disabled={lockedProjects.has(
-                                                        project.id
-                                                    )}
-                                                    className={`flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md border ${
-                                                        lockedProjects.has(
-                                                            project.id
-                                                        )
-                                                            ? "bg-gray-300 text-gray-500 border-gray-300 cursor-not-allowed"
-                                                            : "bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white border-gray-200 dark:border-gray-600"
-                                                    }`}
+                                                    whileHover={{ scale: 1.02 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex-1 flex items-center justify-center gap-2 text-sm font-bold py-3 px-4 rounded-xl transition-all duration-300 shadow-md border bg-white hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white border-gray-200 dark:border-gray-600"
                                                 >
                                                     <Eye
                                                         size={16}
