@@ -207,175 +207,76 @@ export default function Login({ status, canResetPassword }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
 
                 <div className="relative h-full w-full">
-                    {/* Controls bar - Fixed positioning for TopTools */}
-                    <div
-                        className="flex justify-center items-center gap-4 p-4 my-10"
-                        dir="ltr"
-                    >
-                        <TopTools />
-                    </div>
-
                     {/* Centered login card */}
                     <div className="flex justify-center items-center min-h-[500px] p-8">
-                        <motion.div className="w-full max-w-md bg-gray-800/50 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl text-white">
-                            {/* Header */}
-                            <div className="p-6 text-center">
-                                <h1 className="text-2xl font-bold fdGradientColorzTX mb-1">
-                                    {t("auth.signIn")}
-                                </h1>
-                                <p className="text-sm text-gray-200">
-                                    {t("auth.loginDesc")}
-                                </p>
-                            </div>
-
-                            {/* Status message */}
-                            {status && (
-                                <div className="mx-5 mb-4 rounded-lg bg-green-100 p-3 text-sm font-medium text-green-700 dark:bg-green-900/50 dark:text-green-200">
-                                    {status}
+                        <motion.div className="w-full max-w-md">
+                            <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl text-white mb-6">
+                                {/* Controls bar - TopTools inside the card */}
+                                <div
+                                    className="flex justify-center items-center gap-4 p-4 my-10"
+                                    dir="ltr"
+                                >
+                                    <TopTools hideAuthIcon={true} />
                                 </div>
-                            )}
 
-                            <div className="p-5">
-                                <AnimatePresence mode="wait">
-                                    {loginStep === "email" ? (
-                                        <motion.form
-                                            key="emailForm"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -20 }}
-                                            transition={{ duration: 0.3 }}
-                                            onSubmit={handleEmailSubmit}
-                                        >
-                                            <div className="relative">
-                                                <div
-                                                    className={`${
-                                                        data.email
-                                                            ? "hidden"
-                                                            : "block"
-                                                    } absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none`}
-                                                >
-                                                    {emailText}
-                                                </div>
-                                                <input
-                                                    ref={emailInputRef}
-                                                    id="email"
-                                                    type="email"
-                                                    name="email"
-                                                    value={data.email}
-                                                    className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
-                                                    placeholder=""
-                                                    autoComplete="username"
-                                                    onChange={(e) => {
-                                                        setData(
-                                                            "email",
-                                                            e.target.value
-                                                        );
-                                                        setShowEmailPlaceholder(
-                                                            false
-                                                        );
-                                                    }}
-                                                    style={{ fontFamily }}
-                                                />
-                                                <button
-                                                    type="submit"
-                                                    className={`absolute ${
-                                                        isRtl
-                                                            ? "left-3"
-                                                            : "right-3"
-                                                    } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors ${
-                                                        !data.email
-                                                            ? "opacity-50 cursor-not-allowed"
-                                                            : ""
-                                                    }`}
-                                                    disabled={!data.email}
-                                                >
-                                                    <ArrowRight size={18} />
-                                                </button>
-                                            </div>
-                                            <InputError
-                                                message={errors.email}
-                                                className="mt-2"
-                                            />
-                                        </motion.form>
-                                    ) : loginStep === "password" ? (
-                                        <motion.form
-                                            key="passwordForm"
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -20 }}
-                                            transition={{ duration: 0.3 }}
-                                            onSubmit={submit}
-                                        >
-                                            <div>
-                                                <div className="text-sm mb-2 text-gray-300">
-                                                    <span>Logging in as </span>
-                                                    <span className="font-semibold text-white">
-                                                        {data.email}
-                                                    </span>
-                                                </div>
+                                {/* Header */}
+                                <div className="p-6 text-center">
+                                    <h1 className="text-2xl font-bold fdGradientColorzTX mb-1">
+                                        {t("auth.signIn")}
+                                    </h1>
+                                    <p className="text-sm text-gray-200">
+                                        {t("auth.loginDesc")}
+                                    </p>
+                                </div>
+
+                                {/* Status message */}
+                                {status && (
+                                    <div className="mx-5 mb-4 rounded-lg bg-green-100 p-3 text-sm font-medium text-green-700 dark:bg-green-900/50 dark:text-green-200">
+                                        {status}
+                                    </div>
+                                )}
+
+                                <div className="p-5 pb-8">
+                                    <AnimatePresence mode="wait">
+                                        {loginStep === "email" ? (
+                                            <motion.form
+                                                key="emailForm"
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -20 }}
+                                                transition={{ duration: 0.3 }}
+                                                onSubmit={handleEmailSubmit}
+                                            >
                                                 <div className="relative">
                                                     <div
                                                         className={`${
-                                                            data.password
+                                                            data.email
                                                                 ? "hidden"
                                                                 : "block"
                                                         } absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none`}
                                                     >
-                                                        {passwordText}
+                                                        {emailText}
                                                     </div>
                                                     <input
-                                                        ref={passwordInputRef}
-                                                        id="password"
-                                                        type={
-                                                            isPasswordVisible
-                                                                ? "text"
-                                                                : "password"
-                                                        }
-                                                        name="password"
-                                                        value={data.password}
+                                                        ref={emailInputRef}
+                                                        id="email"
+                                                        type="email"
+                                                        name="email"
+                                                        value={data.email}
                                                         className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
                                                         placeholder=""
-                                                        autoComplete="current-password"
+                                                        autoComplete="username"
                                                         onChange={(e) => {
                                                             setData(
-                                                                "password",
+                                                                "email",
                                                                 e.target.value
                                                             );
-                                                            setShowPasswordPlaceholder(
+                                                            setShowEmailPlaceholder(
                                                                 false
                                                             );
                                                         }}
                                                         style={{ fontFamily }}
                                                     />
-                                                    <button
-                                                        type="button"
-                                                        className={`absolute top-1/2 transform -translate-y-1/2 ${
-                                                            isRtl
-                                                                ? "left-12"
-                                                                : "right-12"
-                                                        } ${
-                                                            isPasswordVisible
-                                                                ? "text-indigo-500"
-                                                                : "text-gray-500"
-                                                        } hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors`}
-                                                        onClick={
-                                                            handlePasswordVisibility
-                                                        }
-                                                        aria-label={
-                                                            isPasswordVisible
-                                                                ? "Hide password"
-                                                                : "Show password"
-                                                        }
-                                                    >
-                                                        {isPasswordVisible ? (
-                                                            <Eye
-                                                                size={18}
-                                                                className="fill-current"
-                                                            />
-                                                        ) : (
-                                                            <Eye size={18} />
-                                                        )}
-                                                    </button>
                                                     <button
                                                         type="submit"
                                                         className={`absolute ${
@@ -383,102 +284,220 @@ export default function Login({ status, canResetPassword }) {
                                                                 ? "left-3"
                                                                 : "right-3"
                                                         } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors ${
-                                                            !data.password ||
-                                                            processing
+                                                            !data.email
                                                                 ? "opacity-50 cursor-not-allowed"
                                                                 : ""
                                                         }`}
-                                                        disabled={
-                                                            !data.password ||
-                                                            processing
-                                                        }
+                                                        disabled={!data.email}
                                                     >
                                                         <ArrowRight size={18} />
                                                     </button>
                                                 </div>
                                                 <InputError
-                                                    message={errors.password}
+                                                    message={errors.email}
                                                     className="mt-2"
                                                 />
-
-                                                <div className="mt-4 flex justify-between items-center">
-                                                    <button
-                                                        type="button"
-                                                        onClick={
-                                                            resetToEmailStep
-                                                        }
-                                                        className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-                                                    >
-                                                        ← Change email
-                                                    </button>
-
-                                                    {canResetPassword && (
-                                                        <Link
-                                                            href={route(
-                                                                "password.request"
+                                            </motion.form>
+                                        ) : loginStep === "password" ? (
+                                            <motion.form
+                                                key="passwordForm"
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -20 }}
+                                                transition={{ duration: 0.3 }}
+                                                onSubmit={submit}
+                                            >
+                                                <div>
+                                                    <div className="text-sm mb-2 text-gray-300">
+                                                        <span>
+                                                            Logging in as{" "}
+                                                        </span>
+                                                        <span className="font-semibold text-white">
+                                                            {data.email}
+                                                        </span>
+                                                    </div>
+                                                    <div className="relative">
+                                                        <div
+                                                            className={`${
+                                                                data.password
+                                                                    ? "hidden"
+                                                                    : "block"
+                                                            } absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none`}
+                                                        >
+                                                            {passwordText}
+                                                        </div>
+                                                        <input
+                                                            ref={
+                                                                passwordInputRef
+                                                            }
+                                                            id="password"
+                                                            type={
+                                                                isPasswordVisible
+                                                                    ? "text"
+                                                                    : "password"
+                                                            }
+                                                            name="password"
+                                                            value={
+                                                                data.password
+                                                            }
+                                                            className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
+                                                            placeholder=""
+                                                            autoComplete="current-password"
+                                                            onChange={(e) => {
+                                                                setData(
+                                                                    "password",
+                                                                    e.target
+                                                                        .value
+                                                                );
+                                                                setShowPasswordPlaceholder(
+                                                                    false
+                                                                );
+                                                            }}
+                                                            style={{
+                                                                fontFamily,
+                                                            }}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className={`absolute top-1/2 transform -translate-y-1/2 ${
+                                                                isRtl
+                                                                    ? "left-12"
+                                                                    : "right-12"
+                                                            } ${
+                                                                isPasswordVisible
+                                                                    ? "text-indigo-500"
+                                                                    : "text-gray-500"
+                                                            } hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors`}
+                                                            onClick={
+                                                                handlePasswordVisibility
+                                                            }
+                                                            aria-label={
+                                                                isPasswordVisible
+                                                                    ? "Hide password"
+                                                                    : "Show password"
+                                                            }
+                                                        >
+                                                            {isPasswordVisible ? (
+                                                                <Eye
+                                                                    size={18}
+                                                                    className="fill-current"
+                                                                />
+                                                            ) : (
+                                                                <Eye
+                                                                    size={18}
+                                                                />
                                                             )}
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className={`absolute ${
+                                                                isRtl
+                                                                    ? "left-3"
+                                                                    : "right-3"
+                                                            } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors ${
+                                                                !data.password ||
+                                                                processing
+                                                                    ? "opacity-50 cursor-not-allowed"
+                                                                    : ""
+                                                            }`}
+                                                            disabled={
+                                                                !data.password ||
+                                                                processing
+                                                            }
+                                                        >
+                                                            <ArrowRight
+                                                                size={18}
+                                                            />
+                                                        </button>
+                                                    </div>
+                                                    <InputError
+                                                        message={
+                                                            errors.password
+                                                        }
+                                                        className="mt-2"
+                                                    />
+
+                                                    <div className="mt-4 flex justify-between items-center">
+                                                        <button
+                                                            type="button"
+                                                            onClick={
+                                                                resetToEmailStep
+                                                            }
                                                             className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
                                                         >
-                                                            {t(
-                                                                "auth.forgotPassword"
-                                                            )}
-                                                        </Link>
-                                                    )}
+                                                            ← Change email
+                                                        </button>
+
+                                                        {canResetPassword && (
+                                                            <Link
+                                                                href={route(
+                                                                    "password.request"
+                                                                )}
+                                                                className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                                                            >
+                                                                {t(
+                                                                    "auth.forgotPassword"
+                                                                )}
+                                                            </Link>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </motion.form>
-                                    ) : null}
-                                </AnimatePresence>
+                                            </motion.form>
+                                        ) : null}
+                                    </AnimatePresence>
 
-                                {/* Failed login message */}
-                                <AnimatePresence>
-                                    {loginFailed && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: 10 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="mt-6 p-4 bg-red-500/20 backdrop-blur-sm rounded-xl text-center"
-                                        >
-                                            <p className="text-sm font-medium text-white mb-2">
-                                                Incorrect password. Forgot
-                                                password?
-                                            </p>
-                                            <div className="flex justify-center space-x-4">
-                                                <Link
-                                                    href={route(
-                                                        "password.request"
-                                                    )}
-                                                    className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
-                                                >
-                                                    Reset password
-                                                </Link>
-                                                <Link
-                                                    href="#"
-                                                    onClick={() =>
-                                                        setLoginFailed(false)
-                                                    }
-                                                    className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
-                                                >
-                                                    Try again
-                                                </Link>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                {/* Registration link at the bottom */}
-                                <div className="mt-8 text-center">
-                                    <p className="text-xs text-gray-300">
-                                        {t("auth.noAccount")}{" "}
-                                        <Link
-                                            href={route("register")}
-                                            className="font-medium text-indigo-400 hover:text-indigo-300 transition-colors"
-                                        >
-                                            {t("auth.createAccount")}
-                                        </Link>
-                                    </p>
+                                    {/* Failed login message */}
+                                    <AnimatePresence>
+                                        {loginFailed && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="mt-6 p-4 bg-red-500/20 backdrop-blur-sm rounded-xl text-center"
+                                            >
+                                                <p className="text-sm font-medium text-white mb-2">
+                                                    Incorrect password. Forgot
+                                                    password?
+                                                </p>
+                                                <div className="flex justify-center space-x-4">
+                                                    <Link
+                                                        href={route(
+                                                            "password.request"
+                                                        )}
+                                                        className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
+                                                    >
+                                                        Reset password
+                                                    </Link>
+                                                    <Link
+                                                        href="#"
+                                                        onClick={() =>
+                                                            setLoginFailed(
+                                                                false
+                                                            )
+                                                        }
+                                                        className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
+                                                    >
+                                                        Try again
+                                                    </Link>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
+                            </div>
+
+                            {/* Registration link outside the card - matching register style */}
+                            <div className="text-center px-4">
+                                <p className="text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full">
+                                    {t("auth.noAccount")}{" "}
+                                    <Link
+                                        href={route("register")}
+                                        className="font-medium text-indigo-300 hover:text-indigo-200 transition-colors"
+                                    >
+                                        {t("auth.createAccount")}
+                                    </Link>
+                                </p>
                             </div>
                         </motion.div>
                     </div>

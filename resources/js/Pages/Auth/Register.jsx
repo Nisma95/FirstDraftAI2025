@@ -169,7 +169,7 @@ export default function Register() {
                                     className="flex justify-center items-center gap-4 p-4 my-10"
                                     dir="ltr"
                                 >
-                                    <TopTools />
+                                    <TopTools hideAuthIcon={true} />
                                 </div>
 
                                 {/* Header - Title and Steps side by side */}
@@ -392,16 +392,8 @@ export default function Register() {
                             </div>
 
                             {/* Registration link outside the card */}
-                            <div
-                                className={`text-center px-4 ${
-                                    isRtl ? "text-right" : "text-left"
-                                }`}
-                            >
-                                <p
-                                    className={`text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full ${
-                                        isRtl ? "text-right" : "text-left"
-                                    }`}
-                                >
+                            <div className="text-center px-4">
+                                <p className="text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full">
                                     {t("auth.register.alreadyHaveAccount")}{" "}
                                     <Link
                                         href={route("login")}

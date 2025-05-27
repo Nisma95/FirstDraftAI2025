@@ -1,10 +1,11 @@
 import React from "react";
-import { Link } from "@inertiajs/react"; // Use Inertia's Link component
-import ApplicationLogo from "./ApplicationLogo"; // Assuming ApplicationLogo.jsx is in the same directory or a components folder
+import { Link } from "@inertiajs/react";
+import ApplicationLogo from "./ApplicationLogo";
 import LanguageSwitcher from "./Langs/LanguageSwitcher";
 import ModeSwitcher from "./Mode/ModeSwitcher";
+import AuthIcon from "./AuthIcon"; // Updated import name
 
-export default function TopTools() {
+export default function TopTools({ hideAuthIcon = false }) {
     return (
         <>
             {/* Top Left Logo */}
@@ -16,8 +17,10 @@ export default function TopTools() {
 
             {/* Top Right Switchers */}
             <div className="fixed top-4 right-4 flex items-center justify-center gap-2 z-50">
-                <ModeSwitcher />
                 <LanguageSwitcher />
+                <ModeSwitcher />
+                {!hideAuthIcon && <AuthIcon />}{" "}
+                {/* Conditionally render AuthIcon */}
             </div>
         </>
     );

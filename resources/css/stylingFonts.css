@@ -68,7 +68,7 @@
 }
 
 .dark .fdHighLighTXT {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #d82c2c 60%);
+    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #f9f9f9 60%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

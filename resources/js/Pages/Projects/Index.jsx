@@ -452,12 +452,12 @@ export default function Index({ auth, projects }) {
                                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 dark:via-white/10 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
 
                                             <motion.div
-                                                className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-300 ${
-                                                    hoveredCard === project.id
-                                                        ? "opacity-100 bg-black/10 backdrop-blur-sm"
-                                                        : "opacity-0 pointer-events-none"
-                                                }`}
-                                            >
+    className={`absolute inset-0 z-10 flex items-center justify-center transition-all duration-300 ${
+        hoveredCard === project.id
+            ? "opacity-100 bg-black/10 backdrop-blur-sm"
+            : "opacity-0 pointer-events-none"
+    }`}
+>
                                                 <motion.button
                                                     onClick={() =>
                                                         showLockConfirmation(

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Link, usePage } from "@inertiajs/react";
 import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
 import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
+import AuthIcon from "@/Components/AuthIcon";
 
 export default function Navigation({ auth }) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -106,6 +107,7 @@ export default function Navigation({ auth }) {
                 </nav>
 
                 {/* Right Section - Only visible on medium screens and above */}
+                {/* Right Section - Only visible on medium screens and above */}
                 <div
                     className={`hidden md:flex items-center ${
                         isRTL ? "space-x-reverse space-x-4" : "space-x-4"
@@ -113,8 +115,7 @@ export default function Navigation({ auth }) {
                 >
                     <LanguageSwitcher />
                     <ModeSwitcher />
-
-                    {/* Removed Auth Button and User Icon */}
+                    <AuthIcon user={auth?.user} />
                 </div>
 
                 {/* Mobile Menu Button - Right side on mobile */}
