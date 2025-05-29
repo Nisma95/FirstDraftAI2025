@@ -6,6 +6,8 @@ import Footer from "@/Layouts/Footer";
 import WelcomeSection from "./MainContent/WelcomeSection";
 import CreateOptions from "./MainContent/CreateOptions";
 
+import ContractCreation from "./MainContent/ContractCreation";
+
 export default function Dashboard() {
     return (
         <>

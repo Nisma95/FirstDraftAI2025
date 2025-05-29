@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Contract;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -113,5 +114,14 @@ class User extends Authenticatable
     public function getAiChatCountAttribute()
     {
         return $this->aiChatConversations()->count();
+    }
+
+
+    /**
+     * Get the contracts for the user.
+     */
+    public function contracts()
+    {
+        return $this->hasMany(Contract::class);
     }
 }

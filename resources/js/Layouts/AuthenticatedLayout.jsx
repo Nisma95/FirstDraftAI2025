@@ -1,9 +1,3 @@
-import ApplicationLogo from "@/Components/ApplicationLogo";
-import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
-import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
-import Dropdown from "@/Components/Dropdown";
-import NavLink from "@/Components/NavLink";
-import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import StarBackground from "@/Components/StarBackground";

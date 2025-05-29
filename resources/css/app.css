@@ -13,12 +13,71 @@
 
 /* Add this to your CSS file to override browser-applied direction */
 
-/* Reset webkit-locale and direction on html element */
 html {
     -webkit-locale: initial !important;
     direction: ltr !important;
-    scroll-behavior: initial;
-    overflow: hidden;
+    scroll-behavior: smooth; /* Changed from initial to smooth */
+    /* overflow: hidden; -- Removed this line */
+}
+/* Mouse wheel scrolling for contract content */
+.contract-content-scroll {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    max-height: 24rem !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+    /* Add these for mouse wheel support */
+    overscroll-behavior: contain !important;
+    scroll-snap-type: none !important;
+}
+
+.contract-content-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.contract-content-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.contract-content-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.contract-content-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Dark mode scrollbar */
+.dark .contract-content-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .contract-content-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.dark .contract-content-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure mouse wheel events are captured */
+.contract-content-scroll * {
+    pointer-events: auto !important;
+}
+
+/* Force scroll behavior on the content */
+.contract-content-scroll pre {
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Remove any conflicting overflow rules */
+.contract-content-scroll,
+.contract-content-scroll * {
+    overscroll-behavior-y: contain !important;
 }
 
 /* Reset any inherited direction on the body */

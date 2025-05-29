@@ -3,6 +3,8 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ContractController;
+
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
@@ -59,6 +61,7 @@ Route::middleware('auth')->group(function () {
 | Projects Routes
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('auth')->prefix('projects')->group(function () {
     Route::get('/', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('/create', [ProjectController::class, 'create'])->name('projects.create');
@@ -165,6 +168,32 @@ Route::get('/create-with-ai', function () {
         'projects' => $user->projects
     ]);
 })->middleware('auth')->name('create-with-ai');
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Create contarct AI Pfs Route
+|--------------------------------------------------------------------------
+*/
+
+// Contract routes - protected by auth middleware
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    // Contract management routes
+    Route::prefix('contracts')->name('contracts.')->group(function () {
+        Route::get('/', [ContractController::class, 'index'])->name('index');
+        Route::get('/create', [ContractController::class, 'create'])->name('create');
+        Route::post('/', [ContractController::class, 'store'])->name('store');
+        Route::get('/{contract}', [ContractController::class, 'show'])->name('show');
+        Route::get('/{contract}/download', [ContractController::class, 'downloadPdf'])->name('download');
+        Route::delete('/{contract}', [ContractController::class, 'destroy'])->name('destroy');
+
+        Route::post('/{contract}/regenerate-pdf', [ContractController::class, 'regeneratePdf'])->name('regenerate');
+    });
+});
+
+
 
 /*
 |--------------------------------------------------------------------------

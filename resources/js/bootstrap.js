@@ -26,6 +26,6 @@ window.axios.interceptors.response.use(
 
 // Optional: Debugging in development
 if (process.env.NODE_ENV === "development") {
-    window.axios.defaults.timeout = 10000;
+    window.axios.defaults.timeout = 120000; // 2 minutes instead of 10 seconds
     console.info("Axios is running in development mode.");
 }
