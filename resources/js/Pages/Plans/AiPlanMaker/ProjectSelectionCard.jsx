@@ -59,47 +59,32 @@ export default function ProjectSelectionCard({
     };
 
     return (
+        // Replace the entire motion.div section (around lines 50-90) with this:
         <motion.div
-            className={`p-10 rounded-lg cursor-pointer w-full text-center transition-all duration-300 group ${
+            className={`p-10 rounded-lg cursor-pointer w-full text-center transition-all duration-300 h-48 flex flex-col justify-center ${
                 isSelected
-                    ? "bg-Fdbg-hover text-white"
-                    : "backdrop-blur-xl bg-white/10 dark:bg-white/10 hover:bg-Fdbg-hover hover:text-white border border-white/20"
-            } shadow-lg h-full`}
+                    ? "Fdbg text-white"
+                    : "bg-gray-100 dark:bg-[#111214] dark:text-gray-200"
+            } hover:bg-gradient-to-r hover:from-blue-400 hover:to-indigo-500 hover:text-white`}
             whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.02 }}
             onClick={handleClick}
         >
-            <div className="rounded-lg p-4 transition-all duration-300 flex flex-col justify-center items-center h-full">
-                {" "}
-                <h2
-                    className={`text-xl font-semibold transition-all duration-300 ${
-                        isSelected
-                            ? "text-white"
-                            : "text-gray-800 dark:text-white group-hover:text-white"
-                    }`}
+            <h2 className={`text-xl font-semibold transition-all duration-300`}>
+                {project.name}
+            </h2>
+            <p className={`text-sm mt-2 transition-all duration-300`}>
+                {truncateDescription(project.description) ||
+                    t(
+                        "projects.project_description_fallback",
+                        "No description available"
+                    )}
+            </p>
+            <div className="mt-4">
+                <span
+                    className={`inline-block text-xs font-medium px-3 py-1 rounded-full transition-all duration-300 ${getBadgeColor()}`}
                 >
-                    {project.name}
-                </h2>
-                <p
-                    className={`text-sm mt-2 transition-all duration-300 ${
-                        isSelected
-                            ? "text-white"
-                            : "text-gray-600 dark:text-gray-300 group-hover:text-white"
-                    }`}
-                >
-                    {truncateDescription(project.description) ||
-                        t(
-                            "projects.project_description_fallback",
-                            "No description available"
-                        )}
-                </p>
-                <div className="mt-4">
-                    <span
-                        className={`inline-block text-xs font-medium px-3 py-1 rounded-full transition-all duration-300 ${getBadgeColor()}`}
-                    >
-                        {getBadgeText()}
-                    </span>
-                </div>
+                    {getBadgeText()}
+                </span>
             </div>
         </motion.div>
     );

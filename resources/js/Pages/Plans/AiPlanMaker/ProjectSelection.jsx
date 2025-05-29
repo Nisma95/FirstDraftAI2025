@@ -20,7 +20,7 @@ export default function ProjectSelection({
 
     // Always show exactly 4 cards: 3 projects + 1 create new
     // Take first 3 projects and add the create new card
-    const displayProjects = projects?.slice(0, 3) || [];
+    const displayProjects = projects?.slice(0, 1) || []; // Only take the first (most recent) project
 
     // If no projects, show helpful message
     if (!projects || projects.length === 0) {
@@ -64,10 +64,10 @@ export default function ProjectSelection({
             </div>
 
             {/* Grid layout - responsive */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
                 {/* Project cards */}
                 {displayProjects.map((project) => (
-                    <div key={project.id} className="h-full">
+                    <div key={project.id} className="h-64">
                         <ProjectSelectionCard
                             project={project}
                             isSelected={
@@ -79,23 +79,10 @@ export default function ProjectSelection({
                     </div>
                 ))}
 
-                {/* Fill remaining slots if we have less than 3 projects */}
-                {displayProjects.length < 3 && (
-                    <div className="h-full">
-                        <CreateNewProjectCard
-                            onCreateNew={onCreateNewProject}
-                        />
-                    </div>
-                )}
-
-                {/* If we have 3 projects, add create new card as 4th */}
-                {displayProjects.length === 3 && (
-                    <div className="h-full">
-                        <CreateNewProjectCard
-                            onCreateNew={onCreateNewProject}
-                        />
-                    </div>
-                )}
+                {/* Create new card */}
+                <div className="h-64">
+                    <CreateNewProjectCard onCreateNew={onCreateNewProject} />
+                </div>
             </div>
 
             {/* Show count if more than 3 projects */}

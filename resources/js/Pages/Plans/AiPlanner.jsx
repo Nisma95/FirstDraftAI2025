@@ -303,8 +303,8 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 )}
             </AnimatePresence>
 
-            <div className="py-12">
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="fixed inset-0 flex items-center justify-center">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     <AnimatePresence mode="wait">
                         {step === "intro" && (
                             <motion.div
@@ -317,29 +317,31 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                             >
                                 <div className="space-y-6">
                                     <motion.div
-                                        className="w-24 h-24 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-                                        initial={{ scale: 0 }}
-                                        animate={{ scale: 1 }}
-                                        transition={{
-                                            delay: 0.1,
-                                            type: "spring",
-                                            stiffness: 200,
-                                        }}
-                                    >
-                                        <SparklesIcon className="w-12 h-12 text-white" />
-                                    </motion.div>
-
-                                    <motion.h1
-                                        className="text-4xl font-bold text-gray-900 dark:text-white"
+                                        className="flex items-center justify-center gap-4"
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ delay: 0.2 }}
                                     >
-                                        {t(
-                                            "ai_plan_intro_title",
-                                            "Let's Create Your Business Plan Together! 🚀"
-                                        )}
-                                    </motion.h1>
+                                        <motion.div
+                                            className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0"
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            transition={{
+                                                delay: 0.1,
+                                                type: "spring",
+                                                stiffness: 200,
+                                            }}
+                                        >
+                                            <SparklesIcon className="w-8 h-8 text-white" />
+                                        </motion.div>
+
+                                        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+                                            {t(
+                                                "ai_plan_intro_title",
+                                                "Let's Create Your Business Plan Together! 🚀"
+                                            )}
+                                        </h1>
+                                    </motion.div>
 
                                     <motion.p
                                         className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto"
