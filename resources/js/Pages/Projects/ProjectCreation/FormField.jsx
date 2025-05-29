@@ -173,84 +173,99 @@ export default function FormField({
                             isRTL ? "left-3" : "right-3"
                         } bottom-3`}
                     >
-                        <motion.button
-                            onClick={onEnhanceDescription}
-                            disabled={isEnhancing || !hasRequiredData}
-                            className="bg-indigo-600 text-white rounded-lg px-3 py-2 text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md"
-                            whileTap={{ scale: 0.95 }}
-                            type="button"
-                        >
-                            {isEnhancing ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                                <Wand2 className="w-4 h-4" />
-                            )}
-                            {isEnhancing
-                                ? t("enhancing")
-                                : t("enhance_with_ai")}
-                        </motion.button>
+                        <div className="relative group">
+                            <motion.button
+                                onClick={onEnhanceDescription}
+                                disabled={isEnhancing || !hasRequiredData}
+                                className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:scale-105"
+                                whileTap={{ scale: 0.9 }}
+                                whileHover={{ scale: 1.05 }}
+                                type="button"
+                            >
+                                {isEnhancing ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Wand2 className="w-4 h-4" />
+                                )}
+                            </motion.button>
+
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                                <div className="bg-gray-900 text-white text-xs rounded-md px-2 py-1 whitespace-nowrap">
+                                    {isEnhancing
+                                        ? t("enhancing")
+                                        : t("enhance_with_ai")}
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
             {/* NEW: AI Field Generation button for supported textarea fields */}
             {shouldShowAiButton && fieldData?.showAiButton && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex justify-start"
+                <div
+                    className={`absolute ${
+                        isRTL ? "left-3" : "right-3"
+                    } bottom-3`}
                 >
-                    <motion.button
-                        type="button"
-                        onClick={() => onGenerateField(field)}
-                        disabled={isCurrentFieldGenerating}
-                        className={`
-                            inline-flex items-center gap-2 px-4 py-2 text-sm font-medium
-                            rounded-lg transition-all duration-200 
-                            ${
-                                isCurrentFieldGenerating
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
-                                    : "bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/40 border border-purple-200 dark:border-purple-800"
+                    <div className="relative group">
+                        <motion.button
+                            type="button"
+                            onClick={() => onGenerateField(field)}
+                            disabled={isCurrentFieldGenerating}
+                            className={`
+                    w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105
+                    ${
+                        isCurrentFieldGenerating
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
+                            : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500"
+                    }
+                `}
+                            whileHover={
+                                !isCurrentFieldGenerating ? { scale: 1.05 } : {}
                             }
-                        `}
-                        whileHover={
-                            !isCurrentFieldGenerating ? { scale: 1.02 } : {}
-                        }
-                        whileTap={
-                            !isCurrentFieldGenerating ? { scale: 0.98 } : {}
-                        }
-                    >
-                        {isCurrentFieldGenerating ? (
-                            <motion.div
-                                className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{
-                                    duration: 1,
-                                    repeat: Infinity,
-                                    ease: "linear",
-                                }}
-                            />
-                        ) : (
-                            <Sparkles className="w-4 h-4" />
-                        )}
-                        <span>
-                            {isCurrentFieldGenerating
-                                ? t("ai_generating", "AI is generating...")
-                                : getAiButtonText
-                                ? getAiButtonText()
-                                : t(
-                                      "ai_answer_for_you",
-                                      "Let AI answer for you"
-                                  )}
-                        </span>
-                    </motion.button>
-                </motion.div>
+                            whileTap={
+                                !isCurrentFieldGenerating ? { scale: 0.9 } : {}
+                            }
+                        >
+                            {isCurrentFieldGenerating ? (
+                                <motion.div
+                                    className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{
+                                        duration: 1,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}
+                                />
+                            ) : (
+                                <Sparkles className="w-4 h-4" />
+                            )}
+                        </motion.button>
+
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                            <div className="bg-gray-900 text-white text-xs rounded-md px-2 py-1 whitespace-nowrap">
+                                {isCurrentFieldGenerating
+                                    ? t("ai_generating", "AI is generating...")
+                                    : getAiButtonText
+                                    ? getAiButtonText()
+                                    : t(
+                                          "ai_answer_for_you",
+                                          "Let AI answer for you"
+                                      )}
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
 
     const renderTextField = () => (
-        <div className="space-y-3">
+        <div className="relative">
             <input
                 type="text"
                 name={field}
@@ -274,57 +289,62 @@ export default function FormField({
 
             {/* NEW: AI Field Generation button for supported text fields */}
             {shouldShowAiButton && fieldData?.showAiButton && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="flex justify-start"
+                <div
+                    className={`absolute inset-y-0 ${
+                        isRTL ? "left-0 pl-3" : "right-0 pr-3"
+                    } flex items-center`}
                 >
-                    <motion.button
-                        type="button"
-                        onClick={() => onGenerateField(field)}
-                        disabled={isCurrentFieldGenerating}
-                        className={`
-                            inline-flex items-center gap-2 px-4 py-2 text-sm font-medium
-                            rounded-lg transition-all duration-200 
+                    <div className="relative group">
+                        <motion.button
+                            type="button"
+                            onClick={() => onGenerateField(field)}
+                            disabled={isCurrentFieldGenerating}
+                            className={`
+                            w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-md hover:shadow-lg
                             ${
                                 isCurrentFieldGenerating
                                     ? "bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600"
-                                    : "bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 dark:bg-purple-900/20 dark:text-purple-300 dark:hover:bg-purple-900/40 border border-purple-200 dark:border-purple-800"
+                                    : "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500"
                             }
                         `}
-                        whileHover={
-                            !isCurrentFieldGenerating ? { scale: 1.02 } : {}
-                        }
-                        whileTap={
-                            !isCurrentFieldGenerating ? { scale: 0.98 } : {}
-                        }
-                    >
-                        {isCurrentFieldGenerating ? (
-                            <motion.div
-                                className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full"
-                                animate={{ rotate: 360 }}
-                                transition={{
-                                    duration: 1,
-                                    repeat: Infinity,
-                                    ease: "linear",
-                                }}
-                            />
-                        ) : (
-                            <Sparkles className="w-4 h-4" />
-                        )}
-                        <span>
-                            {isCurrentFieldGenerating
-                                ? t("ai_generating", "AI is generating...")
-                                : getAiButtonText
-                                ? getAiButtonText()
-                                : t(
-                                      "ai_answer_for_you",
-                                      "Let AI answer for you"
-                                  )}
-                        </span>
-                    </motion.button>
-                </motion.div>
+                            whileHover={
+                                !isCurrentFieldGenerating ? { scale: 1.05 } : {}
+                            }
+                            whileTap={
+                                !isCurrentFieldGenerating ? { scale: 0.9 } : {}
+                            }
+                        >
+                            {isCurrentFieldGenerating ? (
+                                <motion.div
+                                    className="w-3 h-3 border-2 border-purple-600 border-t-transparent rounded-full"
+                                    animate={{ rotate: 360 }}
+                                    transition={{
+                                        duration: 1,
+                                        repeat: Infinity,
+                                        ease: "linear",
+                                    }}
+                                />
+                            ) : (
+                                <Sparkles className="w-3 h-3" />
+                            )}
+                        </motion.button>
+
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                            <div className="bg-gray-900 text-white text-xs rounded-md px-2 py-1 whitespace-nowrap">
+                                {isCurrentFieldGenerating
+                                    ? t("ai_generating", "AI is generating...")
+                                    : getAiButtonText
+                                    ? getAiButtonText()
+                                    : t(
+                                          "ai_answer_for_you",
+                                          "Let AI answer for you"
+                                      )}
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
@@ -355,38 +375,40 @@ export default function FormField({
             {renderField()}
 
             {/* Next Arrow Button - Only show for non-textarea fields and when not generating */}
-            {fieldData?.type !== "textarea" && !isCurrentFieldGenerating && (
-                <div
-                    className={`absolute inset-y-0 ${
-                        isRTL ? "left-0 pl-3" : "right-0 pr-3"
-                    } flex items-center cursor-pointer ${
-                        !canProceed && "pointer-events-none opacity-50"
-                    }`}
-                    onClick={() => {
-                        if (canProceed) {
-                            onNext();
-                        }
-                    }}
-                >
-                    {isRTL ? (
-                        <ChevronLeft
-                            className={`w-6 h-6 ${
-                                canProceed
-                                    ? "text-indigo-600 dark:text-indigo-400"
-                                    : "text-gray-400 dark:text-gray-600"
-                            }`}
-                        />
-                    ) : (
-                        <ChevronRight
-                            className={`w-6 h-6 ${
-                                canProceed
-                                    ? "text-indigo-600 dark:text-indigo-400"
-                                    : "text-gray-400 dark:text-gray-600"
-                            }`}
-                        />
-                    )}
-                </div>
-            )}
+            {fieldData?.type !== "textarea" &&
+                field !== "project_scale" &&
+                !isCurrentFieldGenerating && (
+                    <div
+                        className={`absolute inset-y-0 ${
+                            isRTL ? "left-0 pl-3" : "right-0 pr-3"
+                        } flex items-center cursor-pointer ${
+                            !canProceed && "pointer-events-none opacity-50"
+                        }`}
+                        onClick={() => {
+                            if (canProceed) {
+                                onNext();
+                            }
+                        }}
+                    >
+                        {isRTL ? (
+                            <ChevronLeft
+                                className={`w-6 h-6 ${
+                                    canProceed
+                                        ? "text-indigo-600 dark:text-indigo-400"
+                                        : "text-gray-400 dark:text-gray-600"
+                                }`}
+                            />
+                        ) : (
+                            <ChevronRight
+                                className={`w-6 h-6 ${
+                                    canProceed
+                                        ? "text-indigo-600 dark:text-indigo-400"
+                                        : "text-gray-400 dark:text-gray-600"
+                                }`}
+                            />
+                        )}
+                    </div>
+                )}
 
             {/* Error Display */}
             {error && (
