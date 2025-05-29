@@ -27,6 +27,7 @@ export default function useProjectCreation({
         description: "",
         status: "",
         industry_id: "",
+        custom_industry: "",
         business_type_id: "",
         target_market: "",
         location: "",
@@ -161,8 +162,27 @@ export default function useProjectCreation({
         setStep("industry");
     };
 
-    const handleIndustrySelect = (industryId) => {
-        setData("industry_id", parseInt(industryId));
+    const handleIndustrySelect = (industryId, customIndustryName = null) => {
+        if (industryId === "other" || industryId === "other-temp") {
+            // Find the real "Other" industry from database, or use a special ID
+            const otherIndustry = industries.find(
+                (industry) =>
+                    industry.industry_name.toLowerCase().trim() === "other"
+            );
+
+            if (otherIndustry) {
+                setData("industry_id", parseInt(otherIndustry.id));
+            } else {
+                // If "Other" doesn't exist in database, use a special identifier
+                setData("industry_id", "other");
+            }
+
+            // Store the custom industry name for AI context
+            setData("custom_industry", customIndustryName);
+        } else {
+            setData("industry_id", parseInt(industryId));
+            setData("custom_industry", null); // Clear custom industry for regular selections
+        }
         setStep("businessType");
     };
 

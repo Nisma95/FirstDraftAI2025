@@ -101,6 +101,7 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
                             <IndustrySelectionStep
                                 industries={industries}
                                 selectedIndustryId={data.industry_id}
+                                customIndustryName={data.custom_industry} // Add this line
                                 onIndustrySelect={handleIndustrySelect}
                                 onBack={handlePrevious}
                             />
