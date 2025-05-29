@@ -147,7 +147,7 @@ export default function AnswerInput({
         }
 
         return (
-            <div className="relative">
+            <div className="textarea-container relative">
                 <textarea
                     ref={textareaRef}
                     value={answer}
@@ -155,18 +155,15 @@ export default function AnswerInput({
                     onKeyDown={handleKeyDown}
                     placeholder={
                         placeholder ||
-                        t(
-                            "enter_answer_placeholder",
-                            "Write your answer here..."
-                        )
+                        t("enter_answer_placeholder", "Share your thoughts...")
                     }
-                    className="w-full h-36 p-4 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent dark:bg-slate-800 dark:text-white resize-none transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700"
+                    className="creative-textarea"
                     autoFocus={autoFocus}
                     disabled={disabled}
                 />
 
-                {/* Character counter */}
-                <div className="absolute bottom-3 right-3 text-xs text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-800 px-2 py-1 rounded-md">
+                {/* Enhanced character counter */}
+                <div className="character-counter">
                     {answer.length} {t("characters", "characters")}
                 </div>
             </div>
@@ -175,38 +172,24 @@ export default function AnswerInput({
 
     return (
         <div className="space-y-3">
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                {!isCostBreakdownQuestion && (
-                    <>
-                        {t("your_answer", "Your answer:")}
-                        {question?.type === "number" && (
-                            <span className="text-indigo-600 dark:text-indigo-400 ml-1">
-                                ({t("numeric_value", "numeric value")})
-                            </span>
-                        )}
-                    </>
-                )}
-            </label>
-
-            {renderInput()}
-
-            {/* Help text */}
-            {!isCostBreakdownQuestion && (
-                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 px-1">
-                    <span className="flex items-center gap-1">
-                        {isNumericQuestion ? (
-                            t("enter_valid_number", "Enter a valid number")
-                        ) : (
+            {/* Label section with detail feedback NEXT TO "Your answer:" */}
+            <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        {!isCostBreakdownQuestion && (
                             <>
-                                <kbd className="px-2 py-0.5 text-xs text-slate-700 bg-slate-100 dark:bg-slate-700 dark:text-slate-300 rounded-md border border-slate-300 dark:border-slate-600">
-                                    Ctrl + Enter
-                                </kbd>{" "}
-                                {t("to_submit", "to submit")}
+                                {t("your_answer", "Your answer:")}
+                                {question?.type === "number" && (
+                                    <span className="text-indigo-600 dark:text-indigo-400 ml-1">
+                                        ({t("numeric_value", "numeric value")})
+                                    </span>
+                                )}
                             </>
                         )}
-                    </span>
+                    </label>
 
-                    {!isNumericQuestion && (
+                    {/* "Try to provide more detail" NEXT TO "Your answer:" */}
+                    {!isCostBreakdownQuestion && !isNumericQuestion && (
                         <span
                             className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                 answer.length < 10
@@ -222,6 +205,32 @@ export default function AnswerInput({
                                 : t("good_length", "Good length")}
                         </span>
                     )}
+                </div>
+
+                {/* Let AI Answer button STAYS in top right */}
+                {!isCostBreakdownQuestion && !isNumericQuestion && (
+                    <button
+                        type="button"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                        onClick={() => {
+                            // Add your AI answer logic here
+                            console.log("Let AI answer this question");
+                        }}
+                    >
+                        {t("let_ai_answer", "Let AI Answer it for me")}
+                    </button>
+                )}
+            </div>
+
+            {renderInput()}
+
+            {/* Help text - removed duplicate Ctrl+Enter since it's shown below the button */}
+            {!isCostBreakdownQuestion && (
+                <div className="flex justify-between items-center text-xs text-slate-500 dark:text-slate-400 px-1">
+                    <span className="flex items-center gap-1">
+                        {isNumericQuestion &&
+                            t("enter_valid_number", "Enter a valid number")}
+                    </span>
                 </div>
             )}
         </div>

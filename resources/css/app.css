@@ -563,4 +563,253 @@ select option {
 
 /*********************************************************************************************/
 
-/************** media  **************/
+/************** textArea  **************/
+
+/* Creative Textarea Styling - Clean Version, No Blue Effects */
+.creative-textarea {
+    width: 100%;
+    height: 9rem;
+    padding: 1.25rem;
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.25rem;
+    resize: none;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.95);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus state - Clean, no blue/gradient effects */
+.creative-textarea:focus {
+    outline: none;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 1);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Hover state - Simple and clean */
+.creative-textarea:hover:not(:focus) {
+    background: rgba(30, 30, 30, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 5px 22px rgba(0, 0, 0, 0.18);
+    transform: translateY(-0.5px);
+}
+
+/* Placeholder styling */
+.creative-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    transition: all 0.3s ease;
+}
+
+.creative-textarea:focus::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom scrollbar */
+.creative-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.creative-textarea::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.creative-textarea::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.creative-textarea::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Dark mode enhancements */
+.dark .creative-textarea {
+    background: rgba(15, 15, 15, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dark .creative-textarea:focus {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+
+.dark .creative-textarea:hover:not(:focus) {
+    background: rgba(15, 15, 15, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Disabled state */
+.creative-textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.creative-textarea:disabled:hover {
+    transform: none;
+    background: rgba(30, 30, 30, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Character counter positioning */
+.textarea-container {
+    position: relative;
+}
+
+.textarea-container .character-counter {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.8),
+        rgba(79, 70, 229, 0.8)
+    );
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(4px);
+    pointer-events: none;
+}
+
+.creative-textarea:focus + .character-counter,
+.creative-textarea:not(:placeholder-shown) + .character-counter {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/*****************************************************************************************************************************
+*****************************************************************************************************************************/
+
+/* fdCardLighterBg - Reusable Card Style with Character Counter Gradient Colors */
+.fdCardLighterBg {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.8),
+        rgba(79, 70, 229, 0.8)
+    );
+    transition: all 0.3s ease;
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08);
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+    text-decoration: none;
+}
+
+.fdCardLighterBg:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.9),
+        rgba(79, 70, 229, 0.9)
+    );
+    transform: translateY(-1px);
+    box-shadow: 2px 6px 16px rgba(0, 0, 0, 0.12);
+    color: rgba(255, 255, 255, 1);
+}
+
+.fdCardLighterBg:active {
+    transform: translateY(0);
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark mode styles - Same gradient, better shadows */
+.dark .fdCardLighterBg {
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.8),
+        rgba(79, 70, 229, 0.8)
+    );
+    color: rgba(255, 255, 255, 0.95);
+    box-shadow: 2px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dark .fdCardLighterBg:hover {
+    background: linear-gradient(
+        135deg,
+        rgba(147, 51, 234, 0.9),
+        rgba(79, 70, 229, 0.9)
+    );
+    color: rgba(255, 255, 255, 1);
+    box-shadow: 2px 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* Arrow icon styling for buttons with icons */
+.fdCardLighterBg .arrow-icon {
+    transition: transform 0.3s ease;
+    width: 16px;
+    height: 16px;
+    color: inherit;
+}
+
+.fdCardLighterBg:hover .arrow-icon {
+    transform: translateX(-2px);
+}
+
+/* Focus states for accessibility */
+.fdCardLighterBg:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .fdCardLighterBg {
+        padding: 6px 12px;
+        font-size: 0.8125rem;
+        gap: 6px;
+    }
+
+    .fdCardLighterBg .arrow-icon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Variations for different use cases */
+.fdCardLighterBg.fd-small {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    gap: 4px;
+}
+
+.fdCardLighterBg.fd-large {
+    padding: 12px 24px;
+    font-size: 1rem;
+    gap: 12px;
+}
+
+.fdCardLighterBg.fd-pill {
+    border-radius: 50px;
+}
+
+.fdCardLighterBg.fd-rounded {
+    border-radius: 12px;
+}
