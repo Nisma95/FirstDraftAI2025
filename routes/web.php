@@ -155,8 +155,54 @@ Route::middleware('auth')->prefix('plans')->name('plans.')->group(function () {
     Route::put('/{plan}', [PlanController::class, 'update'])->name('update');
     Route::delete('/{plan}', [PlanController::class, 'destroy'])->name('destroy');
     Route::get('/{plan}/pdf', [PlanController::class, 'generatePDF'])->name('pdf');
+
+    Route::post('/ai/generate-answer', [PlanController::class, 'generateAnswerSuggestion'])->name('generate-answer');
 });
 
+
+
+
+
+Route::post('/debug/ai-answer', function (Request $request) {
+    try {
+        // Test 1: Basic response
+        Log::info('Debug route hit', ['data' => $request->all()]);
+
+        // Test 2: Check if AIPlannAnswerHelper exists
+        $helper = app(App\Services\AIPlannAnswerHelper::class);
+        Log::info('AIPlannAnswerHelper created successfully');
+
+        // Test 3: Check OpenAI config
+        $apiKey = config('services.openai.api_key');
+        Log::info('OpenAI config check', [
+            'has_api_key' => !empty($apiKey),
+            'api_key_length' => $apiKey ? strlen($apiKey) : 0
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Debug route working',
+            'config_check' => [
+                'has_openai_key' => !empty($apiKey),
+                'helper_loaded' => true
+            ]
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Debug route error', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
+})->middleware('auth');
 /*
 |--------------------------------------------------------------------------
 | Direct AI Planner Route

@@ -12,6 +12,9 @@ export default function AiQuestionsStep({
     onSubmit,
     isLoading,
     onReset,
+    // Add props for AI functionality
+    selectedProject,
+    answers,
 }) {
     const { t } = useTranslation();
 
@@ -64,6 +67,9 @@ export default function AiQuestionsStep({
                 onAnswerChange={onAnswerChange}
                 onSubmit={onSubmit}
                 isLoading={isLoading}
+                // Pass the new props for AI functionality
+                selectedProject={selectedProject}
+                answers={answers}
             />
         </motion.div>
     );

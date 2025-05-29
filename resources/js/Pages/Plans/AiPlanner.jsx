@@ -311,6 +311,9 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                                 onSubmit={handleSubmitAnswer}
                                 isLoading={isLoading}
                                 onReset={handleReset}
+                                // Pass the props for AI functionality
+                                selectedProject={selectedProject}
+                                answers={answers}
                             />
                         )}
 
@@ -327,13 +330,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                                 <GeneratingStep />
 
                                 <div className="space-y-4">
-                                    <p className="text-lg text-gray-600 dark:text-gray-400">
-                                        {t(
-                                            "analyzing_answers",
-                                            "Analyzing your answers and creating your business plan..."
-                                        )}
-                                    </p>
-
                                     <div className="max-w-md mx-auto">
                                         <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                                             <motion.div

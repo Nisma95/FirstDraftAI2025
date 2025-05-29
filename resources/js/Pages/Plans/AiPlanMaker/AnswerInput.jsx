@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function AnswerInput({
@@ -9,10 +9,16 @@ export default function AnswerInput({
     disabled = false,
     autoFocus = true,
     placeholder,
+    // New props for AI functionality
+    businessIdea = "",
+    projectName = "",
+    projectDescription = "",
+    previousAnswers = [],
 }) {
     const { t } = useTranslation();
     const inputRef = useRef(null);
     const textareaRef = useRef(null);
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
     const isNumericQuestion = question?.type === "number";
     const isCostBreakdownQuestion = question?.type === "cost_breakdown";
@@ -53,7 +59,88 @@ export default function AnswerInput({
         }
     };
 
-    // Handle cost breakdown answer compilation
+    const handleAIAnswer = async () => {
+        if (isGeneratingAI) return;
+
+        setIsGeneratingAI(true);
+
+        try {
+            console.log("Making request to:", "/plans/ai/generate-answer");
+            console.log("Request data:", {
+                question: question?.question || "",
+                question_type: question?.type || "text",
+                business_idea: businessIdea,
+                project_name: projectName,
+                project_description: projectDescription,
+                previous_answers: previousAnswers,
+            });
+
+            const response = await fetch("/plans/ai/generate-answer", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                },
+                body: JSON.stringify({
+                    question: question?.question || "",
+                    question_type: question?.type || "text",
+                    business_idea: businessIdea,
+                    project_name: projectName,
+                    project_description: projectDescription,
+                    previous_answers: previousAnswers,
+                }),
+            });
+
+            console.log("Response status:", response.status);
+            console.log(
+                "Response headers:",
+                Object.fromEntries(response.headers)
+            );
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(
+                    "HTTP Error:",
+                    response.status,
+                    errorText.substring(0, 200)
+                );
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const contentType = response.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                const htmlText = await response.text();
+                console.error(
+                    "Non-JSON response received:",
+                    htmlText.substring(0, 500)
+                );
+                throw new Error(
+                    "Server returned HTML instead of JSON - likely a 404 or server error"
+                );
+            }
+
+            const result = await response.json();
+            console.log("AI response result:", result);
+
+            if (result.success && result.suggested_answer) {
+                onChange(result.suggested_answer);
+            } else {
+                console.error("AI Answer Error:", result.message);
+                alert(
+                    "Error: " + (result.message || "Failed to generate answer")
+                );
+            }
+        } catch (error) {
+            console.error("AI Answer Error:", error);
+            alert("Error generating AI answer: " + error.message);
+        } finally {
+            setIsGeneratingAI(false);
+        }
+    };
+
     const handleCostBreakdownSubmit = () => {
         if (question?.questionDetails?.costItems) {
             // Collect all the cost data from the question card
@@ -207,17 +294,22 @@ export default function AnswerInput({
                     )}
                 </div>
 
-                {/* Let AI Answer button STAYS in top right */}
+                {/* Let AI Answer button with loading state */}
                 {!isCostBreakdownQuestion && !isNumericQuestion && (
                     <button
                         type="button"
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
-                        onClick={() => {
-                            // Add your AI answer logic here
-                            console.log("Let AI answer this question");
-                        }}
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-400 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 disabled:cursor-not-allowed disabled:transform-none"
+                        onClick={handleAIAnswer}
+                        disabled={isGeneratingAI || disabled}
                     >
-                        {t("let_ai_answer", "Let AI Answer it for me")}
+                        {isGeneratingAI ? (
+                            <span className="flex items-center gap-1">
+                                <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
+                                {t("generating", "Generating...")}
+                            </span>
+                        ) : (
+                            t("let_ai_answer", "Let AI Answer it for me")
+                        )}
                     </button>
                 )}
             </div>

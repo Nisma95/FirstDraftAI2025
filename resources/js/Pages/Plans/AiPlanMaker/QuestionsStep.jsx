@@ -65,6 +65,11 @@ export default function QuestionsStep({
                             ? t("enter_number", "Enter a number...")
                             : t("share_your_thoughts", "Share your thoughts...")
                     }
+                    // Add empty defaults for now - these should be passed from parent
+                    businessIdea=""
+                    projectName=""
+                    projectDescription=""
+                    previousAnswers={[]}
                 />
 
                 <div className="text-center mt-6">

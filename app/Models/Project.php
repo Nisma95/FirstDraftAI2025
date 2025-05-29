@@ -58,16 +58,15 @@ class Project extends Model
      */
     public function industry()
     {
-        return $this->belongsTo(Industry::class, 'industry_id');
+        return $this->belongsTo(Industry::class);
     }
 
-    /**
-     * Get the business type associated with the project.
-     */
-    public function businessType()
+    public function business_type()
     {
-        return $this->belongsTo(BusinessType::class, 'business_type_id');
+        return $this->belongsTo(BusinessType::class);
     }
+
+
 
     // Helper methods for status
     public function isNewProject(): bool

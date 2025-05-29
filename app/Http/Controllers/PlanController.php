@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Plan;
 use App\Models\Project;
 use App\Services\AIPlannerService;
+use App\Services\AIPlannAnswerHelper;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +21,8 @@ class PlanController extends Controller
      * @var \App\Services\AIPlannerService
      */
     protected $aiPlanner;
+    protected $aiAnswerHelper;
+
 
     /**
      * Create a new controller instance.
@@ -26,9 +30,10 @@ class PlanController extends Controller
      * @param  \App\Services\AIPlannerService  $aiPlanner
      * @return void
      */
-    public function __construct(AIPlannerService $aiPlanner)
+    public function __construct(AIPlannerService $aiPlanner, AIPlannAnswerHelper $aiAnswerHelper)
     {
         $this->aiPlanner = $aiPlanner;
+        $this->aiAnswerHelper = $aiAnswerHelper; // Add this
     }
 
     /**
@@ -165,8 +170,8 @@ class PlanController extends Controller
      */
     public function show(Plan $plan)
     {
-        // Load the related project
-        $plan->load('project');
+        // Load the related project WITH industry and business_type relationships
+        $plan->load('project.industry', 'project.business_type');
 
         // Parse ai_analysis if it's a JSON string
         $aiAnalysis = null;
@@ -622,6 +627,34 @@ class PlanController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
+    public function generateAnswerSuggestion(Request $request)
+    {
+        try {
+            // Use your existing AIPlannAnswerHelper service
+            $result = $this->aiAnswerHelper->generateAnswerSuggestion([
+                'question' => $request->input('question', ''),
+                'question_type' => $request->input('question_type', 'text'),
+                'business_idea' => $request->input('business_idea', ''),
+                'project_name' => $request->input('project_name', ''),
+                'project_description' => $request->input('project_description', ''),
+                'previous_answers' => $request->input('previous_answers', [])
+            ]);
+
+            return response()->json($result);
+        } catch (\Exception $e) {
+            Log::error('Error in generateAnswerSuggestion: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating answer: ' . $e->getMessage(),
+                'suggested_answer' => 'Please provide your own answer for this question.'
             ], 500);
         }
     }
