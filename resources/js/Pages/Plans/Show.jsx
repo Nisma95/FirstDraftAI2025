@@ -946,16 +946,79 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                                                     Revenue Model
                                                 </label>
-                                                <div className="flex items-center gap-3 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-2xl p-4 border border-emerald-200/50 dark:border-emerald-700/50">
-                                                    <div className="p-1.5 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
-                                                        <BanknotesIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                                    </div>
-                                                    <span className="font-bold text-emerald-900 dark:text-emerald-100 truncate">
-                                                        {
-                                                            plan.project
-                                                                .revenue_model
+                                                <div className="space-y-2">
+                                                    {(() => {
+                                                        // Parse revenue model - handle both array and string formats
+                                                        let revenueModels = [];
+
+                                                        if (
+                                                            Array.isArray(
+                                                                plan.project
+                                                                    .revenue_model
+                                                            )
+                                                        ) {
+                                                            revenueModels =
+                                                                plan.project
+                                                                    .revenue_model;
+                                                        } else if (
+                                                            typeof plan.project
+                                                                .revenue_model ===
+                                                            "string"
+                                                        ) {
+                                                            // Split by common separators and clean up
+                                                            revenueModels =
+                                                                plan.project.revenue_model
+                                                                    .split(
+                                                                        /[,;|]/
+                                                                    )
+                                                                    .map(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            item.trim()
+                                                                    )
+                                                                    .filter(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            item.length >
+                                                                            0
+                                                                    );
                                                         }
-                                                    </span>
+
+                                                        return revenueModels.map(
+                                                            (model, index) => (
+                                                                <motion.div
+                                                                    key={index}
+                                                                    variants={
+                                                                        cardVariants
+                                                                    }
+                                                                    initial={{
+                                                                        opacity: 0,
+                                                                        x: -20,
+                                                                    }}
+                                                                    animate={{
+                                                                        opacity: 1,
+                                                                        x: 0,
+                                                                    }}
+                                                                    transition={{
+                                                                        delay:
+                                                                            index *
+                                                                            0.1,
+                                                                    }}
+                                                                    className="flex items-center gap-3 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-xl p-3 border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 transition-all duration-200"
+                                                                >
+                                                                    <div className="flex-shrink-0 p-1.5 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
+                                                                        <BanknotesIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                                                    </div>
+                                                                    <span className="font-medium text-emerald-900 dark:text-emerald-100 text-sm leading-relaxed">
+                                                                        {model}
+                                                                    </span>
+                                                                    <div className="ml-auto flex-shrink-0 w-2 h-2 bg-emerald-500 rounded-full opacity-60"></div>
+                                                                </motion.div>
+                                                            )
+                                                        );
+                                                    })()}
                                                 </div>
                                             </motion.div>
                                         )}
