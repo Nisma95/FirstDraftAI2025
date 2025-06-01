@@ -297,5 +297,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
-    require __DIR__ . '/auth.php';
 });
+
+require __DIR__ . '/auth.php';
