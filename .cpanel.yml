@@ -1,0 +1,7 @@
+deployment:
+  tasks:
+    - cd /home4/firstdra/public_html
+    - /usr/local/bin/npm run build
+    - /usr/local/bin/php artisan cache:clear
+    - /usr/local/bin/php artisan config:clear
+    - /usr/local/bin/php artisan view:clear
