@@ -8,7 +8,7 @@ const FeatureItem = ({ titleKey, descKey }) => {
 
     return (
         <div className="vertical__item">
-            <h3 className="fdGradientColorzTX text-2xl" dir="auto">
+            <h3 className="fdGradientColorzTX text-2xl md:text-4xl" dir="auto">
                 {t(titleKey)}
             </h3>
             <p

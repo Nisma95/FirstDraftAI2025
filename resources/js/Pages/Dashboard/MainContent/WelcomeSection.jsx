@@ -259,45 +259,93 @@ export default function WelcomeSection() {
             {/* Welcome card container - now transparent to blend with dashboard */}
             <div className="relative bg-white/40 dark:bg-gray-900/20 backdrop-blur-xl rounded-3xl border border-white/30 dark:border-gray-700/20 shadow-xl shadow-blue-500/5 dark:shadow-purple-500/10 p-8 md:p-12">
                 <div className="flex items-start gap-5">
-                    {" "}
                     {/* Left side - Welcome content */}
                     <div
                         className={`flex flex-col ${
-                            i18n.language === "ar" ? "items-end" : "items-start"
+                            i18n.language === "ar"
+                                ? "items-end text-right"
+                                : "items-start text-left"
                         } flex-1`}
                     >
                         {/* Greeting with time element and sparkle */}
                         <motion.div
                             variants={greetingVariants}
-                            className="flex items-center gap-3 mb-3"
+                            className={`flex items-center gap-3 mb-3 ${
+                                i18n.language === "ar"
+                                    ? "flex-row-reverse w-fit ml-auto"
+                                    : "w-fit"
+                            }`}
                         >
-                            <motion.div variants={waveVariants} animate="wave">
-                                {getTimeElement()}
-                            </motion.div>
-                            <motion.p
-                                className="text-2xl md:text-4xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: "spring", bounce: 0.5 }}
-                            >
-                                {getGreeting()}
-                            </motion.p>
-                            <motion.span
-                                variants={sparkleVariants}
-                                className="text-2xl"
-                            >
-                                ✨
-                            </motion.span>
+                            {i18n.language === "ar" ? (
+                                <>
+                                    <motion.span
+                                        variants={sparkleVariants}
+                                        className="text-2xl"
+                                    >
+                                        ✨
+                                    </motion.span>
+                                    <motion.p
+                                        className="text-2xl md:text-4xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent"
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{
+                                            type: "spring",
+                                            bounce: 0.5,
+                                        }}
+                                    >
+                                        {getGreeting()}
+                                    </motion.p>
+                                    <motion.div
+                                        variants={waveVariants}
+                                        animate="wave"
+                                    >
+                                        {getTimeElement()}
+                                    </motion.div>
+                                </>
+                            ) : (
+                                <>
+                                    <motion.div
+                                        variants={waveVariants}
+                                        animate="wave"
+                                    >
+                                        {getTimeElement()}
+                                    </motion.div>
+                                    <motion.p
+                                        className="text-2xl md:text-4xl font-semibold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent"
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{
+                                            type: "spring",
+                                            bounce: 0.5,
+                                        }}
+                                    >
+                                        {getGreeting()}
+                                    </motion.p>
+                                    <motion.span
+                                        variants={sparkleVariants}
+                                        className="text-2xl"
+                                    >
+                                        ✨
+                                    </motion.span>
+                                </>
+                            )}
                         </motion.div>
 
                         {/* Name with enhanced styling */}
                         <motion.div
                             variants={nameVariants}
-                            className="relative mb-4"
+                            className={`relative mb-4 ${
+                                i18n.language === "ar"
+                                    ? "w-fit ml-auto"
+                                    : "w-fit"
+                            }`}
                             whileHover={{ scale: 1.02 }}
                             transition={{ type: "spring", bounce: 0.3 }}
                         >
                             <motion.h1
-                                className="text-6xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-700 dark:from-indigo-400 dark:via-blue-400 dark:to-purple-500 bg-clip-text text-transparent tracking-tight"
+                                className={`text-6xl md:text-8xl lg:text-9xl font-black bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-700 dark:from-indigo-400 dark:via-blue-400 dark:to-purple-500 bg-clip-text text-transparent tracking-tight ${
+                                    i18n.language === "ar"
+                                        ? "text-right"
+                                        : "text-left"
+                                }`}
                                 style={{
                                     WebkitTextStroke:
                                         "2px rgba(99, 102, 241, 0.1)",
@@ -308,9 +356,9 @@ export default function WelcomeSection() {
                                 {user.name.split(" ")[0]}
                             </motion.h1>
 
-                            {/* Decorative underline */}
+                            {/* Decorative underline - matches title width */}
                             <motion.div
-                                className="h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mt-2"
+                                className="h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mt-2 w-full"
                                 initial={{ width: 0 }}
                                 animate={{ width: "100%" }}
                                 transition={{
@@ -321,12 +369,20 @@ export default function WelcomeSection() {
                             />
                         </motion.div>
 
-                        {/* Date with enhanced styling */}
+                        {/* Date with enhanced styling - FIXED FOR ARABIC RTL */}
                         <motion.div
                             variants={dateVariants}
-                            className="flex items-center gap-3 px-6 py-3 bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl border border-white/40 dark:border-gray-700/30"
+                            className={`flex items-center gap-3 px-6 py-3 bg-white/60 dark:bg-gray-800/40 backdrop-blur-sm rounded-2xl border border-white/40 dark:border-gray-700/30 ${
+                                i18n.language === "ar"
+                                    ? "flex-row-reverse w-fit ml-auto"
+                                    : "w-fit"
+                            }`}
                             whileHover={{ scale: 1.05, y: -2 }}
                             transition={{ type: "spring", bounce: 0.4 }}
+                            style={{
+                                direction:
+                                    i18n.language === "ar" ? "rtl" : "ltr",
+                            }}
                         >
                             <svg
                                 className="w-5 h-5 md:w-6 md:h-6 text-blue-500 dark:text-blue-400"
@@ -347,16 +403,39 @@ export default function WelcomeSection() {
                             <span className="text-lg md:text-xl text-gray-500 dark:text-gray-400">
                                 •
                             </span>
-                            <span className="text-lg md:text-xl font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
-                                {t("WelcomeSection.welcome_back")}
-                            </span>
-                            <motion.span
-                                className="text-lg"
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ duration: 2, repeat: Infinity }}
-                            >
-                                🎉
-                            </motion.span>
+                            {i18n.language === "ar" ? (
+                                <>
+                                    <motion.span
+                                        className="text-lg"
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                    >
+                                        🎉
+                                    </motion.span>
+                                    <span className="text-lg md:text-xl font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                                        {t("WelcomeSection.welcome_back")}
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-lg md:text-xl font-medium bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent">
+                                        {t("WelcomeSection.welcome_back")}
+                                    </span>
+                                    <motion.span
+                                        className="text-lg"
+                                        animate={{ opacity: [0.5, 1, 0.5] }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                        }}
+                                    >
+                                        🎉
+                                    </motion.span>
+                                </>
+                            )}
                         </motion.div>
                     </div>
                     {/* Right side - Quick Actions for desktop */}

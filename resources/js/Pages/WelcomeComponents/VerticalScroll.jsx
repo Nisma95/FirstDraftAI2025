@@ -58,15 +58,20 @@ const VerticalScroll = () => {
                 <div className="vertical__content">
                     <div className="col col_left">
                         <h2
-                            className={`fdGradientColorzTX ${
-                                isRTL ? "border-r-5" : "border-l-5"
-                            } border-[#5a56e9] text-6xl font-bold p-4 flex items-center`}
-                            dir="auto"
+                            className="fdGradientColorzTX border-l-5 border-[#5a56e9] text-6xl lg:text-7xl font-bold p-4"
+                            style={{
+                                direction: "ltr",
+                                textAlign: "left",
+                                paddingLeft: "3rem",
+                            }}
                         >
                             {t("about_title")}
                         </h2>
                     </div>
-                    <div className="col col_right">
+                    <div
+                        className="col col_right"
+                        style={{ paddingRight: "3rem" }}
+                    >
                         {features.map((feature, index) => (
                             <FeatureItem
                                 key={index}

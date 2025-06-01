@@ -38,11 +38,23 @@ function AppWrapper({ App, props }) {
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
-    resolve: (name) =>
-        resolvePageComponent(
+    resolve: (name) => {
+        console.log("Trying to resolve page:", name); // Debug log
+
+        return resolvePageComponent(
             `./Pages/${name}.jsx`,
             import.meta.glob("./Pages/**/*.jsx")
-        ),
+        ).catch((error) => {
+            console.error("Page resolution failed for:", name);
+            console.error("Error:", error);
+
+            // Try to get available pages for debugging
+            const availablePages = import.meta.glob("./Pages/**/*.jsx");
+            console.log("Available pages:", Object.keys(availablePages));
+
+            throw error;
+        });
+    },
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(<AppWrapper App={App} props={props} />);

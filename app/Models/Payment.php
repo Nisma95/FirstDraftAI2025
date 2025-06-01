@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
+use Illuminate\Support\Str; // ✅ Fixed: Import from Support, not Models
 
 class Payment extends Model
 {
@@ -18,32 +19,22 @@ class Payment extends Model
         'amount',
         'transaction_id',
         'status',
-        'currency',
-        'payment_gateway',
-        'gateway_response',
-        'failure_reason',
-        'refunded_amount',
-        'refund_transaction_id',
     ];
 
     protected $casts = [
-        'payment_date' => 'datetime',
+        'payment_date' => 'date',
         'amount' => 'decimal:2',
-        'refunded_amount' => 'decimal:2',
-        'gateway_response' => 'array',
     ];
 
-    // العلاقات
+    // Relations
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
     }
 
-    public function user(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id', function ($query) {
-            $query->join('subscriptions', 'payments.subscription_id', '=', 'subscriptions.id');
-        });
+        return $this->hasOneThrough(User::class, Subscription::class, 'id', 'id', 'subscription_id', 'user_id');
     }
 
     // Scopes
@@ -60,11 +51,6 @@ class Payment extends Model
     public function scopeFailed($query)
     {
         return $query->where('status', 'failed');
-    }
-
-    public function scopeRefunded($query)
-    {
-        return $query->where('status', 'refunded');
     }
 
     public function scopeRecent($query)
@@ -90,8 +76,6 @@ class Payment extends Model
             'pending' => 'في الانتظار',
             'completed' => 'مكتمل',
             'failed' => 'فشل',
-            'refunded' => 'مسترد',
-            'chargeback' => 'مسترد عن طريق البنك',
         ];
 
         return $statuses[$this->status] ?? 'غير محدد';
@@ -113,30 +97,14 @@ class Payment extends Model
 
     public function getFormattedAmountAttribute(): string
     {
-        return number_format($this->amount, 2) . ' ' . ($this->currency ?? 'SAR');
+        return number_format($this->amount, 2) . ' SAR';
     }
 
     public function getIsRefundableAttribute(): bool
     {
-        // Can refund within 30 days if completed and not already refunded
+        // Can refund within 30 days if completed
         return $this->status === 'completed' &&
-            $this->refunded_amount === null &&
             $this->payment_date->isAfter(now()->subDays(30));
-    }
-
-    public function getIsPartialRefundAttribute(): bool
-    {
-        return $this->refunded_amount > 0 && $this->refunded_amount < $this->amount;
-    }
-
-    public function getIsFullRefundAttribute(): bool
-    {
-        return $this->refunded_amount >= $this->amount;
-    }
-
-    public function getRemainingRefundableAmountAttribute(): float
-    {
-        return max(0, $this->amount - ($this->refunded_amount ?? 0));
     }
 
     public function getProcessingFeeAttribute(): float
@@ -160,39 +128,17 @@ class Payment extends Model
     }
 
     // Methods
-    public function markAsCompleted(array $gatewayResponse = []): bool
+    public function markAsCompleted(): bool
     {
         return $this->update([
             'status' => 'completed',
-            'gateway_response' => $gatewayResponse,
         ]);
     }
 
-    public function markAsFailed(string $reason = '', array $gatewayResponse = []): bool
+    public function markAsFailed(string $reason = ''): bool
     {
         return $this->update([
             'status' => 'failed',
-            'failure_reason' => $reason,
-            'gateway_response' => $gatewayResponse,
-        ]);
-    }
-
-    public function refund(float $amount = null, string $reason = ''): bool
-    {
-        $amount = $amount ?? $this->amount;
-        $amount = min($amount, $this->remaining_refundable_amount);
-
-        if ($amount <= 0) {
-            return false;
-        }
-
-        // Process refund with payment gateway
-        // This would typically involve API calls to Meeser or other payment gateways
-
-        return $this->update([
-            'status' => $this->amount === $amount ? 'refunded' : 'partially_refunded',
-            'refunded_amount' => ($this->refunded_amount ?? 0) + $amount,
-            'failure_reason' => $reason ? "Refunded: {$reason}" : null,
         ]);
     }
 
@@ -205,7 +151,6 @@ class Payment extends Model
         // Reset status to pending for retry
         return $this->update([
             'status' => 'pending',
-            'failure_reason' => null,
         ]);
     }
 
@@ -219,12 +164,14 @@ class Payment extends Model
             'method' => $this->payment_method_display,
             'status' => $this->status_display,
             'subscription' => [
-                'type' => $this->subscription->plan_type_display,
-                'period' => $this->subscription->start_date->format('Y-m-d') . ' - ' . $this->subscription->end_date->format('Y-m-d'),
+                'type' => $this->subscription->plan_type_display ?? 'غير محدد',
+                'period' => $this->subscription->start_date ?
+                    $this->subscription->start_date->format('Y-m-d') . ' - ' .
+                    ($this->subscription->end_date ? $this->subscription->end_date->format('Y-m-d') : 'مفتوح') : 'غير محدد',
             ],
             'user' => [
-                'name' => $this->subscription->user->name,
-                'email' => $this->subscription->user->email,
+                'name' => $this->subscription->user->name ?? 'غير محدد',
+                'email' => $this->subscription->user->email ?? 'غير محدد',
             ],
         ];
     }
@@ -238,10 +185,10 @@ class Payment extends Model
             'amount' => $this->amount,
             'tax' => $this->amount * 0.15, // 15% VAT
             'total' => $this->amount * 1.15,
-            'currency' => $this->currency ?? 'SAR',
+            'currency' => 'SAR',
             'items' => [
                 [
-                    'description' => 'اشتراك خطة العمل - ' . $this->subscription->plan_type_display,
+                    'description' => 'اشتراك خطة العمل - ' . ($this->subscription->plan_type_display ?? 'غير محدد'),
                     'quantity' => 1,
                     'unit_price' => $this->amount,
                     'total' => $this->amount,
@@ -252,11 +199,6 @@ class Payment extends Model
 
     public function getTransactionFee(): float
     {
-        // Get transaction fee from gateway response if available
-        if (isset($this->gateway_response['transaction_fee'])) {
-            return (float) $this->gateway_response['transaction_fee'];
-        }
-
         return $this->processing_fee;
     }
 
@@ -266,30 +208,11 @@ class Payment extends Model
             'payment_id' => $this->id,
             'transaction_id' => $this->transaction_id,
             'amount' => $this->amount,
-            'currency' => $this->currency ?? 'SAR',
+            'currency' => 'SAR',
             'status' => $this->status,
             'method' => $this->payment_method,
             'date' => $this->payment_date,
         ];
-
-        // Add card details if available (masked)
-        if (isset($this->gateway_response['card'])) {
-            $details['card'] = [
-                'last_four' => $this->gateway_response['card']['last_four'] ?? null,
-                'brand' => $this->gateway_response['card']['brand'] ?? null,
-                'exp_month' => $this->gateway_response['card']['exp_month'] ?? null,
-                'exp_year' => $this->gateway_response['card']['exp_year'] ?? null,
-            ];
-        }
-
-        // Add refund information if applicable
-        if ($this->refunded_amount > 0) {
-            $details['refund'] = [
-                'amount' => $this->refunded_amount,
-                'transaction_id' => $this->refund_transaction_id,
-                'status' => $this->is_full_refund ? 'full' : 'partial',
-            ];
-        }
 
         return $details;
     }
@@ -303,8 +226,12 @@ class Payment extends Model
     {
         $user = $this->subscription->user;
 
-        // Send email receipt
-        \Mail::to($user->email)->send(new \App\Mail\PaymentReceipt($this));
+        if (!$user) {
+            return false;
+        }
+
+        // Send email receipt (you'll need to implement the Mail class)
+        // \Mail::to($user->email)->send(new \App\Mail\PaymentReceipt($this));
 
         return true;
     }
@@ -318,6 +245,12 @@ class Payment extends Model
 
     public static function generateTransactionId(): string
     {
-        return 'TXN-' . time() . '-' . strtoupper(\Str::random(8));
+        return 'TXN-' . time() . '-' . strtoupper(Str::random(8));
+    }
+
+    // Helper method to get user through subscription
+    public function getUser()
+    {
+        return $this->subscription ? $this->subscription->user : null;
     }
 }

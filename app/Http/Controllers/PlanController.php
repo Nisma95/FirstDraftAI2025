@@ -131,7 +131,7 @@ class PlanController extends Controller
 
         $plan->update($validated);
 
-        return redirect()->route('Plans.show', $plan)
+        return redirect()->route('plans.show', $plan)
             ->with('success', 'Plan updated successfully.');
     }
 

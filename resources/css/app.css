@@ -495,10 +495,6 @@ select option {
     mask-size: 100% 100%;
 }
 
-.dark .bg-zoom {
-    opacity: calc(var(--fade-value));
-    transition: opacity 0.5s ease-in-out;
-}
 /* Keyframes for the zoom-out effect */
 @keyframes zoomOut {
     0% {

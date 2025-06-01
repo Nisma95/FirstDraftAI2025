@@ -488,5 +488,279 @@
     "ai_suggest_differentiator": "Let AI identify differentiators",
     "ai_analyzing_project": "AI is analyzing your project...",
     "ai_suggestion_ready": "AI suggestion is ready!",
-    "ai_suggestion_error": "Failed to generate suggestion. Please try again."
+    "ai_suggestion_error": "Failed to generate suggestion. Please try again.",
+
+    "subscriptions": {
+        "title": "Subscription Management",
+        "subtitle": "View and manage your current subscription plan and explore available options",
+        "currentSubscription": "Current Subscription",
+        "noActiveSubscription": "No Active Subscription",
+        "noSubscriptionDescription": "Start with the free plan or subscribe to one of our paid plans",
+        "planType": "Plan Type",
+        "amount": "Amount",
+        "startDate": "Start Date",
+        "daysRemaining": "Days Remaining",
+        "free": "Free",
+        "unlimited": "Unlimited",
+        "days": "days",
+        "usageStats": "Usage Statistics",
+        "plansCreated": "Plans Created",
+        "plansCompleted": "Plans Completed",
+        "pdfsGenerated": "PDF Files",
+        "aiSuggestions": "AI Suggestions",
+        "subscriptionActions": "Subscription Actions",
+        "viewAllPlans": "View All Plans",
+        "paymentHistory": "Payment History",
+        "upgradeSubscription": "Upgrade Subscription",
+        "cancelSubscription": "Cancel Subscription",
+        "activateFree": "Activate Free Plan",
+        "viewPaidPlans": "View Paid Plans",
+        "activating": "Activating...",
+        "cancelling": "Cancelling...",
+        "confirmCancel": "Are you sure you want to cancel your subscription?",
+        "backToDashboard": "Back to Dashboard",
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive",
+            "expired": "Expired",
+            "canceled": "Canceled"
+        }
+    },
+    "plans": {
+        "title": "Choose the Right Subscription Plan",
+        "subtitle": "Select the plan that fits your needs and start creating professional business plans with AI assistance",
+        "currentPlan": "Current Plan:",
+        "mostPopular": "Most Popular",
+        "current": "Current Plan",
+        "features": "Features:",
+        "subscribeNow": "Subscribe Now",
+        "activateFree": "Activate Free Plan",
+        "loading": "Loading...",
+        "discount": "Discount",
+        "insteadOf": "Instead of",
+        "saveYearly": "Save {amount} SAR yearly",
+        "sar": "SAR",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "planNames": {
+            "free": "Free Plan",
+            "monthly": "Monthly Plan",
+            "yearly": "Yearly Plan"
+        },
+        "features": {
+            "limitedPlans": "Limited business plans (3 plans)",
+            "basicAI": "Basic AI analysis",
+            "pdfExport": "PDF export",
+            "limitedSupport": "Limited technical support",
+            "unlimitedPlans": "Unlimited business plans",
+            "advancedAI": "Advanced AI analysis",
+            "advancedPDF": "Advanced PDF export",
+            "swotAnalysis": "SWOT analysis",
+            "operationalPlan": "Operational plan",
+            "personalConsultation": "Personal consultations",
+            "advancedSupport": "Advanced technical support",
+            "detailedReports": "Detailed reports",
+            "allMonthlyFeatures": "All monthly plan features",
+            "yearlyDiscount": "17% discount on yearly price",
+            "freeConsultation": "Free monthly consultation",
+            "prioritySupport": "Priority technical support"
+        }
+    },
+    "quickActions": {
+        "checkProjects": "Check My Projects List",
+        "checkPlans": "Check My Plans List",
+        "checkSubscription": "Check My Subscription"
+    },
+    "subscriptions": {
+        "title": "Subscription Management",
+        "subtitle": "View and manage your current subscription plan and explore available options",
+        "currentSubscription": "Current Subscription",
+        "noActiveSubscription": "No Active Subscription",
+        "noSubscriptionDescription": "Start with the free plan or subscribe to one of our paid plans",
+        "planType": "Subscription Plan",
+        "amount": "Amount",
+        "startDate": "Start Date",
+        "daysRemaining": "Days Remaining",
+        "free": "Free",
+        "unlimited": "Unlimited",
+        "days": "days",
+        "day": "day",
+        "sar": "SAR",
+        "usageStats": "Usage Statistics",
+        "plansCreated": "Plans Created",
+        "plansCompleted": "Plans Completed",
+        "pdfsGenerated": "PDF Files",
+        "aiSuggestions": "AI Suggestions",
+        "subscriptionActions": "Subscription Actions",
+        "viewAllPlans": "View All Plans",
+        "paymentHistory": "Payment History",
+        "upgradeSubscription": "Upgrade Subscription",
+        "cancelSubscription": "Cancel Subscription",
+        "activateFree": "Activate Free Plan",
+        "viewPaidPlans": "View Paid Plans",
+        "activating": "Activating...",
+        "cancelling": "Cancelling...",
+        "confirmCancel": "Are you sure you want to cancel your subscription?",
+        "backToDashboard": "Back to Dashboard",
+        "noSubscription": "No Subscription",
+        "noActiveSubscriptionTitle": "No Active Subscription",
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive",
+            "expired": "Expired",
+            "canceled": "Canceled"
+        },
+        "cards": {
+            "planTypeTitle": "Subscription Plan",
+            "amountTitle": "Amount",
+            "startDateTitle": "Start Date",
+            "daysRemainingTitle": "Days Remaining",
+            "usageStatsTitle": "Usage Statistics",
+            "subscriptionActionsTitle": "Subscription Actions"
+        },
+        "buttons": {
+            "activateFreeButton": "Activate Free Plan",
+            "viewPaidPlansButton": "View Paid Plans",
+            "viewAllPlansButton": "View All Plans",
+            "paymentHistoryButton": "Payment History",
+            "upgradeButton": "Upgrade Subscription",
+            "cancelButton": "Cancel Subscription",
+            "backToDashboardButton": "Back to Dashboard"
+        },
+        "messages": {
+            "activating": "Activating...",
+            "cancelling": "Cancelling...",
+            "confirmCancel": "Are you sure you want to cancel your subscription?"
+        }
+    },
+    "plans": {
+        "title": "Choose the Right Subscription Plan",
+        "subtitle": "Select the plan that fits your needs and start creating professional business plans with AI assistance",
+        "currentPlan": "Current Plan:",
+        "mostPopular": "Most Popular",
+        "current": "Current Plan",
+        "features": "Features:",
+        "subscribeNow": "Subscribe Now",
+        "activateFree": "Activate Free Plan",
+        "loading": "Loading...",
+        "discount": "Discount",
+        "insteadOf": "Instead of",
+        "saveYearly": "Save {amount} SAR yearly",
+        "sar": "SAR",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "planNames": {
+            "free": "Free Plan",
+            "monthly": "Monthly Plan",
+            "yearly": "Yearly Plan"
+        },
+        "comparison": {
+            "title": "Plan Comparison",
+            "feature": "Feature",
+            "numberOfPlans": "Number of Plans",
+            "aiAnalysis": "AI Analysis",
+            "pdfExport": "PDF Export",
+            "technicalSupport": "Technical Support",
+            "swotAnalysis": "SWOT Analysis",
+            "personalConsultations": "Personal Consultations",
+            "plans3": "3 Plans",
+            "unlimited": "Unlimited",
+            "basic": "Basic",
+            "advanced": "Advanced",
+            "advancedLabel": "✓ Advanced",
+            "limited": "Limited",
+            "priority": "Priority",
+            "monthly": "✓ Monthly",
+            "notAvailable": "✗"
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "questions": {
+                "changePlan": "Can I change my plan later?",
+                "planDifference": "What's the difference between monthly and yearly plans?",
+                "freeTimeLimited": "Is the free plan time-limited?",
+                "cancelSubscription": "How can I cancel my subscription?"
+            },
+            "answers": {
+                "changePlan": "Yes, you can upgrade or downgrade your plan at any time. Changes will apply to your next billing period.",
+                "planDifference": "The yearly plan offers a 17% discount with all monthly plan features plus free monthly consultations and priority support.",
+                "freeTimeLimited": "No, the free plan is always available and allows you to create up to 3 business plans with basic features.",
+                "cancelSubscription": "You can cancel your subscription anytime from the subscription management page. You'll retain access to paid features until the end of your current billing period."
+            }
+        },
+        "guarantee": {
+            "title": "Money-Back Guarantee",
+            "description": "Try our service for 30 days. If you're not satisfied, we'll refund your money completely, no questions asked."
+        },
+        "navigation": {
+            "backToSubscription": "Back to Subscription Management",
+            "backToDashboard": "Back to Dashboard"
+        },
+        "errors": {
+            "freePlanFailed": "Failed to activate free plan. Please try again.",
+            "checkoutFailed": "Failed to load checkout page. Please try again."
+        }
+    },
+    "plans": {
+        "title": "Choose the Right Subscription Plan",
+        "subtitle": "Select the plan that fits your needs and start creating professional business plans with AI assistance",
+        "mostPopular": "Most Popular",
+        "current": "Current Plan",
+        "subscribeNow": "Subscribe Now",
+        "activateFree": "Activate Free Plan",
+        "loading": "Loading...",
+        "discount": "Discount",
+        "insteadOf": "Instead of",
+        "saveYearly": "Save {amount} SAR yearly",
+        "comparison": {
+            "title": "Plan Comparison",
+            "feature": "Feature",
+            "numberOfPlans": "Number of Plans",
+            "aiAnalysis": "AI Analysis",
+            "pdfExport": "PDF Export",
+            "technicalSupport": "Technical Support",
+            "swotAnalysis": "SWOT Analysis",
+            "personalConsultations": "Personal Consultations",
+            "plans3": "3 Plans",
+            "unlimited": "Unlimited",
+            "basic": "Basic",
+            "advanced": "Advanced",
+            "advancedLabel": "✓ Advanced",
+            "limited": "Limited",
+            "priority": "Priority",
+            "monthly": "✓ Monthly"
+        },
+        "planNames": {
+            "free": "Free Plan",
+            "monthly": "Monthly Plan",
+            "yearly": "Yearly Plan"
+        },
+        "faq": {
+            "title": "Frequently Asked Questions",
+            "questions": {
+                "changePlan": "Can I change my plan later?",
+                "planDifference": "What's the difference between monthly and yearly plans?",
+                "freeTimeLimited": "Is the free plan time-limited?",
+                "cancelSubscription": "How can I cancel my subscription?"
+            },
+            "answers": {
+                "changePlan": "Yes, you can upgrade or downgrade your plan at any time. Changes will apply to your next billing period.",
+                "planDifference": "The yearly plan offers a 17% discount with all monthly plan features plus free monthly consultations and priority support.",
+                "freeTimeLimited": "No, the free plan is always available and allows you to create up to 3 business plans with basic features.",
+                "cancelSubscription": "You can cancel your subscription anytime from the subscription management page. You'll retain access to paid features until the end of your current billing period."
+            }
+        },
+        "guarantee": {
+            "title": "Money-Back Guarantee",
+            "description": "Try our service for 30 days. If you're not satisfied, we'll refund your money completely, no questions asked."
+        },
+        "navigation": {
+            "backToSubscription": "Back to Subscription Management",
+            "backToDashboard": "Back to Dashboard"
+        },
+        "errors": {
+            "freePlanFailed": "Failed to activate free plan. Please try again.",
+            "checkoutFailed": "Failed to load checkout page. Please try again."
+        }
+    }
 }

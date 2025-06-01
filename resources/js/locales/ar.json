@@ -488,5 +488,212 @@
     "ai_suggest_differentiator": "خل الذكاء الاصطناعي يحدد نقاط التميز",
     "ai_analyzing_project": "الذكاء الاصطناعي يحلل مشروعك...",
     "ai_suggestion_ready": "اقتراح الذكاء الاصطناعي جاهز!",
-    "ai_suggestion_error": "فشل في إنشاء الاقتراح. جرب مرة ثانية."
+    "ai_suggestion_error": "فشل في إنشاء الاقتراح. جرب مرة ثانية.",
+
+    "subscriptions": {
+        "title": "إدارة الاشتراك",
+        "subtitle": "اعرض وأدر خطة اشتراكك الحالية واستكشف الخيارات المتاحة",
+        "currentSubscription": "الاشتراك الحالي",
+        "noActiveSubscription": "لا يوجد اشتراك نشط",
+        "noSubscriptionDescription": "ابدأ بالخطة المجانية أو اشترك في إحدى خططنا المدفوعة",
+        "planType": "نوع الخطة",
+        "amount": "المبلغ",
+        "startDate": "تاريخ البداية",
+        "daysRemaining": "الأيام المتبقية",
+        "free": "مجاني",
+        "unlimited": "غير محدد",
+        "days": "يوم",
+        "usageStats": "إحصائيات الاستخدام",
+        "plansCreated": "خطط تم إنشاؤها",
+        "plansCompleted": "خطط مكتملة",
+        "pdfsGenerated": "ملفات PDF",
+        "aiSuggestions": "اقتراحات الذكاء الاصطناعي",
+        "subscriptionActions": "إجراءات الاشتراك",
+        "viewAllPlans": "عرض جميع الخطط",
+        "paymentHistory": "تاريخ المدفوعات",
+        "upgradeSubscription": "ترقية الاشتراك",
+        "cancelSubscription": "إلغاء الاشتراك",
+        "activateFree": "تفعيل الخطة المجانية",
+        "viewPaidPlans": "عرض الخطط المدفوعة",
+        "activating": "جاري التفعيل...",
+        "cancelling": "جاري الإلغاء...",
+        "confirmCancel": "هل أنت متأكد من إلغاء الاشتراك؟",
+        "backToDashboard": "العودة للوحة التحكم",
+        "status": {
+            "active": "نشط",
+            "inactive": "غير نشط",
+            "expired": "منتهي",
+            "canceled": "ملغى"
+        }
+    },
+    "plans": {
+        "title": "اختر خطة الاشتراك المناسبة",
+        "subtitle": "اختر الخطة التي تناسب احتياجاتك وابدأ في إنشاء خطط عمل احترافية بمساعدة الذكاء الاصطناعي",
+        "currentPlan": "الخطة الحالية:",
+        "mostPopular": "الأكثر شعبية",
+        "current": "الخطة الحالية",
+        "features": "المميزات:",
+        "subscribeNow": "اشترك الآن",
+        "activateFree": "تفعيل الخطة المجانية",
+        "loading": "جاري التحميل...",
+        "discount": "خصم",
+        "insteadOf": "بدلاً من",
+        "saveYearly": "وفر {amount} ر.س سنوياً",
+        "sar": "ر.س",
+        "monthly": "شهرياً",
+        "yearly": "سنوياً",
+        "planNames": {
+            "free": "الخطة المجانية",
+            "monthly": "الخطة الشهرية",
+            "yearly": "الخطة السنوية"
+        },
+        "features": {
+            "limitedPlans": "خطط عمل محدودة (3 خطط)",
+            "basicAI": "تحليل ذكي أساسي",
+            "pdfExport": "تصدير PDF",
+            "limitedSupport": "دعم فني محدود",
+            "unlimitedPlans": "خطط عمل غير محدودة",
+            "advancedAI": "تحليل ذكي متقدم",
+            "advancedPDF": "تصدير PDF متقدم",
+            "swotAnalysis": "تحليل SWOT",
+            "operationalPlan": "خطة التشغيل",
+            "personalConsultation": "استشارات شخصية",
+            "advancedSupport": "دعم فني متقدم",
+            "detailedReports": "تقارير مفصلة",
+            "allMonthlyFeatures": "جميع مميزات الخطة الشهرية",
+            "yearlyDiscount": "خصم 17% على السعر",
+            "freeConsultation": "استشارة مجانية شهرياً",
+            "prioritySupport": "أولوية في الدعم الفني"
+        }
+    },
+    "quickActions": {
+        "checkProjects": "عرض قائمة المشاريع",
+        "checkPlans": "عرض قائمة الخطط",
+        "checkSubscription": "عرض الاشتراك"
+    },
+    "subscriptions": {
+        "title": "إدارة الاشتراك",
+        "subtitle": "اعرض وأدر خطة اشتراكك الحالية واستكشف الخيارات المتاحة",
+        "currentSubscription": "الاشتراك الحالي",
+        "noActiveSubscription": "لا يوجد اشتراك نشط",
+        "noSubscriptionDescription": "ابدأ بالخطة المجانية أو اشترك في إحدى خططنا المدفوعة",
+        "planType": "خطة الاشتراك",
+        "amount": "المبلغ",
+        "startDate": "تاريخ البداية",
+        "daysRemaining": "الأيام المتبقية",
+        "free": "مجاني",
+        "unlimited": "غير محدد",
+        "days": "يوم",
+        "day": "يوم",
+        "sar": "ر.س",
+        "usageStats": "إحصائيات الاستخدام",
+        "plansCreated": "خطط تم إنشاؤها",
+        "plansCompleted": "خطط مكتملة",
+        "pdfsGenerated": "ملفات PDF",
+        "aiSuggestions": "اقتراحات الذكاء الاصطناعي",
+        "subscriptionActions": "إجراءات الاشتراك",
+        "viewAllPlans": "عرض جميع الخطط",
+        "paymentHistory": "تاريخ المدفوعات",
+        "upgradeSubscription": "ترقية الاشتراك",
+        "cancelSubscription": "إلغاء الاشتراك",
+        "activateFree": "تفعيل الخطة المجانية",
+        "viewPaidPlans": "عرض الخطط المدفوعة",
+        "activating": "جاري التفعيل...",
+        "cancelling": "جاري الإلغاء...",
+        "confirmCancel": "هل أنت متأكد من إلغاء الاشتراك؟",
+        "backToDashboard": "العودة للوحة التحكم",
+        "noSubscription": "لا يوجد اشتراك",
+        "noActiveSubscriptionTitle": "لا يوجد اشتراك نشط",
+        "status": {
+            "active": "نشط",
+            "inactive": "غير نشط",
+            "expired": "منتهي",
+            "canceled": "ملغى"
+        },
+        "cards": {
+            "planTypeTitle": "خطة الاشتراك",
+            "amountTitle": "المبلغ",
+            "startDateTitle": "تاريخ البداية",
+            "daysRemainingTitle": "الأيام المتبقية",
+            "usageStatsTitle": "إحصائيات الاستخدام",
+            "subscriptionActionsTitle": "إجراءات الاشتراك"
+        },
+        "buttons": {
+            "activateFreeButton": "تفعيل الخطة المجانية",
+            "viewPaidPlansButton": "عرض الخطط المدفوعة",
+            "viewAllPlansButton": "عرض جميع الخطط",
+            "paymentHistoryButton": "تاريخ المدفوعات",
+            "upgradeButton": "ترقية الاشتراك",
+            "cancelButton": "إلغاء الاشتراك",
+            "backToDashboardButton": "العودة للوحة التحكم"
+        },
+        "messages": {
+            "activating": "جاري التفعيل...",
+            "cancelling": "جاري الإلغاء...",
+            "confirmCancel": "هل أنت متأكد من إلغاء الاشتراك؟"
+        }
+    },
+
+    "plans": {
+        "title": "اختر خطة الاشتراك المناسبة",
+        "subtitle": "اختر الخطة التي تناسب احتياجاتك وابدأ في إنشاء خطط عمل احترافية بمساعدة الذكاء الاصطناعي",
+        "mostPopular": "الأكثر شعبية",
+        "current": "الخطة الحالية",
+        "subscribeNow": "اشترك الآن",
+        "activateFree": "تفعيل الخطة المجانية",
+        "loading": "جاري التحميل...",
+        "discount": "خصم",
+        "insteadOf": "بدلاً من",
+        "saveYearly": "وفر {amount} ر.س سنوياً",
+        "comparison": {
+            "title": "مقارنة الخطط",
+            "feature": "الميزة",
+            "numberOfPlans": "عدد الخطط",
+            "aiAnalysis": "الذكاء الاصطناعي",
+            "pdfExport": "تصدير PDF",
+            "technicalSupport": "الدعم الفني",
+            "swotAnalysis": "تحليل SWOT",
+            "personalConsultations": "استشارات شخصية",
+            "plans3": "3 خطط",
+            "unlimited": "غير محدود",
+            "basic": "أساسي",
+            "advanced": "متقدم",
+            "advancedLabel": "✓ متقدم",
+            "limited": "محدود",
+            "priority": "أولوية",
+            "monthly": "✓ شهرياً"
+        },
+        "planNames": {
+            "free": "الخطة المجانية",
+            "monthly": "الخطة الشهرية",
+            "yearly": "الخطة السنوية"
+        },
+        "faq": {
+            "title": "الأسئلة الشائعة",
+            "questions": {
+                "changePlan": "هل يمكنني تغيير خطتي لاحقاً؟",
+                "planDifference": "ما هو الفرق بين الخطة الشهرية والسنوية؟",
+                "freeTimeLimited": "هل الخطة المجانية محدودة الوقت؟",
+                "cancelSubscription": "كيف يمكنني إلغاء اشتراكي؟"
+            },
+            "answers": {
+                "changePlan": "نعم، يمكنك ترقية أو تقليل خطتك في أي وقت. التغييرات ستطبق في الفترة التالية للفوترة.",
+                "planDifference": "الخطة السنوية توفر لك خصم 17% مع جميع مميزات الخطة الشهرية بالإضافة إلى استشارة مجانية شهرياً وأولوية في الدعم الفني.",
+                "freeTimeLimited": "لا، الخطة المجانية متاحة دائماً وتتيح لك إنشاء حتى 3 خطط عمل مع المميزات الأساسية.",
+                "cancelSubscription": "يمكنك إلغاء اشتراكك في أي وقت من صفحة إدارة الاشتراك. ستحتفظ بالوصول لمميزات الخطة المدفوعة حتى نهاية فترة الفوترة الحالية."
+            }
+        },
+        "guarantee": {
+            "title": "ضمان استرداد الأموال",
+            "description": "جرب خدمتنا لمدة 30 يوماً. إذا لم تكن راضياً، سنسترد أموالك بالكامل دون أسئلة."
+        },
+        "navigation": {
+            "backToSubscription": "العودة لإدارة الاشتراك",
+            "backToDashboard": "العودة للوحة التحكم"
+        },
+        "errors": {
+            "freePlanFailed": "فشل في تفعيل الخطة المجانية. يرجى المحاولة مرة أخرى.",
+            "checkoutFailed": "فشل في تحميل صفحة الدفع. يرجى المحاولة مرة أخرى."
+        }
+    }
 }

@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { motion } from "framer-motion";
 import TopTools from "@/Components/TopTools";
 import { useTranslation } from "react-i18next";
+import EditPlan from "./Edit"; // Import the Edit component
 
 import {
     CheckCircleIcon,
@@ -38,6 +39,8 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
     const { t, i18n } = useTranslation();
     const [expandedSection, setExpandedSection] = useState(null);
     const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+    const [isEditing, setIsEditing] = useState(false); // Add edit mode state
+    const [isSaving, setIsSaving] = useState(false); // Add saving state
     const isRTL = i18n.dir() === "rtl";
 
     const handleGeneratePDF = async () => {
@@ -54,6 +57,70 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
     const handleBack = () => {
         window.history.back();
     };
+
+    // Handle edit mode toggle
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    // Handle save changes - FORCE SUCCESS WITHOUT REDIRECT
+    const handleSaveChanges = async (formData) => {
+        setIsSaving(true);
+        try {
+            // Send data exactly as your backend expects
+            const saveData = {
+                project_id: plan.project?.id || plan.project_id,
+                title: formData.title || plan.title || "Untitled Plan",
+                summary: null,
+                status: plan.status,
+                progress_percentage: plan.progress_percentage || 0,
+            };
+
+            console.log("Sending data:", saveData);
+
+            await router.put(`/plans/${plan.id}`, saveData, {
+                preserveScroll: true,
+                forceFormData: true,
+                onSuccess: (page) => {
+                    setIsEditing(false);
+                    console.log("Save successful!");
+                    // Force browser refresh to see changes
+                    window.location.href = `/plans/${plan.id}`;
+                },
+                onError: (errors) => {
+                    console.error("Save failed:", errors);
+                    alert("SAVE FAILED: " + JSON.stringify(errors));
+                },
+            });
+        } catch (error) {
+            console.error("Critical error:", error);
+            alert("CRITICAL ERROR: " + error.message);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // Handle cancel edit
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+    };
+
+    // If in edit mode, render the Edit component
+    if (isEditing) {
+        return (
+            <AuthenticatedLayout user={auth.user}>
+                <TopTools />
+                <Head title={`Edit ${plan.title}`} />
+                <EditPlan
+                    auth={auth}
+                    plan={plan}
+                    onSave={handleSaveChanges}
+                    onCancel={handleCancelEdit}
+                    isLoading={isSaving}
+                />
+            </AuthenticatedLayout>
+        );
+    }
 
     // Enhanced status configuration with creative styling
     const getStatusInfo = () => {
@@ -362,36 +429,28 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         </div>
                                     </motion.button>
                                 )}
-                                <Link
-                                    href={`/plans/${plan.id}/edit`}
+                                {/* Updated Edit Button */}
+                                <motion.button
+                                    onClick={handleEditClick}
                                     className="group relative overflow-hidden bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-6 py-3 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-indigo-500/25"
-                                    style={{
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        textDecoration: "none",
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{
+                                        delay: 0.6,
+                                        type: "spring",
                                     }}
                                 >
-                                    <motion.div
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{
-                                            delay: 0.6,
-                                            type: "spring",
-                                        }}
-                                        className="w-full"
-                                    >
-                                        <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                        <div className="relative flex items-center gap-3">
-                                            <PencilIcon className="h-5 w-5" />
-                                            <span className="font-semibold">
-                                                {t("common.edit")}
-                                            </span>
-                                            <BoltIcon className="h-4 w-4 text-yellow-300" />
-                                        </div>
-                                    </motion.div>
-                                </Link>
+                                    <span className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                    <div className="relative flex items-center gap-3">
+                                        <PencilIcon className="h-5 w-5" />
+                                        <span className="font-semibold">
+                                            {t("common.edit")}
+                                        </span>
+                                        <BoltIcon className="h-4 w-4 text-yellow-300" />
+                                    </div>
+                                </motion.button>
                             </div>
                         </div>
                     </motion.div>
@@ -474,44 +533,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                             }}
                                         />
                                     </div>
-                                    <motion.div
-                                        className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-white/30 to-transparent rounded-full"
-                                        animate={{
-                                            x: ["-100%", "100%"],
-                                            opacity: [0, 0.5, 0],
-                                        }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            repeatDelay: 3,
-                                            ease: "easeInOut",
-                                        }}
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="text-center p-3 bg-green-50/80 dark:bg-green-900/30 rounded-xl border border-green-200/50 dark:border-green-700/50">
-                                        <div className="flex items-center justify-center gap-2 mb-1">
-                                            <CheckCircleIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                            <span className="text-sm font-semibold text-green-700 dark:text-green-300">
-                                                Completed
-                                            </span>
-                                        </div>
-                                        <div className="text-xl font-bold text-green-800 dark:text-green-200">
-                                            {completedSections}
-                                        </div>
-                                    </div>
-                                    <div className="text-center p-3 bg-orange-50/80 dark:bg-orange-900/30 rounded-xl border border-orange-200/50 dark:border-orange-700/50">
-                                        <div className="flex items-center justify-center gap-2 mb-1">
-                                            <ClockIcon className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                                            <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">
-                                                Remaining
-                                            </span>
-                                        </div>
-                                        <div className="text-xl font-bold text-orange-800 dark:text-orange-200">
-                                            {totalSections - completedSections}
-                                        </div>
-                                    </div>
+                                    {/* REMOVED THE ANIMATED LIGHT EFFECT */}
                                 </div>
                             </motion.div>
 
@@ -772,15 +794,17 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                                 this
                                                                                 section
                                                                             </p>
-                                                                            <Link
-                                                                                href={`/plans/${plan.id}/edit`}
+                                                                            <button
+                                                                                onClick={
+                                                                                    handleEditClick
+                                                                                }
                                                                                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                                                                             >
                                                                                 <PencilIcon className="h-5 w-5 mr-2" />
                                                                                 Complete
                                                                                 Section
                                                                                 <SparklesIcon className="h-4 w-4 ml-2 text-yellow-300" />
-                                                                            </Link>
+                                                                            </button>
                                                                         </div>
                                                                     )}
                                                                 </motion.div>
@@ -941,6 +965,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                             </motion.div>
                                         )}
 
+                                        {/* Updated Revenue Model Section */}
                                         {plan.project.revenue_model && (
                                             <motion.div variants={cardVariants}>
                                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -965,11 +990,11 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                 .revenue_model ===
                                                             "string"
                                                         ) {
-                                                            // Split by common separators and clean up
+                                                            // Split by numbered items, common separators, and clean up
                                                             revenueModels =
                                                                 plan.project.revenue_model
                                                                     .split(
-                                                                        /[,;|]/
+                                                                        /(?=\d+\.)|[,;|]|\n/
                                                                     )
                                                                     .map(
                                                                         (
@@ -977,6 +1002,15 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                         ) =>
                                                                             item.trim()
                                                                     )
+                                                                    .map(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            item.replace(
+                                                                                /^\d+\.\s*/,
+                                                                                ""
+                                                                            )
+                                                                    ) // Remove numbering
                                                                     .filter(
                                                                         (
                                                                             item
@@ -1006,14 +1040,22 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                             index *
                                                                             0.1,
                                                                     }}
-                                                                    className="flex items-center gap-3 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-xl p-3 border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 transition-all duration-200"
+                                                                    className="flex items-center gap-3 bg-emerald-50/80 dark:bg-emerald-900/30 rounded-xl p-4 border border-emerald-200/50 dark:border-emerald-700/50 hover:bg-emerald-100/80 dark:hover:bg-emerald-900/50 transition-all duration-200"
                                                                 >
                                                                     <div className="flex-shrink-0 p-1.5 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg">
                                                                         <BanknotesIcon className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                                                     </div>
-                                                                    <span className="font-medium text-emerald-900 dark:text-emerald-100 text-sm leading-relaxed">
-                                                                        {model}
-                                                                    </span>
+                                                                    <div className="flex items-center gap-2 flex-1">
+                                                                        <span className="flex-shrink-0 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-200 dark:bg-emerald-800 rounded-full w-5 h-5 flex items-center justify-center">
+                                                                            {index +
+                                                                                1}
+                                                                        </span>
+                                                                        <span className="font-medium text-emerald-900 dark:text-emerald-100 text-sm leading-relaxed">
+                                                                            {
+                                                                                model
+                                                                            }
+                                                                        </span>
+                                                                    </div>
                                                                     <div className="ml-auto flex-shrink-0 w-2 h-2 bg-emerald-500 rounded-full opacity-60"></div>
                                                                 </motion.div>
                                                             )

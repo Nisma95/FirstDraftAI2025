@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import Lenis from "@studio-freight/lenis";
 
 // Helper function to detect WebGL support
 const isWebGLAvailable = () => {
@@ -65,8 +64,7 @@ function Stars({ isDarkMode }) {
         <group ref={groupRef}>
             {stars.map((star, index) => (
                 <mesh key={index} position={star.position}>
-                    <sphereGeometry args={[0.02, 8, 8]} />{" "}
-                    {/* Reduced geometry complexity */}
+                    <sphereGeometry args={[0.02, 8, 8]} />
                     <meshStandardMaterial
                         emissive={isDarkMode ? "#c5c7ca" : "#000000"}
                         emissiveIntensity={3}
@@ -104,7 +102,7 @@ function FallbackStarBackground({ isDarkMode }) {
         <div
             className="fixed top-0 left-0 w-full h-full z-[-1]"
             style={{
-                background: isDarkMode ? "#000" : "#b9baba",
+                background: isDarkMode ? "#000" : "#f8f8f6", // Changed from #b9baba to soft off-white
             }}
         >
             {stars.map((star) => (
@@ -140,42 +138,6 @@ function FallbackStarBackground({ isDarkMode }) {
     );
 }
 
-// Function to add data-lenis-prevent to all existing and new textareas
-const setupTextareaScrolling = () => {
-    // Add data-lenis-prevent to all existing textareas
-    document.querySelectorAll("textarea").forEach((textarea) => {
-        textarea.setAttribute("data-lenis-prevent", "");
-    });
-
-    // Watch for new textareas being added
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-                if (node.nodeType === 1) {
-                    // Element node
-                    // Check if the added node is a textarea or contains textareas
-                    if (node.tagName === "TEXTAREA") {
-                        node.setAttribute("data-lenis-prevent", "");
-                    } else if (node.querySelectorAll) {
-                        node.querySelectorAll("textarea").forEach(
-                            (textarea) => {
-                                textarea.setAttribute("data-lenis-prevent", "");
-                            }
-                        );
-                    }
-                }
-            });
-        });
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-
-    return observer;
-};
-
 // Main component with WebGL detection
 export default function StarBackground() {
     const [isDarkMode, setIsDarkMode] = useState(
@@ -187,35 +149,6 @@ export default function StarBackground() {
     useEffect(() => {
         // Check for WebGL support
         setHasWebGL(isWebGLAvailable());
-
-        // Setup textarea scrolling prevention
-        const textareaObserver = setupTextareaScrolling();
-
-        // Set up smooth scrolling with Lenis
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
-            // Prevent Lenis from handling specific elements
-            prevent: (node) => {
-                // Prevent Lenis from handling textareas and elements with data-lenis-prevent
-                return (
-                    node.tagName === "TEXTAREA" ||
-                    node.hasAttribute("data-lenis-prevent") ||
-                    node.classList.contains("lenis-prevent") ||
-                    node.closest("textarea") ||
-                    node.closest("[data-lenis-prevent]") ||
-                    node.closest(".lenis-prevent")
-                );
-            },
-        });
-
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-
-        requestAnimationFrame(raf);
 
         // Listen for dark mode changes
         const darkModeObserver = new MutationObserver((mutations) => {
@@ -238,9 +171,7 @@ export default function StarBackground() {
         }
 
         return () => {
-            lenis.destroy();
             darkModeObserver.disconnect();
-            textareaObserver.disconnect();
         };
     }, []);
 
@@ -259,7 +190,7 @@ export default function StarBackground() {
                 width: "100vw",
                 height: "100vh",
                 zIndex: -1,
-                background: isDarkMode ? "#000" : "#fff",
+                background: isDarkMode ? "#0a0a0f" : "#f8f8f6", // Changed light mode to soft off-white
                 overflow: "hidden",
             }}
         >
@@ -272,7 +203,7 @@ export default function StarBackground() {
                         width: "100%",
                         height: "100%",
                     }}
-                    dpr={[1, 2]} // Limit pixel ratio for performance
+                    dpr={[1, 2]}
                 >
                     <ambientLight intensity={isDarkMode ? 0.3 : 0.7} />
                     <pointLight

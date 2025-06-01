@@ -112,7 +112,7 @@ const ImgHero = () => {
     return (
         <section
             ref={sectionRef}
-            className="bg-zoom relative h-screen flex items-center justify-center bg-fixed bg-cover bg-no-repeat"
+            className="bg-zoom relative h-[1000px] flex items-center justify-center bg-fixed bg-cover bg-no-repeat"
             style={{
                 backgroundImage: "url('/images/riyadh.webp')",
                 backgroundPosition: "50% -30%",
@@ -121,13 +121,15 @@ const ImgHero = () => {
         >
             {/* Overlay for contrast */}
             <div className="absolute inset-0 bg-black/20 overlay"></div>
-
             {/* Text container */}
             <div
                 ref={textRef}
                 className="relative z-10 text-center px-4 flex flex-col items-center"
             >
-                <h1 className="fdHighLighTXT  mb-4" dir="auto">
+                <h1
+                    className="fdHighLighTXT text-4xl md:text-9xl mb-4"
+                    dir="auto"
+                >
                     {t("hero_title")}
                 </h1>
                 <p

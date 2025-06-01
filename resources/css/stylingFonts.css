@@ -55,7 +55,7 @@
 }
 
 .fdHighLighTXT {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #040404 70%);
+    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
@@ -65,12 +65,6 @@
     font-size: 7rem;
     line-height: 1.5 !important;
     font-weight: bold; /* This makes the text bold */
-}
-
-.dark .fdHighLighTXT {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #f9f9f9 60%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
 }
 
 .fdHighLighTXT::before {

@@ -20,18 +20,15 @@ class Subscription extends Model
         'status',
         'payment_method',
         'amount',
-        'meeser_subscription_id',
-        'trial_ends_at',
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'trial_ends_at' => 'datetime',
         'amount' => 'decimal:2',
     ];
 
-    // العلاقات
+    // Relations
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -59,13 +56,6 @@ class Subscription extends Model
                 $q->where('end_date', '<=', now())
                     ->where('status', '!=', 'canceled');
             });
-    }
-
-    public function scopeTrialing($query)
-    {
-        return $query->where('plan_type', 'free')
-            ->whereNotNull('trial_ends_at')
-            ->where('trial_ends_at', '>', now());
     }
 
     public function scopeCanceled($query)
@@ -135,12 +125,6 @@ class Subscription extends Model
             return $this->end_date;
         }
 
-        // For auto-renewing subscriptions
-        if ($this->meeser_subscription_id) {
-            // We would need to fetch this from Meeser API
-            return null;
-        }
-
         return null;
     }
 
@@ -181,18 +165,24 @@ class Subscription extends Model
     public function cancel(): bool
     {
         $result = $this->update([
-            'status' => 'canceled',
+            'status' => 'inactive', // Changed from 'canceled' to match your enum
             'end_date' => now(),
         ]);
 
-        // Update user subscription type
-        $this->user->update(['subscription_type' => 'free']);
+        // Update user subscription type if user model has this field
+        if ($this->user && method_exists($this->user, 'update')) {
+            $this->user->update(['subscription_type' => 'free']);
+        }
 
-        // Downgrade premium plans
-        $this->user->projects()->each(function ($project) {
-            $project->plans()->where('status', 'premium')
-                ->update(['status' => 'completed']);
-        });
+        // Downgrade premium plans if projects exist
+        if ($this->user && $this->user->projects) {
+            $this->user->projects()->each(function ($project) {
+                if ($project->plans) {
+                    $project->plans()->where('status', 'premium')
+                        ->update(['status' => 'completed']);
+                }
+            });
+        }
 
         return $result;
     }
@@ -281,20 +271,6 @@ class Subscription extends Model
         return in_array($feature, $featureList) || $this->plan_type === 'paid';
     }
 
-    public function isTrialing(): bool
-    {
-        return $this->trial_ends_at && $this->trial_ends_at->isFuture();
-    }
-
-    public function getTrialDaysRemaining(): ?int
-    {
-        if (!$this->isTrialing()) {
-            return null;
-        }
-
-        return max(0, $this->trial_ends_at->diffInDays(now()));
-    }
-
     private function calculateEndDate(string $billingCycle): Carbon
     {
         switch ($billingCycle) {
@@ -357,22 +333,35 @@ class Subscription extends Model
     {
         $user = $this->user;
 
+        if (!$user) {
+            return [
+                'plans_created' => 0,
+                'plans_completed' => 0,
+                'pdfs_generated' => 0,
+                'ai_suggestions_used' => 0,
+            ];
+        }
+
+        // Basic stats that should work with your current database structure
+        $plansCreated = 0;
+        $plansCompleted = 0;
+        $pdfsGenerated = 0;
+
+        if ($user->projects) {
+            foreach ($user->projects as $project) {
+                if ($project->plans) {
+                    $plansCreated += $project->plans->count();
+                    $plansCompleted += $project->plans->whereIn('status', ['completed', 'premium'])->count();
+                    $pdfsGenerated += $project->plans->whereNotNull('pdf_path')->count();
+                }
+            }
+        }
+
         return [
-            'plans_created' => $user->projects()->withCount('plans')->get()->sum('plans_count'),
-            'plans_completed' => $user->projects()
-                ->whereHas('plans', function ($q) {
-                    $q->whereIn('status', ['completed', 'premium']);
-                })
-                ->count(),
-            'pdfs_generated' => $user->projects()
-                ->whereHas('plans', function ($q) {
-                    $q->whereNotNull('pdf_path');
-                })
-                ->count(),
-            'ai_suggestions_used' => $user->projects()
-                ->withCount(['plans.aiSuggestions'])
-                ->get()
-                ->sum('plans.ai_suggestions_count'),
+            'plans_created' => $plansCreated,
+            'plans_completed' => $plansCompleted,
+            'pdfs_generated' => $pdfsGenerated,
+            'ai_suggestions_used' => 0, // This would need to be implemented based on your AI usage tracking
         ];
     }
 }
