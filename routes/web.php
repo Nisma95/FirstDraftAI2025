@@ -8,10 +8,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Plan;
 
 /*
 |--------------------------------------------------------------------------
@@ -81,7 +78,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{project}', [ProjectController::class, 'update'])->name('update');
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('destroy');
 
-        // AI enhancement routes
+        // AI enhancement routes (these stay in web.php as they're for web forms)
         Route::post('/generate-description', [ProjectController::class, 'generateDescription'])->name('generate-description');
         Route::post('/enhance-description', [ProjectController::class, 'enhanceDescription'])->name('enhance-description');
         Route::post('/generate-field-suggestion', [ProjectController::class, 'generateFieldSuggestion'])->name('generate-field-suggestion');
@@ -102,24 +99,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{plan}', [PlanController::class, 'destroy'])->name('destroy');
         Route::get('/{plan}/pdf', [PlanController::class, 'generatePDF'])->name('pdf');
 
-        // AI answer generation
+        // AI answer generation (this stays in web.php as it's for web forms)
         Route::post('/ai/generate-answer', [PlanController::class, 'generateAnswerSuggestion'])->name('generate-answer');
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | AI Business Plan Routes
-    |--------------------------------------------------------------------------
-    */
-    Route::prefix('ai')->name('ai.')->group(function () {
-        // AI field generation
-        Route::post('/generate-field', [ProjectController::class, 'generateFieldSuggestion'])->name('generate-field');
-        Route::post('/enhance-field', [ProjectController::class, 'enhanceFieldContent'])->name('enhance-field');
-
-        // Business plan creation
-        Route::post('/start-business-plan', [PlanController::class, 'startBusinessPlan'])->name('start-business-plan');
-        Route::post('/next-question', [PlanController::class, 'getNextQuestion'])->name('next-question');
-        Route::post('/generate-plan', [PlanController::class, 'generatePlanFromAnswers'])->name('generate-plan');
     });
 
     /*
@@ -165,10 +146,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     /*
-|--------------------------------------------------------------------------
-| Payment Routes
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Payment Routes
+    |--------------------------------------------------------------------------
+    */
     Route::prefix('payments')->name('payments.')->group(function () {
         Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
         Route::post('/process', [PaymentController::class, 'process'])->name('process');
@@ -178,93 +159,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/failure', [PaymentController::class, 'failure'])->name('failure');
         Route::get('/payments/success', [PaymentController::class, 'success'])->name('payments.success');
 
-
-
-        // Add this line:
         Route::post('/validate-discount', [PaymentController::class, 'validateDiscount'])->name('validate-discount');
     });
 
     /*
-|--------------------------------------------------------------------------
-| API Routes (Authenticated)
-|--------------------------------------------------------------------------
-*/
-    Route::middleware('auth')->prefix('api')->name('api.')->group(function () {
-
-        // Plan status check
-        Route::get('/plans/{plan}/status', function (Plan $plan) {
-            try {
-                // Ensure the authenticated user owns this plan
-                if ($plan->project->user_id !== auth()->id()) {
-                    return response()->json(['error' => 'Unauthorized'], 403);
-                }
-
-                return response()->json([
-                    'status' => $plan->status,
-                    'progress' => $plan->progress_percentage ?? 0,
-                    'completion_score' => $plan->getCompletionScore(),
-                    'id' => $plan->id,
-                    'title' => $plan->title,
-                    'has_analysis' => !empty($plan->ai_analysis),
-                    'is_completed' => $plan->isCompleted(),
-                    'is_generating' => $plan->isGenerating(),
-                    'has_failed' => $plan->hasFailed()
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error checking plan status: ' . $e->getMessage());
-                return response()->json([
-                    'status' => 'unknown',
-                    'progress' => 0,
-                    'error' => 'Unable to check status'
-                ], 500);
-            }
-        })->name('plans.status');
-
-        // Debug route for AI testing
-        Route::post('/debug/ai-answer', function (Request $request) {
-            try {
-                Log::info('Debug route hit', ['data' => $request->all()]);
-
-                $helper = app(App\Services\AIPlannAnswerHelper::class);
-                Log::info('AIPlannAnswerHelper created successfully');
-
-                $apiKey = config('services.openai.api_key');
-                Log::info('OpenAI config check', [
-                    'has_api_key' => !empty($apiKey),
-                    'api_key_length' => $apiKey ? strlen($apiKey) : 0
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Debug route working',
-                    'config_check' => [
-                        'has_openai_key' => !empty($apiKey),
-                        'helper_loaded' => true
-                    ]
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Debug route error', [
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString()
-                ]);
-
-                return response()->json([
-                    'success' => false,
-                    'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine()
-                ], 500);
-            }
-        })->name('debug.ai-answer');
-    });
-
-    /*
-|--------------------------------------------------------------------------
-| API v1 Routes (Sanctum Authentication)
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | API v1 Routes (Sanctum Authentication)
+    |--------------------------------------------------------------------------
+    */
     Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')->group(function () {
         Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
             Route::get('/current', [SubscriptionController::class, 'status'])->name('current');
@@ -277,26 +179,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
             })->name('plans');
         });
     });
+});
 
-    /*
+/*
 |--------------------------------------------------------------------------
 | Webhook Routes (No Authentication)
 |--------------------------------------------------------------------------
 */
-    Route::prefix('webhooks')->name('webhooks.')->group(function () {
-        // Meeser payment callback/webhook
-        Route::post('/meeser/callback', [PaymentController::class, 'callback'])->name('meeser.callback');
+Route::prefix('webhooks')->name('webhooks.')->group(function () {
+    // Meeser payment callback/webhook
+    Route::post('/meeser/callback', [PaymentController::class, 'callback'])->name('meeser.callback');
+});
 
-        // Future webhook integrations can be added here
-        // Route::post('/stripe/webhook', [PaymentController::class, 'stripeWebhook'])->name('stripe.webhook');
-        // Route::post('/paypal/webhook', [PaymentController::class, 'paypalWebhook'])->name('paypal.webhook');
-    });
-
-    /*
+/*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
-});
-
 require __DIR__ . '/auth.php';
