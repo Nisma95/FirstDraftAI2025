@@ -48,7 +48,7 @@ const Hero = () => {
                         {words.map((item, index) => (
                             <span
                                 key={index}
-                                className="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-2"
+                                className="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-2 lg:text-2xl xl:text-3xl"
                                 style={{
                                     opacity: animateIn ? 1 : 0, // Full opacity when animated in
                                     transform: animateIn
@@ -78,6 +78,57 @@ const Hero = () => {
                         ))}
                     </div>
                 </h1>
+
+                {/* Start Now Button with Language-Based Arrows */}
+                <div className="mt-8">
+                    <a
+                        href={route("plans.create")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="fdButton px-10 inline-flex items-center gap-2"
+                        style={{
+                            opacity: animateIn ? 1 : 0,
+                            transform: animateIn
+                                ? "translateY(0)"
+                                : "translateY(50px)",
+                            transitionDelay: `${words.length * 200 + 500}ms`, // Appear after all words
+                            transition: "all 1000ms ease-out",
+                        }}
+                    >
+                        {t("startNow")}
+
+                        {/* Single arrow based on language direction */}
+                        {isRTL ? (
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        )}
+                    </a>
+                </div>
             </div>
         </section>
     );

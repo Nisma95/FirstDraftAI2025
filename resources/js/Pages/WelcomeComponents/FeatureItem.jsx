@@ -17,6 +17,49 @@ const FeatureItem = ({ titleKey, descKey }) => {
             >
                 {t(descKey)}
             </p>
+
+            {/* Start Now Button with Language-Based Arrow */}
+            <div className="mt-6">
+                <a
+                    href={route("plans.create")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="fdButton px-10 inline-flex items-center gap-2"
+                >
+                    {t("startNow")}
+
+                    {/* Single arrow based on language direction */}
+                    {isRTL ? (
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    ) : (
+                        <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    )}
+                </a>
+            </div>
         </div>
     );
 };

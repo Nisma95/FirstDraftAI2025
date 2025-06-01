@@ -18,11 +18,24 @@ const VerticalScroll = () => {
         const timeln = gsap.timeline({ paused: true });
 
         requestAnimationFrame(() => {
+            // Original vertical movement animation
             timeln.fromTo(
                 col_left,
                 { y: 0 },
                 { y: "150vh", duration: 1, ease: "none" },
                 0
+            );
+
+            // Add the width expansion animation at the end
+            const titleElement = col_left.querySelector(".fdGradientColorzTX");
+            timeln.to(
+                titleElement,
+                {
+                    width: "100vw",
+                    duration: 0.2,
+                    ease: "power2.out",
+                },
+                0.9 // This starts at 90% of the timeline
             );
         });
 
@@ -58,7 +71,7 @@ const VerticalScroll = () => {
                 <div className="vertical__content">
                     <div className="col col_left">
                         <h2
-                            className="fdGradientColorzTX border-l-5 border-[#5a56e9] text-6xl lg:text-7xl font-bold p-4"
+                            className="mt-5 fdGradientColorzTX border-l-5 border-[#5a56e9] text-6xl lg:text-7xl font-bold p-4"
                             style={{
                                 direction: "ltr",
                                 textAlign: "left",
