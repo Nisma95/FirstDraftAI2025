@@ -16,4 +16,14 @@ export default defineConfig({
             "@": "/resources/js",
         },
     },
+    // Add development server configuration to suppress warnings
+    server: {
+        hmr: {
+            overlay: false, // This will disable the error overlay
+        },
+    },
+    // Suppress the IndexedDB warning
+    define: {
+        global: "globalThis",
+    },
 });

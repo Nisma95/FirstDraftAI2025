@@ -61,7 +61,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 (p) => p.id === parseInt(project_id, 10)
             );
             if (projectToSelect) {
-                console.log("Auto-selecting project:", projectToSelect);
                 setSelectedProject(projectToSelect);
             }
         }
@@ -69,21 +68,17 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
 
     // Handle project selection and start AI conversation
     const handleSelectProject = async (project) => {
-        console.log("🚀 Selecting project:", project);
         setSelectedProject(project);
         setIsLoading(true);
         setError(null);
 
         try {
-            console.log("🚀 Starting AI conversation for project:", project);
             const result = await startAIConversation(project);
-            console.log("✅ AI conversation result:", result);
 
             if (result && result.success && result.question) {
                 setCurrentQuestion(result.question);
                 setQuestionCount(1);
                 setStep("questions");
-                console.log("✅ Successfully moved to questions step");
             } else {
                 const errorMessage =
                     result?.message ||
@@ -94,8 +89,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 throw new Error(errorMessage);
             }
         } catch (error) {
-            console.error("❌ Error starting AI conversation:", error);
-
             // More specific error handling
             let errorText;
             if (error.message.includes("404")) {
@@ -133,11 +126,7 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
         setError(null);
 
         try {
-            console.log("📝 Submitting answer:", data.answer);
-            console.log("📊 Current question count:", questionCount);
-
             if (questionCount >= 5) {
-                console.log("🏁 Reached 5 questions, generating plan...");
                 await handleGeneratePlan();
                 return;
             }
@@ -149,7 +138,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 questionCount
             );
 
-            console.log("✅ Answer submitted, result:", result);
             const updatedAnswers = [...answers, newAnswer];
             setAnswers(updatedAnswers);
 
@@ -158,12 +146,7 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                     setCurrentQuestion(result.question);
                     setData("answer", "");
                     setQuestionCount((prev) => prev + 1);
-                    console.log(
-                        "➡️ Moving to next question:",
-                        result.question.question
-                    );
                 } else {
-                    console.log("🏁 No more questions, generating plan...");
                     await handleGeneratePlan(updatedAnswers);
                 }
             } else {
@@ -173,7 +156,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 throw new Error(errorMessage);
             }
         } catch (error) {
-            console.error("❌ Error submitting answer:", error);
             const errorText =
                 t("error_submitting_answer", "Error submitting answer") +
                 `: ${error.message}`;
@@ -185,32 +167,22 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
 
     // Handle plan generation
     const handleGeneratePlan = async (answersToUse = null) => {
-        console.log("🔨 Starting plan generation...");
         setStep("generating");
         setError(null);
 
         try {
             const finalAnswers = answersToUse || answers;
-            console.log("📊 Generating plan with answers:", finalAnswers);
-            console.log("📊 Selected project:", selectedProject);
-
             const result = await generatePlan(finalAnswers, selectedProject);
-            console.log("✅ Plan generation result:", result);
 
             if (result.success) {
                 setResults(result);
-                console.log("🎉 Plan created successfully, redirecting...");
 
                 setTimeout(() => {
                     router.visit(`/plans/${result.plan.id}`, {
                         onSuccess: () => {
-                            console.log(
-                                "📍 Successfully navigated to plan page"
-                            );
                             checkGenerationStatus(result.plan.id);
                         },
                         onError: (errors) => {
-                            console.error("❌ Navigation error:", errors);
                             setError("Failed to navigate to plan page");
                         },
                     });
@@ -225,7 +197,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                 throw new Error(errorMessage);
             }
         } catch (error) {
-            console.error("❌ Error generating plan:", error);
             setStep("error");
             const errorText =
                 t("plan_generation_failed", "Plan generation failed") +
@@ -311,9 +282,6 @@ export default function AiPlanner({ auth, projects, project_id = null }) {
                                 onSubmit={handleSubmitAnswer}
                                 isLoading={isLoading}
                                 onReset={handleReset}
-                                // Pass the props for AI functionality
-                                selectedProject={selectedProject}
-                                answers={answers}
                             />
                         )}
 

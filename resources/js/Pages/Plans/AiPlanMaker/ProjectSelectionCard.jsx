@@ -54,7 +54,6 @@ export default function ProjectSelectionCard({
     };
 
     const handleClick = () => {
-        console.log("Project card clicked:", project);
         onSelect(project);
     };
 
