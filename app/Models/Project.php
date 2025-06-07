@@ -61,7 +61,7 @@ class Project extends Model
         return $this->belongsTo(Industry::class);
     }
 
-    public function business_type()
+    public function businessType()  // Change this to camelCase
     {
         return $this->belongsTo(BusinessType::class);
     }
@@ -106,7 +106,8 @@ class Project extends Model
     // Accessor for formatted team size
     public function getFormattedTeamSizeAttribute(): string
     {
-        if (!$this->team_size) {
+        if (!$this->team_size)
+        {
             return 'غير محدد';
         }
 
@@ -116,7 +117,8 @@ class Project extends Model
     // Accessor for formatted project scale
     public function getFormattedProjectScaleAttribute(): string
     {
-        return match ($this->project_scale) {
+        return match ($this->project_scale)
+        {
             self::SCALE_SMALL => 'مشروع صغير',
             self::SCALE_MEDIUM => 'مشروع متوسط',
             self::SCALE_LARGE => 'مشروع كبير',
