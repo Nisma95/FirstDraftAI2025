@@ -44,7 +44,8 @@ class AIPlannerService
         $this->model = config('services.openai.model', 'gpt-3.5-turbo');
 
         // Validate API key
-        if (empty($this->apiKey)) {
+        if (empty($this->apiKey))
+        {
             Log::error('OpenAI API key is not configured');
         }
     }
@@ -64,16 +65,20 @@ class AIPlannerService
         $response = preg_replace('/```\s*$/', '', $response);
 
         // Try to find JSON in the response
-        if (preg_match('/\{.*\}/s', $response, $matches)) {
+        if (preg_match('/\{.*\}/s', $response, $matches))
+        {
             $jsonString = $matches[0];
 
             // Try to decode
             $decoded = json_decode($jsonString, true);
 
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+            {
                 Log::info('Successfully parsed AI response:', $decoded);
                 return $decoded;
-            } else {
+            }
+            else
+            {
                 Log::error('JSON decode error:', ['error' => json_last_error_msg(), 'json' => $jsonString]);
             }
         }
@@ -83,163 +88,219 @@ class AIPlannerService
     }
 
     /**
-     * Get appropriate prompts based on current locale
+     * Get appropriate prompts based on current locale - Updated for Business Plan Focus
      */
     private function getPrompts(): array
     {
         $locale = App::getLocale();
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             return [
-                'first_question_system' => 'أنت مستشار أعمال محترف متخصص في كتابة خطط العمل باللغة العربية. قدم محتوى مفصل وعملي. أجب دائماً بتنسيق JSON صحيح.',
+                'first_question_system' => 'أنت مستشار أعمال محترف متخصص في كتابة خطط العمل باللغة العربية. لديك معلومات كاملة عن المشروع (الوصف، الصناعة، نوع العمل، الجمهور المستهدف، نموذج الإيرادات، إلخ). ركز على الأسئلة الاستراتيجية لخطة العمل وليس المعلومات الأساسية. أجب دائماً بتنسيق JSON صحيح.',
                 'first_question_prompt' => "
-                {PROJECT_CONTEXT}
+                المشروع: {PROJECT_NAME}
+                الوصف: {PROJECT_DESCRIPTION}
+                الصناعة: {PROJECT_INDUSTRY}
+                نوع العمل: {PROJECT_BUSINESS_TYPE}
+                الجمهور المستهدف: {PROJECT_TARGET}
+                الموقع: {PROJECT_LOCATION}
+                نموذج الإيرادات: {PROJECT_REVENUE_MODEL}
+                المنتج/الخدمة الرئيسية: {PROJECT_MAIN_PRODUCT}
                 
-                بناءً على فكرة العمل التالية: '{BUSINESS_IDEA}'
+                بناءً على معلومات المشروع أعلاه لـ '{BUSINESS_IDEA}'
                 
-                اطرح أول سؤال ذكي ومهم لفهم المشروع بشكل أفضل.
+                اطرح أول سؤال استراتيجي مهم لبناء خطة عمل قوية. 
                 
-                يجب أن يكون السؤال:
-                - واضح ومحدد
-                - يساعد في فهم نموذج العمل
-                - يؤدي إلى أسئلة تالية مفيدة
+                يجب أن يركز السؤال على:
+                - الاستراتيجية التنافسية
+                - التحديات المتوقعة
+                - خطة التمويل والاستثمار
+                - استراتيجية النمو والتوسع
+                - التحليل المالي المتقدم
+                - خطة التشغيل والإدارة
                 
-                إذا كان السؤال يحتاج إجابة رقمية (مثل المبلغ، عدد العملاء، النسبة المئوية), 
-                أضف 'type': 'number' في الاستجابة.
+                لا تسأل عن المعلومات الأساسية المتوفرة بالفعل.
                 
                 أجب بتنسيق JSON صحيح فقط:
                 {
-                    \"question\": \"السؤال\",
+                    \"question\": \"السؤال الاستراتيجي\",
                     \"type\": \"text\",
-                    \"keywords\": [\"keyword1\", \"keyword2\"]
+                    \"keywords\": [\"keyword1\", \"keyword2\"],
+                    \"category\": \"strategy/finance/operations/marketing/competition\"
                 }
             ",
                 'next_question_prompt' => "
-                فكرة العمل: {BUSINESS_IDEA}
+                معلومات المشروع:
+                - الاسم: {PROJECT_NAME}
+                - الوصف: {PROJECT_DESCRIPTION}
+                - الصناعة: {PROJECT_INDUSTRY}
+                - نوع العمل: {PROJECT_BUSINESS_TYPE}
+                - الجمهور المستهدف: {PROJECT_TARGET}
+                - نموذج الإيرادات: {PROJECT_REVENUE_MODEL}
                 
                 الأسئلة والإجابات السابقة:
                 {ANSWERS_CONTEXT}
                 
                 عدد الأسئلة الحالي: {QUESTION_COUNT} من 5
                 
-                بناءً على الإجابات السابقة، اطرح السؤال التالي الأكثر أهمية.
+                بناءً على معلومات المشروع والإجابات السابقة، اطرح السؤال الاستراتيجي التالي لإكمال خطة العمل.
                 
-                يجب أن يكون السؤال:
-                - مبني على الإجابات السابقة
-                - يملأ فجوة في المعلومات المطلوبة لخطة العمل
-                - واضح ومحدد
-                - يركز على الجوانب الأساسية (السوق، التمويل، العملاء، المنافسة، النمو)
-                
-                إذا كان السؤال يحتاج إجابة رقمية (مثل المبلغ، عدد العملاء, النسبة المئوية),
-                أضف 'type': 'number' في الاستجابة.
+                ركز على الجوانب التي لم يتم تغطيتها بعد:
+                - التحليل التنافسي المتعمق
+                - استراتيجية دخول السوق
+                - خطة التمويل والميزانية التشغيلية
+                - مؤشرات الأداء الرئيسية (KPIs)
+                - إدارة المخاطر
+                - خطة التوظيف والفريق
+                - استراتيجية التسعير
+                - خطة التسويق والمبيعات
                 
                 أجب بتنسيق JSON صحيح فقط:
                 {
-                    \"question\": \"السؤال\",
+                    \"question\": \"السؤال الاستراتيجي\",
                     \"type\": \"text\",
-                    \"keywords\": [\"keyword1\", \"keyword2\"]
+                    \"keywords\": [\"keyword1\", \"keyword2\"],
+                    \"category\": \"strategy/finance/operations/marketing/competition\"
                 }
             ",
                 'fallback_questions' => [
                     2 => [
-                        'question' => 'من هم عملاؤك المستهدفون؟',
+                        'question' => 'ما هي استراتيجيتك للتميز عن المنافسين في السوق؟',
                         'type' => 'text',
-                        'keywords' => ['customers', 'target']
+                        'keywords' => ['competitive', 'strategy'],
+                        'category' => 'competition'
                     ],
                     3 => [
-                        'question' => 'كم تتوقع أن تحقق من الإيرادات في السنة الأولى؟',
+                        'question' => 'كم تحتاج من رأس المال للبدء وما هي مصادر التمويل المخططة؟',
                         'type' => 'number',
-                        'keywords' => ['revenue', 'financial']
+                        'keywords' => ['capital', 'funding'],
+                        'category' => 'finance'
                     ],
                     4 => [
-                        'question' => 'من هم أهم المنافسين في السوق؟',
+                        'question' => 'ما هي خطتك لتحقيق النمو في السنوات الثلاث الأولى؟',
                         'type' => 'text',
-                        'keywords' => ['competitors', 'market']
+                        'keywords' => ['growth', 'scaling'],
+                        'category' => 'strategy'
                     ],
                     5 => [
-                        'question' => 'ما هي خطتك للنمو والتوسع؟',
+                        'question' => 'ما هي أكبر التحديات المتوقعة وكيف ستتعامل معها؟',
                         'type' => 'text',
-                        'keywords' => ['growth', 'expansion']
+                        'keywords' => ['challenges', 'risks'],
+                        'category' => 'strategy'
                     ]
                 ]
             ];
-        } else {
+        }
+        else
+        {
             // English prompts
             return [
-                'first_question_system' => 'You are a professional business consultant specialized in creating comprehensive business plans. Provide detailed and practical content. Always respond in valid JSON format only.',
+                'first_question_system' => 'You are a professional business consultant specialized in creating comprehensive business plans. You have complete project information (description, industry, business type, target audience, revenue model, etc.). Focus on strategic business plan questions, not basic project information. Always respond in valid JSON format only.',
                 'first_question_prompt' => "
-                {PROJECT_CONTEXT}
+                Project: {PROJECT_NAME}
+                Description: {PROJECT_DESCRIPTION}
+                Industry: {PROJECT_INDUSTRY}
+                Business Type: {PROJECT_BUSINESS_TYPE}
+                Target Audience: {PROJECT_TARGET}
+                Location: {PROJECT_LOCATION}
+                Revenue Model: {PROJECT_REVENUE_MODEL}
+                Main Product/Service: {PROJECT_MAIN_PRODUCT}
                 
-                Based on the following business idea: '{BUSINESS_IDEA}'
+                Based on the project information above for '{BUSINESS_IDEA}'
                 
-                Ask the first smart and important question to better understand the project.
+                Ask the first strategic question important for building a strong business plan.
                 
-                The question should be:
-                - Clear and specific
-                - Help understand the business model
-                - Lead to useful follow-up questions
+                The question should focus on:
+                - Competitive strategy
+                - Expected challenges
+                - Funding and investment plan
+                - Growth and expansion strategy
+                - Advanced financial analysis
+                - Operations and management plan
                 
-                If the question requires a numeric answer (like amount, number of customers, percentage), 
-                add 'type': 'number' in the response.
+                Do NOT ask about basic information already available.
                 
                 Respond in valid JSON format only:
                 {
-                    \"question\": \"The question\",
+                    \"question\": \"Strategic question\",
                     \"type\": \"text\",
-                    \"keywords\": [\"keyword1\", \"keyword2\"]
+                    \"keywords\": [\"keyword1\", \"keyword2\"],
+                    \"category\": \"strategy/finance/operations/marketing/competition\"
                 }
             ",
                 'next_question_prompt' => "
-                Business idea: {BUSINESS_IDEA}
+                Project Information:
+                - Name: {PROJECT_NAME}
+                - Description: {PROJECT_DESCRIPTION}
+                - Industry: {PROJECT_INDUSTRY}
+                - Business Type: {PROJECT_BUSINESS_TYPE}
+                - Target Audience: {PROJECT_TARGET}
+                - Revenue Model: {PROJECT_REVENUE_MODEL}
                 
                 Previous questions and answers:
                 {ANSWERS_CONTEXT}
                 
                 Current question count: {QUESTION_COUNT} of 5
                 
-                Based on the previous answers, ask the next most important question.
+                Based on the project information and previous answers, ask the next strategic question to complete the business plan.
                 
-                The question should be:
-                - Built on previous answers
-                - Fill a gap in the information needed for the business plan
-                - Clear and specific
-                - Focus on essential aspects (market, finance, customers, competition, growth)
-                
-                If the question requires a numeric answer (like amount, number of customers, percentage),
-                add 'type': 'number' in the response.
+                Focus on aspects not yet covered:
+                - Deep competitive analysis
+                - Market entry strategy
+                - Funding plan and operational budget
+                - Key Performance Indicators (KPIs)
+                - Risk management
+                - Hiring and team plan
+                - Pricing strategy
+                - Marketing and sales plan
                 
                 Respond in valid JSON format only:
                 {
-                    \"question\": \"The question\",
+                    \"question\": \"Strategic question\",
                     \"type\": \"text\",
-                    \"keywords\": [\"keyword1\", \"keyword2\"]
+                    \"keywords\": [\"keyword1\", \"keyword2\"],
+                    \"category\": \"strategy/finance/operations/marketing/competition\"
                 }
             ",
                 'fallback_questions' => [
                     2 => [
-                        'question' => 'Who are your target customers?',
+                        'question' => 'What is your strategy to differentiate from competitors in the market?',
                         'type' => 'text',
-                        'keywords' => ['customers', 'target']
+                        'keywords' => ['competitive', 'strategy'],
+                        'category' => 'competition'
                     ],
                     3 => [
-                        'question' => 'How much revenue do you expect to generate in the first year?',
+                        'question' => 'How much capital do you need to start and what are your planned funding sources?',
                         'type' => 'number',
-                        'keywords' => ['revenue', 'financial']
+                        'keywords' => ['capital', 'funding'],
+                        'category' => 'finance'
                     ],
                     4 => [
-                        'question' => 'Who are your main competitors in the market?',
+                        'question' => 'What is your plan for achieving growth in the first three years?',
                         'type' => 'text',
-                        'keywords' => ['competitors', 'market']
+                        'keywords' => ['growth', 'scaling'],
+                        'category' => 'strategy'
                     ],
                     5 => [
-                        'question' => 'What is your plan for growth and expansion?',
+                        'question' => 'What are the biggest expected challenges and how will you handle them?',
                         'type' => 'text',
-                        'keywords' => ['growth', 'expansion']
+                        'keywords' => ['challenges', 'risks'],
+                        'category' => 'strategy'
                     ]
                 ]
             ];
         }
     }
+
+
+
+
+
+
+
+
+
 
     /**
      * Generate first question based on business idea and project context
@@ -255,14 +316,18 @@ class AIPlannerService
         $prompts = $this->getPrompts();
 
         $projectContext = '';
-        if ($projectName && $projectDescription) {
+        if ($projectName && $projectDescription)
+        {
             $currentLocale = App::getLocale();
-            if ($currentLocale === 'ar') {
+            if ($currentLocale === 'ar')
+            {
                 $projectContext = "
                 المشروع المحدد: {$projectName}
                 وصف المشروع: {$projectDescription}
                 ";
-            } else {
+            }
+            else
+            {
                 $projectContext = "
                 Selected Project: {$projectName}
                 Project Description: {$projectDescription}
@@ -278,20 +343,24 @@ class AIPlannerService
 
         $response = $this->callAI($prompt, 'first_question', $prompts['first_question_system']);
 
-        if (empty($response)) {
+        if (empty($response))
+        {
             Log::error('Empty response from AI for first question');
             return $this->getFallbackFirstQuestion();
         }
 
-        try {
+        try
+        {
             $questionData = $this->parseAIResponse($response);
-            if (!$questionData) {
+            if (!$questionData)
+            {
                 Log::warning('Could not parse AI response, using fallback');
                 return $this->getFallbackFirstQuestion();
             }
 
             // Validate required fields
-            if (!isset($questionData['question']) || empty($questionData['question'])) {
+            if (!isset($questionData['question']) || empty($questionData['question']))
+            {
                 Log::error('Missing question field in AI response');
                 return $this->getFallbackFirstQuestion();
             }
@@ -302,7 +371,9 @@ class AIPlannerService
 
             Log::info('Successfully generated first question', $questionData);
             return $questionData;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error("Error parsing first question: " . $e->getMessage());
             return $this->getFallbackFirstQuestion();
         }
@@ -314,7 +385,8 @@ class AIPlannerService
     public function generateNextQuestion(array $previousAnswers, string $businessIdea, int $questionCount = 1): ?array
     {
         // Stop if we already have 5 questions
-        if ($questionCount >= 5) {
+        if ($questionCount >= 5)
+        {
             Log::info('Reached maximum number of questions (5)');
             return null;
         }
@@ -328,11 +400,15 @@ class AIPlannerService
         $prompts = $this->getPrompts();
 
         $answersContext = "";
-        foreach ($previousAnswers as $qa) {
+        foreach ($previousAnswers as $qa)
+        {
             $locale = App::getLocale();
-            if ($locale === 'ar') {
+            if ($locale === 'ar')
+            {
                 $answersContext .= "السؤال: {$qa['question']}\nالإجابة: {$qa['answer']}\n\n";
-            } else {
+            }
+            else
+            {
                 $answersContext .= "Question: {$qa['question']}\nAnswer: {$qa['answer']}\n\n";
             }
         }
@@ -345,20 +421,24 @@ class AIPlannerService
 
         $response = $this->callAI($prompt, 'next_question', $prompts['first_question_system']);
 
-        if (empty($response)) {
+        if (empty($response))
+        {
             Log::error('Empty response from AI for next question');
             return $prompts['fallback_questions'][$questionCount + 1] ?? null;
         }
 
-        try {
+        try
+        {
             $questionData = $this->parseAIResponse($response);
-            if (!$questionData) {
+            if (!$questionData)
+            {
                 Log::warning('Could not parse AI response for next question, using fallback');
                 return $prompts['fallback_questions'][$questionCount + 1] ?? null;
             }
 
             // Validate required fields
-            if (!isset($questionData['question']) || empty($questionData['question'])) {
+            if (!isset($questionData['question']) || empty($questionData['question']))
+            {
                 Log::error('Missing question field in AI response for next question');
                 return $prompts['fallback_questions'][$questionCount + 1] ?? null;
             }
@@ -369,7 +449,9 @@ class AIPlannerService
 
             Log::info('Successfully generated next question', $questionData);
             return $questionData;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error("Error parsing next question: " . $e->getMessage());
             return $prompts['fallback_questions'][$questionCount + 1] ?? null;
         }
@@ -394,19 +476,25 @@ class AIPlannerService
         $locale = App::getLocale();
 
         $answersText = '';
-        if ($locale === 'ar') {
-            foreach ($answers as $index => $answer) {
+        if ($locale === 'ar')
+        {
+            foreach ($answers as $index => $answer)
+            {
                 $answersText .= "سؤال " . ($index + 1) . ": " . $answer['question'] . "\n";
                 $answersText .= "الإجابة: " . $answer['answer'] . "\n\n";
             }
-        } else {
-            foreach ($answers as $index => $answer) {
+        }
+        else
+        {
+            foreach ($answers as $index => $answer)
+            {
                 $answersText .= "Question " . ($index + 1) . ": " . $answer['question'] . "\n";
                 $answersText .= "Answer: " . $answer['answer'] . "\n\n";
             }
         }
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             $systemMessage = 'أنت مستشار أعمال محترف متخصص في كتابة خطط العمل باللغة العربية. قدم محتوى مفصل وعملي بتنسيق JSON صحيح.';
 
             $prompt = "
@@ -445,7 +533,9 @@ class AIPlannerService
         - كتابة محتوى باللغة العربية
         - الإجابة بـ JSON صحيح فقط
         ";
-        } else {
+        }
+        else
+        {
             $systemMessage = 'You are a professional business consultant specialized in creating comprehensive business plans. Provide detailed and practical content in valid JSON format only.';
 
             $prompt = "
@@ -488,21 +578,25 @@ class AIPlannerService
 
         $response = $this->callAI($prompt, 'complete_business_plan', $systemMessage);
 
-        if (empty($response)) {
+        if (empty($response))
+        {
             Log::error('Empty response from AI for complete business plan');
             return $this->getDefaultBusinessPlanSections();
         }
 
-        try {
+        try
+        {
             // Clean the response - remove any markdown formatting or extra text
             $response = trim($response);
 
             // Try to extract JSON from the response
-            if (preg_match('/\{.*\}/s', $response, $matches)) {
+            if (preg_match('/\{.*\}/s', $response, $matches))
+            {
                 $jsonString = $matches[0];
                 $decoded = json_decode($jsonString, true);
 
-                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded))
+                {
                     // Validate that all required sections are present
                     $requiredSections = [
                         'executive_summary',
@@ -513,8 +607,10 @@ class AIPlannerService
                         'operational_plan'
                     ];
 
-                    foreach ($requiredSections as $section) {
-                        if (!isset($decoded[$section])) {
+                    foreach ($requiredSections as $section)
+                    {
+                        if (!isset($decoded[$section]))
+                        {
                             $decoded[$section] = $this->getDefaultSectionContent($section);
                         }
                     }
@@ -527,7 +623,9 @@ class AIPlannerService
             // Fallback: Extract sections manually if JSON parsing fails
             Log::warning('JSON parsing failed, attempting manual extraction');
             return $this->extractSectionsFromText($response);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             Log::error('Failed to parse AI response for complete business plan: ' . $e->getMessage());
             return $this->getDefaultBusinessPlanSections();
         }
@@ -539,20 +637,25 @@ class AIPlannerService
     public function generateTitleFromAnswers(array $answers, string $projectName = null, string $projectDescription = null): string
     {
         $answersText = "";
-        foreach ($answers as $qa) {
+        foreach ($answers as $qa)
+        {
             $answersText .= $qa['answer'] . " ";
         }
 
         $locale = App::getLocale();
         $projectContext = '';
 
-        if ($projectName && $projectDescription) {
-            if ($locale === 'ar') {
+        if ($projectName && $projectDescription)
+        {
+            if ($locale === 'ar')
+            {
                 $projectContext = "
                 المشروع: {$projectName}
                 وصف المشروع: {$projectDescription}
                 ";
-            } else {
+            }
+            else
+            {
                 $projectContext = "
                 Project: {$projectName}
                 Project Description: {$projectDescription}
@@ -560,7 +663,8 @@ class AIPlannerService
             }
         }
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             $systemMessage = 'أنت مستشار أعمال محترف. قدم عنواناً واضحاً ومباشراً لخطة العمل. أجب بالعنوان فقط بدون أي تنسيق إضافي أو JSON.';
             $prompt = "
             {$projectContext}
@@ -577,7 +681,9 @@ class AIPlannerService
             
             أعط العنوان فقط بالعربية بدون أي تنسيق إضافي.
             ";
-        } else {
+        }
+        else
+        {
             $systemMessage = 'You are a professional business consultant. Provide a clear and direct business plan title. Respond with only the title without any additional formatting or JSON.';
             $prompt = "
             {$projectContext}
@@ -603,7 +709,8 @@ class AIPlannerService
         $title = trim($title, '"\'');
 
         // Remove any JSON-like formatting
-        if (preg_match('/^{\s*"title"\s*:\s*"([^"]+)"\s*}$/', $title, $matches)) {
+        if (preg_match('/^{\s*"title"\s*:\s*"([^"]+)"\s*}$/', $title, $matches))
+        {
             $title = $matches[1];
         }
 
@@ -612,7 +719,8 @@ class AIPlannerService
         $title = preg_replace('/^#+\s*(.+)$/', '$1', $title);
 
         // Provide fallback if title is still problematic
-        if (empty($title) || strlen($title) > 100 || str_contains($title, '{') || str_contains($title, '}')) {
+        if (empty($title) || strlen($title) > 100 || str_contains($title, '{') || str_contains($title, '}'))
+        {
             return $projectName ? "{$projectName} - Business Plan" : "AI-Generated Business Plan";
         }
 
@@ -624,14 +732,17 @@ class AIPlannerService
      */
     private function callAI(string $prompt, string $context, string $systemMessage = null): string
     {
-        if (empty($this->apiKey)) {
+        if (empty($this->apiKey))
+        {
             Log::error('OpenAI API key is not configured');
             return '';
         }
 
-        try {
+        try
+        {
             // Use provided system message or get default based on locale
-            if (!$systemMessage) {
+            if (!$systemMessage)
+            {
                 $prompts = $this->getPrompts();
                 $systemMessage = $prompts['first_question_system'];
             }
@@ -659,7 +770,8 @@ class AIPlannerService
 
             Log::info("AI API Response Status: " . $response->status());
 
-            if (!$response->successful()) {
+            if (!$response->successful())
+            {
                 Log::error("OpenAI API Error", [
                     'status' => $response->status(),
                     'body' => $response->body(),
@@ -667,25 +779,34 @@ class AIPlannerService
                 ]);
 
                 // Return appropriate error message based on status
-                if ($response->status() === 401) {
+                if ($response->status() === 401)
+                {
                     throw new Exception('Invalid OpenAI API key');
-                } elseif ($response->status() === 429) {
+                }
+                elseif ($response->status() === 429)
+                {
                     throw new Exception('OpenAI API rate limit exceeded');
-                } elseif ($response->status() === 500) {
+                }
+                elseif ($response->status() === 500)
+                {
                     throw new Exception('OpenAI API server error');
-                } else {
+                }
+                else
+                {
                     throw new Exception("OpenAI API error: " . $response->status());
                 }
             }
 
             $result = $response->json();
 
-            if (isset($result['error'])) {
+            if (isset($result['error']))
+            {
                 Log::error("OpenAI Error", ['error' => $result['error'], 'context' => $context]);
                 throw new Exception("OpenAI API Error: " . ($result['error']['message'] ?? 'Unknown error'));
             }
 
-            if (!isset($result['choices'][0]['message']['content'])) {
+            if (!isset($result['choices'][0]['message']['content']))
+            {
                 Log::error("Unexpected AI response format", ['result' => $result, 'context' => $context]);
                 throw new Exception('Unexpected response format from OpenAI');
             }
@@ -694,7 +815,9 @@ class AIPlannerService
             Log::info("AI API call successful for context: {$context}");
 
             return $content;
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error("AI Generation Error for {$context}: " . $e->getMessage(), [
                 'exception' => $e,
                 'context' => $context
@@ -709,13 +832,16 @@ class AIPlannerService
     private function getFallbackFirstQuestion(): array
     {
         $locale = App::getLocale();
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             return [
                 'question' => 'ما هو الهدف الرئيسي من هذا المشروع؟',
                 'type' => 'text',
                 'keywords' => ['business', 'goal']
             ];
-        } else {
+        }
+        else
+        {
             return [
                 'question' => 'What is the main goal of this project?',
                 'type' => 'text',
@@ -731,7 +857,8 @@ class AIPlannerService
     {
         $locale = App::getLocale();
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             $defaults = [
                 'executive_summary' => '<h3>الملخص التنفيذي</h3><p>سيتم إنشاء الملخص التنفيذي قريباً. يرجى الانتظار.</p>',
                 'market_analysis' => '<h3>تحليل السوق</h3><p>سيتم إنشاء تحليل السوق قريباً. يرجى الانتظار.</p>',
@@ -740,7 +867,9 @@ class AIPlannerService
                 'financial_plan' => '<h3>الخطة المالية</h3><p>سيتم إنشاء الخطة المالية قريباً. يرجى الانتظار.</p>',
                 'operational_plan' => '<h3>الخطة التشغيلية</h3><p>سيتم إنشاء الخطة التشغيلية قريباً. يرجى الانتظار.</p>'
             ];
-        } else {
+        }
+        else
+        {
             $defaults = [
                 'executive_summary' => '<h3>Executive Summary</h3><p>Executive summary will be generated shortly. Please wait.</p>',
                 'market_analysis' => '<h3>Market Analysis</h3><p>Market analysis will be generated shortly. Please wait.</p>',
@@ -771,7 +900,8 @@ class AIPlannerService
         ];
 
         // Define patterns based on locale
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             $patterns = [
                 'executive_summary' => '/(?:الملخص التنفيذي|executive_summary)(.*?)(?=تحليل السوق|market_analysis|تحليل SWOT|swot_analysis|$)/si',
                 'market_analysis' => '/(?:تحليل السوق|market_analysis)(.*?)(?=تحليل SWOT|swot_analysis|الاستراتيجية التسويقية|marketing_strategy|$)/si',
@@ -780,7 +910,9 @@ class AIPlannerService
                 'financial_plan' => '/(?:الخطة المالية|financial_plan)(.*?)(?=الخطة التشغيلية|operational_plan|$)/si',
                 'operational_plan' => '/(?:الخطة التشغيلية|operational_plan)(.*?)$/si'
             ];
-        } else {
+        }
+        else
+        {
             $patterns = [
                 'executive_summary' => '/(?:Executive Summary|executive_summary)(.*?)(?=Market Analysis|market_analysis|SWOT Analysis|swot_analysis|$)/si',
                 'market_analysis' => '/(?:Market Analysis|market_analysis)(.*?)(?=SWOT Analysis|swot_analysis|Marketing Strategy|marketing_strategy|$)/si',
@@ -791,16 +923,21 @@ class AIPlannerService
             ];
         }
 
-        foreach ($patterns as $section => $pattern) {
+        foreach ($patterns as $section => $pattern)
+        {
             preg_match($pattern, $text, $matches);
-            if (!empty($matches[1])) {
+            if (!empty($matches[1]))
+            {
                 $content = trim($matches[1]);
                 // Ensure content is wrapped in HTML tags
-                if (!preg_match('/<[^>]+>/', $content)) {
+                if (!preg_match('/<[^>]+>/', $content))
+                {
                     $content = '<p>' . nl2br($content) . '</p>';
                 }
                 $sections[$section] = $content;
-            } else {
+            }
+            else
+            {
                 $sections[$section] = $this->getDefaultSectionContent($section);
             }
         }
@@ -815,7 +952,8 @@ class AIPlannerService
     {
         $locale = App::getLocale();
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             return [
                 'executive_summary' => '<h3>الملخص التنفيذي</h3><p>سيتم إنشاء الملخص التنفيذي قريباً. يرجى الانتظار.</p>',
                 'market_analysis' => '<h3>تحليل السوق</h3><p>سيتم إنشاء تحليل السوق قريباً. يرجى الانتظار.</p>',
@@ -824,7 +962,9 @@ class AIPlannerService
                 'financial_plan' => '<h3>الخطة المالية</h3><p>سيتم إنشاء الخطة المالية قريباً. يرجى الانتظار.</p>',
                 'operational_plan' => '<h3>الخطة التشغيلية</h3><p>سيتم إنشاء الخطة التشغيلية قريباً. يرجى الانتظار.</p>'
             ];
-        } else {
+        }
+        else
+        {
             return [
                 'executive_summary' => '<h3>Executive Summary</h3><p>Executive summary will be generated shortly. Please wait.</p>',
                 'market_analysis' => '<h3>Market Analysis</h3><p>Market analysis will be generated shortly. Please wait.</p>',
@@ -842,20 +982,25 @@ class AIPlannerService
     public function generateSuggestionsFromAnswers(array $context): array
     {
         $answersText = "";
-        foreach ($context['answers'] as $qa) {
+        foreach ($context['answers'] as $qa)
+        {
             $answersText .= $qa['answer'] . " ";
         }
 
         $locale = App::getLocale();
 
         $projectContext = '';
-        if ($context['project_name'] && $context['project_description']) {
-            if ($locale === 'ar') {
+        if ($context['project_name'] && $context['project_description'])
+        {
+            if ($locale === 'ar')
+            {
                 $projectContext = "
             المشروع: {$context['project_name']}
             وصف المشروع: {$context['project_description']}
             ";
-            } else {
+            }
+            else
+            {
                 $projectContext = "
             Project: {$context['project_name']}
             Project Description: {$context['project_description']}
@@ -863,7 +1008,8 @@ class AIPlannerService
             }
         }
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             $prompt = "
             {$projectContext}
             
@@ -887,7 +1033,9 @@ class AIPlannerService
                 }
             ]
             ";
-        } else {
+        }
+        else
+        {
             $prompt = "
             {$projectContext}
             
@@ -913,10 +1061,13 @@ class AIPlannerService
             ";
         }
 
-        try {
+        try
+        {
             $response = $this->callAI($prompt, 'suggestions');
             return json_decode($response, true) ?? $this->getFallbackSuggestions();
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error generating suggestions: ' . $e->getMessage());
             return $this->getFallbackSuggestions();
         }
@@ -929,7 +1080,8 @@ class AIPlannerService
     {
         $locale = App::getLocale();
 
-        if ($locale === 'ar') {
+        if ($locale === 'ar')
+        {
             return [
                 [
                     'type' => 'business',
@@ -957,7 +1109,9 @@ class AIPlannerService
                     'priority' => 'low'
                 ]
             ];
-        } else {
+        }
+        else
+        {
             return [
                 [
                     'type' => 'business',
@@ -997,7 +1151,8 @@ class AIPlannerService
     {
         $businessIdea = $project->description ?: $project->name;
 
-        try {
+        try
+        {
             $firstQuestion = $this->generateFirstQuestion(
                 $businessIdea,
                 $project->name,
@@ -1009,7 +1164,9 @@ class AIPlannerService
                 'message' => $firstQuestion['question'],
                 'question_data' => $firstQuestion
             ];
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error initializing conversation: ' . $e->getMessage());
             return [
                 'success' => false,
@@ -1037,7 +1194,8 @@ class AIPlannerService
     public function generateAnalysis(Plan $plan)
     {
         // Check if plan has ai_analysis
-        if (!empty($plan->ai_analysis)) {
+        if (!empty($plan->ai_analysis))
+        {
             return [
                 'success' => true,
                 'message' => 'Analysis already exists.',
@@ -1056,7 +1214,8 @@ class AIPlannerService
      */
     public function generatePDF(Plan $plan)
     {
-        if (empty($plan->ai_analysis)) {
+        if (empty($plan->ai_analysis))
+        {
             return [
                 'success' => false,
                 'message' => 'No analysis found to generate PDF.'
@@ -1076,5 +1235,183 @@ class AIPlannerService
             'message' => 'PDF generation prepared.',
             'pdfPath' => $pdfPath
         ];
+    }
+
+
+
+    /**
+     * Generate first question based on business idea and complete project data
+     */
+    public function generateFirstQuestionWithProjectData(string $businessIdea, array $projectData): array
+    {
+        Log::info('Generating first question with project data', [
+            'business_idea' => $businessIdea,
+            'project_data' => $projectData
+        ]);
+
+        $prompts = $this->getPrompts();
+
+        // Replace placeholders in the prompt with actual project data
+        $prompt = str_replace(
+            [
+                '{PROJECT_NAME}',
+                '{PROJECT_DESCRIPTION}',
+                '{PROJECT_INDUSTRY}',
+                '{PROJECT_BUSINESS_TYPE}',
+                '{PROJECT_TARGET}',
+                '{PROJECT_LOCATION}',
+                '{PROJECT_REVENUE_MODEL}',
+                '{PROJECT_MAIN_PRODUCT}',
+                '{BUSINESS_IDEA}'
+            ],
+            [
+                $projectData['project_name'] ?? 'Not specified',
+                $projectData['project_description'] ?? 'Not specified',
+                $projectData['project_industry'] ?? 'Not specified',
+                $projectData['project_business_type'] ?? 'Not specified',
+                $projectData['project_target'] ?? 'Not specified',
+                $projectData['project_location'] ?? 'Not specified',
+                $projectData['project_revenue_model'] ?? 'Not specified',
+                $projectData['project_main_product'] ?? 'Not specified',
+                $businessIdea
+            ],
+            $prompts['first_question_prompt']
+        );
+
+        $response = $this->callAI($prompt, 'first_question_with_project_data', $prompts['first_question_system']);
+
+        if (empty($response))
+        {
+            Log::error('Empty response from AI for first question');
+            return $this->getFallbackFirstQuestion();
+        }
+
+        try
+        {
+            $questionData = $this->parseAIResponse($response);
+            if (!$questionData)
+            {
+                Log::warning('Could not parse AI response, using fallback');
+                return $this->getFallbackFirstQuestion();
+            }
+
+            // Validate required fields
+            if (!isset($questionData['question']) || empty($questionData['question']))
+            {
+                Log::error('Missing question field in AI response');
+                return $this->getFallbackFirstQuestion();
+            }
+
+            // Set default values for optional fields
+            $questionData['type'] = $questionData['type'] ?? 'text';
+            $questionData['keywords'] = $questionData['keywords'] ?? [];
+            $questionData['category'] = $questionData['category'] ?? 'strategy';
+
+            Log::info('Successfully generated first question with project data', $questionData);
+            return $questionData;
+        }
+        catch (\Exception $e)
+        {
+            Log::error("Error parsing first question: " . $e->getMessage());
+            return $this->getFallbackFirstQuestion();
+        }
+    }
+
+    /**
+     * Generate next question based on previous answers and project data
+     */
+    public function generateNextQuestionWithProjectData(array $previousAnswers, string $businessIdea, int $questionCount = 1, array $projectData = null): ?array
+    {
+        // Stop if we already have 5 questions
+        if ($questionCount >= 5)
+        {
+            Log::info('Reached maximum number of questions (5)');
+            return null;
+        }
+
+        Log::info('Generating next question with project data', [
+            'question_count' => $questionCount,
+            'previous_answers_count' => count($previousAnswers),
+            'business_idea' => $businessIdea,
+            'has_project_data' => !empty($projectData)
+        ]);
+
+        $prompts = $this->getPrompts();
+
+        $answersContext = "";
+        foreach ($previousAnswers as $qa)
+        {
+            $locale = App::getLocale();
+            if ($locale === 'ar')
+            {
+                $answersContext .= "السؤال: {$qa['question']}\nالإجابة: {$qa['answer']}\n\n";
+            }
+            else
+            {
+                $answersContext .= "Question: {$qa['question']}\nAnswer: {$qa['answer']}\n\n";
+            }
+        }
+
+        // Replace placeholders in the prompt
+        $replacements = [
+            '{BUSINESS_IDEA}' => $businessIdea,
+            '{ANSWERS_CONTEXT}' => $answersContext,
+            '{QUESTION_COUNT}' => $questionCount
+        ];
+
+        // Add project data replacements if available
+        if (!empty($projectData))
+        {
+            $replacements['{PROJECT_NAME}'] = $projectData['project_name'] ?? 'Not specified';
+            $replacements['{PROJECT_DESCRIPTION}'] = $projectData['project_description'] ?? 'Not specified';
+            $replacements['{PROJECT_INDUSTRY}'] = $projectData['project_industry'] ?? 'Not specified';
+            $replacements['{PROJECT_BUSINESS_TYPE}'] = $projectData['project_business_type'] ?? 'Not specified';
+            $replacements['{PROJECT_TARGET}'] = $projectData['project_target'] ?? 'Not specified';
+            $replacements['{PROJECT_REVENUE_MODEL}'] = $projectData['project_revenue_model'] ?? 'Not specified';
+        }
+
+        $prompt = str_replace(
+            array_keys($replacements),
+            array_values($replacements),
+            $prompts['next_question_prompt']
+        );
+
+        $response = $this->callAI($prompt, 'next_question_with_project_data', $prompts['first_question_system']);
+
+        if (empty($response))
+        {
+            Log::error('Empty response from AI for next question');
+            return $prompts['fallback_questions'][$questionCount + 1] ?? null;
+        }
+
+        try
+        {
+            $questionData = $this->parseAIResponse($response);
+            if (!$questionData)
+            {
+                Log::warning('Could not parse AI response for next question, using fallback');
+                return $prompts['fallback_questions'][$questionCount + 1] ?? null;
+            }
+
+            // Validate required fields
+            if (!isset($questionData['question']) || empty($questionData['question']))
+            {
+                Log::error('Missing question field in AI response for next question');
+                return $prompts['fallback_questions'][$questionCount + 1] ?? null;
+            }
+
+            // Set default values for optional fields
+            $questionData['type'] = $questionData['type'] ?? 'text';
+            $questionData['keywords'] = $questionData['keywords'] ?? [];
+            $questionData['category'] = $questionData['category'] ?? 'strategy';
+
+            Log::info('Successfully generated next question with project data', $questionData);
+            return $questionData;
+        }
+        catch (\Exception $e)
+        {
+            Log::error("Error parsing next question: " . $e->getMessage());
+            return $prompts['fallback_questions'][$questionCount + 1] ?? null;
+        }
     }
 }

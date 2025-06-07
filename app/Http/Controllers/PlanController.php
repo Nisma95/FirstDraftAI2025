@@ -86,7 +86,8 @@ class PlanController extends Controller
         $plan = Plan::create($validated);
 
         // Initialize AI conversation if not in draft mode
-        if ($plan->status !== Plan::STATUS_DRAFT) {
+        if ($plan->status !== Plan::STATUS_DRAFT)
+        {
             $project = Project::findOrFail($plan->project_id);
             $this->aiPlanner->initializeConversation($project);
 
@@ -144,15 +145,18 @@ class PlanController extends Controller
     public function destroy(Plan $plan)
     {
         // Delete associated files if they exist
-        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path)) {
+        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path))
+        {
             Storage::delete($plan->ai_analysis_path);
         }
 
-        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path)) {
+        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path))
+        {
             Storage::delete($plan->conversation_file_path);
         }
 
-        if (!empty($plan->pdf_path) && Storage::exists($plan->pdf_path)) {
+        if (!empty($plan->pdf_path) && Storage::exists($plan->pdf_path))
+        {
             Storage::delete($plan->pdf_path);
         }
 
@@ -175,15 +179,22 @@ class PlanController extends Controller
 
         // Parse ai_analysis if it's a JSON string
         $aiAnalysis = null;
-        if (!empty($plan->ai_analysis)) {
-            if (is_string($plan->ai_analysis)) {
-                try {
+        if (!empty($plan->ai_analysis))
+        {
+            if (is_string($plan->ai_analysis))
+            {
+                try
+                {
                     $aiAnalysis = json_decode($plan->ai_analysis, true);
-                } catch (\Exception $e) {
+                }
+                catch (\Exception $e)
+                {
                     Log::error('Error decoding ai_analysis JSON: ' . $e->getMessage());
                     $aiAnalysis = null;
                 }
-            } else if (is_array($plan->ai_analysis)) {
+            }
+            else if (is_array($plan->ai_analysis))
+            {
                 $aiAnalysis = $plan->ai_analysis;
             }
         }
@@ -199,11 +210,13 @@ class PlanController extends Controller
         $analysisContent = null;
         $conversationContent = null;
 
-        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path)) {
+        if (!empty($plan->ai_analysis_path) && Storage::exists($plan->ai_analysis_path))
+        {
             $analysisContent = Storage::get($plan->ai_analysis_path);
         }
 
-        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path)) {
+        if (!empty($plan->conversation_file_path) && Storage::exists($plan->conversation_file_path))
+        {
             $conversationContent = Storage::get($plan->conversation_file_path);
         }
 
@@ -244,7 +257,8 @@ class PlanController extends Controller
         $project = Project::findOrFail($plan->project_id);
         $result = $this->aiPlanner->initializeConversation($project);
 
-        if ($result['success']) {
+        if ($result['success'])
+        {
             $plan->update([
                 'status' => Plan::STATUS_GENERATING,
                 'progress_percentage' => 10,
@@ -277,7 +291,8 @@ class PlanController extends Controller
 
         $result = $this->aiPlanner->continueConversation($validated['message'], $plan);
 
-        if ($result['success']) {
+        if ($result['success'])
+        {
             // Update progress percentage
             $plan->update([
                 'progress_percentage' => min(90, $plan->progress_percentage + 5),
@@ -305,7 +320,8 @@ class PlanController extends Controller
     {
         $result = $this->aiPlanner->generateAnalysis($plan);
 
-        if ($result['success']) {
+        if ($result['success'])
+        {
             return response()->json([
                 'success' => true,
                 'message' => $result['message'],
@@ -329,7 +345,8 @@ class PlanController extends Controller
     {
         $result = $this->aiPlanner->generatePDF($plan);
 
-        if ($result['success']) {
+        if ($result['success'])
+        {
             return response()->json([
                 'success' => true,
                 'message' => $result['message'],
@@ -351,7 +368,8 @@ class PlanController extends Controller
      */
     public function downloadAnalysis(Plan $plan)
     {
-        if (empty($plan->ai_analysis_path) || !Storage::exists($plan->ai_analysis_path)) {
+        if (empty($plan->ai_analysis_path) || !Storage::exists($plan->ai_analysis_path))
+        {
             return back()->with('error', 'Analysis file not found.');
         }
 
@@ -366,7 +384,8 @@ class PlanController extends Controller
      */
     public function downloadConversation(Plan $plan)
     {
-        if (empty($plan->conversation_file_path) || !Storage::exists($plan->conversation_file_path)) {
+        if (empty($plan->conversation_file_path) || !Storage::exists($plan->conversation_file_path))
+        {
             return back()->with('error', 'Conversation file not found.');
         }
 
@@ -381,7 +400,8 @@ class PlanController extends Controller
      */
     public function downloadPDF(Plan $plan)
     {
-        if (empty($plan->pdf_path) || !Storage::exists($plan->pdf_path)) {
+        if (empty($plan->pdf_path) || !Storage::exists($plan->pdf_path))
+        {
             return back()->with('error', 'PDF file not found.');
         }
 
@@ -436,9 +456,11 @@ class PlanController extends Controller
      */
     public function checkGenerationStatus(Plan $plan)
     {
-        try {
+        try
+        {
             // Ensure the authenticated user owns this plan
-            if ($plan->project->user_id !== auth()->id()) {
+            if ($plan->project->user_id !== auth()->id())
+            {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -453,7 +475,9 @@ class PlanController extends Controller
                 'is_generating' => $plan->isGenerating(),
                 'has_failed' => $plan->hasFailed()
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error checking plan status: ' . $e->getMessage());
             return response()->json([
                 'status' => 'unknown',
@@ -462,6 +486,7 @@ class PlanController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Start business plan creation with AI.
@@ -478,14 +503,29 @@ class PlanController extends Controller
             'project_description' => 'nullable|string',
         ]);
 
-        try {
-            $project = Project::findOrFail($validated['project_id']);
+        try
+        {
+            // Load project with all related data
+            $project = Project::with(['industry', 'businessType'])->findOrFail($validated['project_id']);
+            // Prepare complete project data for AI
+            $projectData = [
+                'project_name' => $project->name,
+                'project_description' => $project->description,
+                'project_industry' => $project->industry ? $project->industry->name : 'Not specified',
+                'project_business_type' => $project->businessType ? $project->businessType->business_type_name : 'Not specified',
+                'project_target' => $this->formatTargetAudience($project->target_market),
+                'project_location' => $project->location ?? 'Not specified',
+                'project_revenue_model' => $this->formatRevenueModel($project->revenue_model),
+                'project_main_product' => $this->formatMainProduct($project->main_product_service),
+                'project_scale' => $project->project_scale ?? 'Not specified',
+                'project_team_size' => $project->team_size ?? 'Not specified',
+                'project_main_differentiator' => $this->formatDifferentiator($project->main_differentiator)
+            ];
 
-            // Use your AI service to generate the first question
-            $questionData = $this->aiPlanner->generateFirstQuestion(
+            // Use your AI service to generate the first question with complete project data
+            $questionData = $this->aiPlanner->generateFirstQuestionWithProjectData(
                 $validated['business_idea'],
-                $validated['project_name'],
-                $validated['project_description']
+                $projectData
             );
 
             return response()->json([
@@ -493,7 +533,9 @@ class PlanController extends Controller
                 'question' => $questionData,
                 'message' => 'AI conversation started successfully'
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error starting business plan: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -501,6 +543,8 @@ class PlanController extends Controller
             ], 500);
         }
     }
+
+
 
     /**
      * Get next question based on previous answer.
@@ -515,13 +559,16 @@ class PlanController extends Controller
             'previous_answers' => 'required|array',
             'business_idea' => 'required|string',
             'question_count' => 'required|integer',
+            'project_id' => 'nullable|exists:projects,id',
         ]);
 
-        try {
+        try
+        {
             $questionCount = $validated['question_count'];
 
             // If we've reached 5 questions, indicate completion
-            if ($questionCount >= 5) {
+            if ($questionCount >= 5)
+            {
                 return response()->json([
                     'success' => true,
                     'question' => null,
@@ -529,27 +576,50 @@ class PlanController extends Controller
                 ]);
             }
 
+            // Load project data if project_id is provided
+            $projectData = null;
+            if (!empty($validated['project_id']))
+            {
+                $project = Project::with(['industry', 'business_type'])->findOrFail($validated['project_id']);
+                $projectData = [
+                    'project_name' => $project->name,
+                    'project_description' => $project->description,
+                    'project_industry' => $project->industry ? $project->industry->name : 'Not specified',
+                    'project_business_type' => $project->businessType ? $project->businessType->business_type_name : 'Not specified',
+                    'project_target' => $this->formatTargetAudience($project->target_market),
+                    'project_location' => $project->location ?? 'Not specified',
+                    'project_revenue_model' => $this->formatRevenueModel($project->revenue_model),
+                    'project_main_product' => $this->formatMainProduct($project->main_product_service),
+                ];
+            }
+
             // Use your AI service to generate the next question
-            $questionData = $this->aiPlanner->generateNextQuestion(
+            $questionData = $this->aiPlanner->generateNextQuestionWithProjectData(
                 $validated['previous_answers'],
                 $validated['business_idea'],
-                $questionCount
+                $questionCount,
+                $projectData
             );
 
-            if ($questionData) {
+            if ($questionData)
+            {
                 return response()->json([
                     'success' => true,
                     'question' => $questionData,
                     'message' => 'Next question generated'
                 ]);
-            } else {
+            }
+            else
+            {
                 return response()->json([
                     'success' => true,
                     'question' => null,
                     'message' => 'All questions completed'
                 ]);
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error getting next question: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -557,6 +627,8 @@ class PlanController extends Controller
             ], 500);
         }
     }
+
+
 
     /**
      * Generate final business plan from all answers.
@@ -574,7 +646,8 @@ class PlanController extends Controller
             'project_description' => 'nullable|string',
         ]);
 
-        try {
+        try
+        {
             $project = Project::findOrFail($validated['project_id']);
 
             // Generate a title for the plan using your AI service
@@ -622,7 +695,9 @@ class PlanController extends Controller
                 ],
                 'message' => 'Business plan generated successfully'
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error generating plan from answers: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -636,7 +711,8 @@ class PlanController extends Controller
 
     public function generateAnswerSuggestion(Request $request)
     {
-        try {
+        try
+        {
             // Use your existing AIPlannAnswerHelper service
             $result = $this->aiAnswerHelper->generateAnswerSuggestion([
                 'question' => $request->input('question', ''),
@@ -648,7 +724,9 @@ class PlanController extends Controller
             ]);
 
             return response()->json($result);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error in generateAnswerSuggestion: ' . $e->getMessage());
 
             return response()->json([
@@ -657,5 +735,66 @@ class PlanController extends Controller
                 'suggested_answer' => 'Please provide your own answer for this question.'
             ], 500);
         }
+    }
+
+
+    /**
+     * Format target audience for AI prompt
+     */
+    private function formatTargetAudience($target)
+    {
+        if (is_array($target))
+        {
+            return implode(', ', array_map(function ($item)
+            {
+                return is_array($item) ? $item['name'] ?? $item : $item;
+            }, $target));
+        }
+        return $target ?? 'Not specified';
+    }
+
+    /**
+     * Format revenue model for AI prompt
+     */
+    private function formatRevenueModel($revenueModel)
+    {
+        if (is_array($revenueModel))
+        {
+            return implode(', ', array_map(function ($item)
+            {
+                return is_array($item) ? $item['name'] ?? $item : $item;
+            }, $revenueModel));
+        }
+        return $revenueModel ?? 'Not specified';
+    }
+
+    /**
+     * Format main product/service for AI prompt
+     */
+    private function formatMainProduct($mainProduct)
+    {
+        if (is_array($mainProduct))
+        {
+            return implode(', ', array_map(function ($item)
+            {
+                return is_array($item) ? $item['name'] ?? $item : $item;
+            }, $mainProduct));
+        }
+        return $mainProduct ?? 'Not specified';
+    }
+
+    /**
+     * Format main differentiator for AI prompt
+     */
+    private function formatDifferentiator($differentiator)
+    {
+        if (is_array($differentiator))
+        {
+            return implode(', ', array_map(function ($item)
+            {
+                return is_array($item) ? $item['name'] ?? $item : $item;
+            }, $differentiator));
+        }
+        return $differentiator ?? 'Not specified';
     }
 }
