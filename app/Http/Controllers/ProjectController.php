@@ -91,26 +91,38 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
+        // Debug authentication
+        \Log::info('ProjectController@show debug', [
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'project_user_id' => $project->user_id,
+            'session_id' => session()->getId(),
+        ]);
+
         // Check if user is authenticated
         if (!auth()->check())
         {
+            \Log::warning('User not authenticated, redirecting to home');
             return redirect('/')->with('error', 'يجب تسجيل الدخول لعرض المشاريع');
         }
 
         // Check if the project belongs to the current user
         if ($project->user_id !== auth()->id())
         {
+            \Log::warning('User does not own project', [
+                'auth_user_id' => auth()->id(),
+                'project_user_id' => $project->user_id
+            ]);
             return redirect('/')->with('error', 'غير مسموح لك بعرض هذا المشروع');
         }
 
-        // Load the relationships safely
+        // Rest of your method...
         try
         {
             $project->load(['industry', 'businessType']);
         }
         catch (\Exception $e)
         {
-            // If relationships fail to load, continue without them
             \Log::warning('Failed to load project relationships: ' . $e->getMessage());
         }
 

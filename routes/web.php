@@ -212,4 +212,21 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+
+
+
+
+Route::get('/debug-auth', function ()
+{
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'user' => auth()->user(),
+        'session_id' => session()->getId(),
+        'guard' => config('auth.defaults.guard'),
+    ]);
+})->name('debug.auth');
+
+
+
 require __DIR__ . '/auth.php';
