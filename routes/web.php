@@ -10,6 +10,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Models\Project;  // Add this line
+
 /*
 |--------------------------------------------------------------------------
 | Language Route
@@ -227,6 +229,18 @@ Route::get('/debug-auth', function ()
     ]);
 })->name('debug.auth');
 
+
+// Add this to routes/web.php temporarily
+Route::get('/debug-project/{project}', function (Project $project)
+{
+    return response()->json([
+        'project_id' => $project->id,
+        'project_user_id' => $project->user_id,
+        'authenticated_user_id' => auth()->id(),
+        'owns_project' => $project->user_id === auth()->id(),
+        'project' => $project,
+    ]);
+});
 
 
 require __DIR__ . '/auth.php';
