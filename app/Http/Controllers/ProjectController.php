@@ -19,7 +19,8 @@ class ProjectController extends Controller
         $user = Auth::user();
 
         // Ensure user is authenticated and exists
-        if (!$user instanceof User) {
+        if (!$user instanceof User)
+        {
             return redirect()->route('login');
         }
 
@@ -73,7 +74,8 @@ class ProjectController extends Controller
         $user = Auth::user();
 
         // Ensure user is authenticated before creating project
-        if (!$user instanceof User) {
+        if (!$user instanceof User)
+        {
             return redirect()->route('login');
         }
 
@@ -89,10 +91,28 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        $this->authorize('view', $project);
+        // Check if user is authenticated
+        if (!auth()->check())
+        {
+            return redirect('/')->with('error', 'يجب تسجيل الدخول لعرض المشاريع');
+        }
 
-        // Load the relationships
-        $project->load(['industry', 'businessType']);
+        // Check if the project belongs to the current user
+        if ($project->user_id !== auth()->id())
+        {
+            return redirect('/')->with('error', 'غير مسموح لك بعرض هذا المشروع');
+        }
+
+        // Load the relationships safely
+        try
+        {
+            $project->load(['industry', 'businessType']);
+        }
+        catch (\Exception $e)
+        {
+            // If relationships fail to load, continue without them
+            \Log::warning('Failed to load project relationships: ' . $e->getMessage());
+        }
 
         return Inertia::render('Projects/Show', [
             'project' => $project
@@ -183,7 +203,8 @@ class ProjectController extends Controller
             'business_type_id' => $projectData['business_type_id'],
         ];
 
-        try {
+        try
+        {
             $aiHelper = new AiProjectHelper();
             $suggestion = $aiHelper->generateFieldSuggestion($formattedData, $fieldName, $language);
 
@@ -192,7 +213,9 @@ class ProjectController extends Controller
                 'content' => $suggestion,
                 'field' => $fieldName
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Failed to generate field suggestion: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -230,7 +253,8 @@ class ProjectController extends Controller
             'business_type_id' => $projectData['business_type_id'],
         ];
 
-        try {
+        try
+        {
             $aiHelper = new AiProjectHelper();
             $enhancedContent = $aiHelper->enhanceFieldContent($formattedData, $fieldName, $currentContent, $language);
 
@@ -239,7 +263,9 @@ class ProjectController extends Controller
                 'content' => $enhancedContent,
                 'field' => $fieldName
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Failed to enhance field content: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
