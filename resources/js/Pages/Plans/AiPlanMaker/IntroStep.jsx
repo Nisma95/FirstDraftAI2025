@@ -39,7 +39,7 @@ export default function IntroStep({ isLoading, projectSelection }) {
                     <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
                         {t(
                             "ai_plan_intro_title",
-                            "Let's Create Your Business Plan Together! 🚀"
+                            "Let's Create Your Business Plan Together!"
                         )}
                     </h1>
                 </motion.div>

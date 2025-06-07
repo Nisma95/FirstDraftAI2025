@@ -1,180 +1,42 @@
-import { useState, useEffect, useRef } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { ArrowRight, Eye } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import TopTools from "@/Components/TopTools";
 import InputError from "@/Components/InputError";
 import StarBackground from "@/Components/StarBackground";
+import { useLogin } from "./useLogin";
 
 // Import the shared media CSS file
 import "../../../css/auth/auth-media.css";
 
 export default function Login({ status, canResetPassword }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        email: "",
-        password: "",
-        remember: true,
-    });
-
-    const [isDarkMode, setIsDarkMode] = useState(
-        document.documentElement.classList.contains("dark")
-    );
-    const [isRtl, setIsRtl] = useState(document.documentElement.dir === "rtl");
-    const [loginStep, setLoginStep] = useState("email");
-    const [emailText, setEmailText] = useState("");
-    const [passwordText, setPasswordText] = useState("");
-    const [showEmailPlaceholder, setShowEmailPlaceholder] = useState(true);
-    const [showPasswordPlaceholder, setShowPasswordPlaceholder] =
-        useState(true);
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [loginFailed, setLoginFailed] = useState(false);
-
-    const emailInputRef = useRef(null);
-    const passwordInputRef = useRef(null);
-
-    const { t, i18n } = useTranslation();
-
-    // Determine font family based on current language
-    const fontFamily =
-        i18n.language === "ar"
-            ? "'Noto Sans Arabic', 'Tajawal', 'Cairo', sans-serif"
-            : "'Inter', 'Roboto', 'Helvetica Neue', sans-serif";
-
-    useEffect(() => {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (
-                    mutation.type === "attributes" &&
-                    mutation.attributeName === "class"
-                ) {
-                    setIsDarkMode(
-                        document.documentElement.classList.contains("dark")
-                    );
-                }
-
-                if (
-                    mutation.type === "attributes" &&
-                    (mutation.attributeName === "dir" ||
-                        mutation.attributeName === "lang")
-                ) {
-                    setIsRtl(document.documentElement.dir === "rtl");
-                }
-            });
-        });
-
-        observer.observe(document.documentElement, {
-            attributes: true,
-        });
-
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
-
-    // Animation for the email and password placeholders
-    useEffect(() => {
-        // Animation for email field
-        if (loginStep === "email" && showEmailPlaceholder && !data.email) {
-            const emailFullText = "My access email is...";
-            let emailCurrentIndex = 0;
-
-            const emailTypingInterval = setInterval(() => {
-                if (emailCurrentIndex <= emailFullText.length) {
-                    setEmailText(emailFullText.substring(0, emailCurrentIndex));
-                    emailCurrentIndex++;
-                } else {
-                    clearInterval(emailTypingInterval);
-                }
-            }, 100);
-
-            return () => clearInterval(emailTypingInterval);
-        }
-
-        // Animation for password field
-        if (
-            loginStep === "password" &&
-            showPasswordPlaceholder &&
-            !data.password
-        ) {
-            const passwordFullText = "Enter your password...";
-            let passwordCurrentIndex = 0;
-
-            // First phase: type out the text
-            const passwordTypingInterval = setInterval(() => {
-                if (passwordCurrentIndex <= passwordFullText.length) {
-                    setPasswordText(
-                        passwordFullText.substring(0, passwordCurrentIndex)
-                    );
-                    passwordCurrentIndex++;
-                } else {
-                    clearInterval(passwordTypingInterval);
-
-                    // After typing finishes, wait and then show asterisks
-                    setTimeout(() => {
-                        // Second phase: transition to asterisks
-                        let asterisks = "";
-                        const asteriskInterval = setInterval(() => {
-                            if (asterisks.length < 8) {
-                                asterisks += "*";
-                                setPasswordText(asterisks);
-                            } else {
-                                clearInterval(asteriskInterval);
-                            }
-                        }, 100);
-                    }, 800);
-                }
-            }, 100);
-
-            return () => clearInterval(passwordTypingInterval);
-        }
-    }, [
+    const {
+        data,
+        setData,
+        processing,
+        errors,
+        isDarkMode,
+        isRtl,
         loginStep,
+        emailText,
+        passwordText,
         showEmailPlaceholder,
+        setShowEmailPlaceholder,
         showPasswordPlaceholder,
-        data.email,
-        data.password,
-    ]);
+        setShowPasswordPlaceholder,
+        isPasswordVisible,
+        loginFailed,
+        emailInputRef,
+        passwordInputRef,
+        fontFamily,
+        t,
+        i18n,
+        handleEmailSubmit,
+        handlePasswordVisibility,
+        resetToEmailStep,
+        submit,
+    } = useLogin();
 
-    useEffect(() => {
-        if (loginStep === "email" && emailInputRef.current) {
-            emailInputRef.current.focus();
-        } else if (loginStep === "password" && passwordInputRef.current) {
-            passwordInputRef.current.focus();
-        }
-    }, [loginStep]);
-
-    const handleEmailSubmit = (e) => {
-        e.preventDefault();
-        if (data.email) {
-            setLoginStep("password");
-            // Reset password animation when switching to password step
-            setShowPasswordPlaceholder(true);
-            setPasswordText("");
-        }
-    };
-
-    const handlePasswordVisibility = () => {
-        setIsPasswordVisible((prevState) => !prevState);
-    };
-
-    const resetToEmailStep = () => {
-        setLoginStep("email");
-        setLoginFailed(false);
-    };
-
-    const submit = (e) => {
-        e.preventDefault();
-
-        // Simple direct approach to handle login
-        // Always submit the form to the server and let the backend handle validation
-        post(route("login"));
-
-        // The error message will not be shown when submitting
-        // It would only appear if the server returned an error response
-    };
-
-    // Background image URL
     const businessImageUrl = "/images/loginPix.jpeg";
 
     return (
@@ -185,33 +47,27 @@ export default function Login({ status, canResetPassword }) {
             <StarBackground />
             <Head title={t("auth.signIn")} />
 
-            {/* Main container with background image */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
                 className="w-full max-w-5xl overflow-hidden rounded-3xl shadow-2xl relative"
-                style={{
-                    minHeight: "500px",
-                }}
+                style={{ minHeight: "500px" }}
             >
                 {/* Background image */}
                 <div
                     className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                        backgroundImage: `url(${businessImageUrl})`,
-                    }}
-                ></div>
+                    style={{ backgroundImage: `url(${businessImageUrl})` }}
+                />
 
-                {/* Soft gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10"></div>
+                {/* Gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
 
                 <div className="relative h-full w-full">
-                    {/* Centered login card */}
                     <div className="flex justify-center items-center min-h-[500px] p-8">
                         <motion.div className="w-full max-w-md">
                             <div className="bg-gray-800/50 backdrop-blur-md rounded-2xl overflow-hidden shadow-xl text-white mb-6">
-                                {/* Controls bar - TopTools inside the card */}
+                                {/* TopTools */}
                                 <div
                                     className="flex justify-center items-center gap-4 p-4 my-10"
                                     dir="ltr"
@@ -236,6 +92,7 @@ export default function Login({ status, canResetPassword }) {
                                     </div>
                                 )}
 
+                                {/* Forms */}
                                 <div className="p-5 pb-8">
                                     <AnimatePresence mode="wait">
                                         {loginStep === "email" ? (
@@ -248,24 +105,50 @@ export default function Login({ status, canResetPassword }) {
                                                 onSubmit={handleEmailSubmit}
                                             >
                                                 <div className="relative">
+                                                    {/* Email Placeholder */}
                                                     <div
                                                         className={`${
                                                             data.email
                                                                 ? "hidden"
                                                                 : "block"
-                                                        } absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none`}
+                                                        } absolute ${
+                                                            isRtl
+                                                                ? "right-4"
+                                                                : "left-4"
+                                                        } top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none z-10`}
+                                                        style={{
+                                                            maxWidth:
+                                                                "calc(100% - 120px)",
+                                                            overflow: "hidden",
+                                                            whiteSpace:
+                                                                "nowrap",
+                                                            textOverflow:
+                                                                "ellipsis",
+                                                        }}
                                                     >
                                                         {emailText}
                                                     </div>
+
+                                                    {/* Email Input */}
                                                     <input
                                                         ref={emailInputRef}
                                                         id="email"
                                                         type="email"
                                                         name="email"
                                                         value={data.email}
-                                                        className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
+                                                        className={`w-full rounded-xl border-0 py-4 ${
+                                                            isRtl
+                                                                ? "pr-4 pl-20 text-right"
+                                                                : "pl-4 pr-20 text-left"
+                                                        } text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white`}
                                                         placeholder=""
                                                         autoComplete="username"
+                                                        dir={
+                                                            isRtl
+                                                                ? "rtl"
+                                                                : "ltr"
+                                                        }
+                                                        style={{ fontFamily }}
                                                         onChange={(e) => {
                                                             setData(
                                                                 "email",
@@ -275,15 +158,16 @@ export default function Login({ status, canResetPassword }) {
                                                                 false
                                                             );
                                                         }}
-                                                        style={{ fontFamily }}
                                                     />
+
+                                                    {/* Email Submit Button */}
                                                     <button
                                                         type="submit"
                                                         className={`absolute ${
                                                             isRtl
                                                                 ? "left-3"
                                                                 : "right-3"
-                                                        } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors ${
+                                                        } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors z-20 ${
                                                             !data.email
                                                                 ? "opacity-50 cursor-not-allowed"
                                                                 : ""
@@ -308,24 +192,46 @@ export default function Login({ status, canResetPassword }) {
                                                 onSubmit={submit}
                                             >
                                                 <div>
+                                                    {/* Logging in as */}
                                                     <div className="text-sm mb-2 text-gray-300">
                                                         <span>
-                                                            Logging in as{" "}
+                                                            {i18n.language ===
+                                                            "ar"
+                                                                ? "تسجيل الدخول باسم"
+                                                                : "Logging in as"}{" "}
                                                         </span>
                                                         <span className="font-semibold text-white">
                                                             {data.email}
                                                         </span>
                                                     </div>
+
                                                     <div className="relative">
+                                                        {/* Password Placeholder */}
                                                         <div
                                                             className={`${
                                                                 data.password
                                                                     ? "hidden"
                                                                     : "block"
-                                                            } absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none`}
+                                                            } absolute ${
+                                                                isRtl
+                                                                    ? "right-4"
+                                                                    : "left-4"
+                                                            } top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none z-10`}
+                                                            style={{
+                                                                maxWidth:
+                                                                    "calc(100% - 120px)",
+                                                                overflow:
+                                                                    "hidden",
+                                                                whiteSpace:
+                                                                    "nowrap",
+                                                                textOverflow:
+                                                                    "ellipsis",
+                                                            }}
                                                         >
                                                             {passwordText}
                                                         </div>
+
+                                                        {/* Password Input */}
                                                         <input
                                                             ref={
                                                                 passwordInputRef
@@ -340,9 +246,21 @@ export default function Login({ status, canResetPassword }) {
                                                             value={
                                                                 data.password
                                                             }
-                                                            className="w-full rounded-xl border-0 p-4 pr-12 text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white"
+                                                            className={`w-full rounded-xl border-0 py-4 ${
+                                                                isRtl
+                                                                    ? "pr-4 pl-20 text-right"
+                                                                    : "pl-4 pr-20 text-left"
+                                                            } text-gray-900 bg-gray-100/90 shadow-inner focus:ring-2 focus:ring-indigo-600 dark:bg-gray-700/70 dark:text-white`}
                                                             placeholder=""
                                                             autoComplete="current-password"
+                                                            dir={
+                                                                isRtl
+                                                                    ? "rtl"
+                                                                    : "ltr"
+                                                            }
+                                                            style={{
+                                                                fontFamily,
+                                                            }}
                                                             onChange={(e) => {
                                                                 setData(
                                                                     "password",
@@ -353,10 +271,9 @@ export default function Login({ status, canResetPassword }) {
                                                                     false
                                                                 );
                                                             }}
-                                                            style={{
-                                                                fontFamily,
-                                                            }}
                                                         />
+
+                                                        {/* Eye Toggle Button */}
                                                         <button
                                                             type="button"
                                                             className={`absolute top-1/2 transform -translate-y-1/2 ${
@@ -367,7 +284,7 @@ export default function Login({ status, canResetPassword }) {
                                                                 isPasswordVisible
                                                                     ? "text-indigo-500"
                                                                     : "text-gray-500"
-                                                            } hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors`}
+                                                            } hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors z-20`}
                                                             onClick={
                                                                 handlePasswordVisibility
                                                             }
@@ -377,24 +294,24 @@ export default function Login({ status, canResetPassword }) {
                                                                     : "Show password"
                                                             }
                                                         >
-                                                            {isPasswordVisible ? (
-                                                                <Eye
-                                                                    size={18}
-                                                                    className="fill-current"
-                                                                />
-                                                            ) : (
-                                                                <Eye
-                                                                    size={18}
-                                                                />
-                                                            )}
+                                                            <Eye
+                                                                size={18}
+                                                                className={
+                                                                    isPasswordVisible
+                                                                        ? "fill-current"
+                                                                        : ""
+                                                                }
+                                                            />
                                                         </button>
+
+                                                        {/* Password Submit Button */}
                                                         <button
                                                             type="submit"
                                                             className={`absolute ${
                                                                 isRtl
                                                                     ? "left-3"
                                                                     : "right-3"
-                                                            } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors ${
+                                                            } top-1/2 transform -translate-y-1/2 rounded-full p-2 bg-indigo-600 hover:bg-indigo-700 text-white transition-colors z-20 ${
                                                                 !data.password ||
                                                                 processing
                                                                     ? "opacity-50 cursor-not-allowed"
@@ -410,6 +327,7 @@ export default function Login({ status, canResetPassword }) {
                                                             />
                                                         </button>
                                                     </div>
+
                                                     <InputError
                                                         message={
                                                             errors.password
@@ -417,6 +335,7 @@ export default function Login({ status, canResetPassword }) {
                                                         className="mt-2"
                                                     />
 
+                                                    {/* Action buttons */}
                                                     <div className="mt-4 flex justify-between items-center">
                                                         <button
                                                             type="button"
@@ -425,7 +344,10 @@ export default function Login({ status, canResetPassword }) {
                                                             }
                                                             className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
                                                         >
-                                                            ← Change email
+                                                            {i18n.language ===
+                                                            "ar"
+                                                                ? "← تغيير الإيميل"
+                                                                : "← Change email"}
                                                         </button>
 
                                                         {canResetPassword && (
@@ -457,8 +379,9 @@ export default function Login({ status, canResetPassword }) {
                                                 className="mt-6 p-4 bg-red-500/20 backdrop-blur-sm rounded-xl text-center"
                                             >
                                                 <p className="text-sm font-medium text-white mb-2">
-                                                    Incorrect password. Forgot
-                                                    password?
+                                                    {i18n.language === "ar"
+                                                        ? "كلمة مرور خاطئة. نسيت كلمة المرور؟"
+                                                        : "Incorrect password. Forgot password?"}
                                                 </p>
                                                 <div className="flex justify-center space-x-4">
                                                     <Link
@@ -467,7 +390,9 @@ export default function Login({ status, canResetPassword }) {
                                                         )}
                                                         className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
                                                     >
-                                                        Reset password
+                                                        {i18n.language === "ar"
+                                                            ? "إعادة تعيين كلمة المرور"
+                                                            : "Reset password"}
                                                     </Link>
                                                     <Link
                                                         href="#"
@@ -478,7 +403,9 @@ export default function Login({ status, canResetPassword }) {
                                                         }
                                                         className="text-xs text-indigo-300 hover:text-indigo-200 transition-colors"
                                                     >
-                                                        Try again
+                                                        {i18n.language === "ar"
+                                                            ? "حاول مرة أخرى"
+                                                            : "Try again"}
                                                     </Link>
                                                 </div>
                                             </motion.div>
@@ -487,7 +414,7 @@ export default function Login({ status, canResetPassword }) {
                                 </div>
                             </div>
 
-                            {/* Registration link outside the card - matching register style */}
+                            {/* Registration link */}
                             <div className="text-center px-4">
                                 <p className="text-sm text-white bg-gray-800/40 backdrop-blur-sm inline-block px-4 py-2 rounded-full">
                                     {t("auth.noAccount")}{" "}

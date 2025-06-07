@@ -954,23 +954,18 @@ export default function SubscriptionPlans({
                                         whileHover={{
                                             x: currentLocale === "ar" ? -5 : 5,
                                         }}
-                                        style={{
-                                            direction:
-                                                currentLocale === "ar"
-                                                    ? "rtl"
-                                                    : "ltr",
-                                        }}
                                     >
                                         <h3
-                                            className="text-lg font-semibold text-gray-900 dark:text-white mb-3"
+                                            className={`text-lg font-semibold text-gray-900 dark:text-white mb-3 ${
+                                                currentLocale === "ar"
+                                                    ? "text-right"
+                                                    : "text-left"
+                                            }`}
                                             style={{
-                                                direction: "rtl",
-                                                textAlign: "right",
                                                 fontFamily:
                                                     currentLocale === "ar"
                                                         ? "'Cairo', 'Tajawal', sans-serif"
                                                         : "inherit",
-                                                unicodeBidi: "embed",
                                             }}
                                         >
                                             {currentLocale === "ar"
@@ -981,15 +976,16 @@ export default function SubscriptionPlans({
                                                   )}
                                         </h3>
                                         <p
-                                            className="text-gray-600 dark:text-gray-400 leading-relaxed"
+                                            className={`text-gray-600 dark:text-gray-400 leading-relaxed ${
+                                                currentLocale === "ar"
+                                                    ? "text-right"
+                                                    : "text-left"
+                                            }`}
                                             style={{
-                                                direction: "rtl",
-                                                textAlign: "right",
                                                 fontFamily:
                                                     currentLocale === "ar"
                                                         ? "'Cairo', 'Tajawal', sans-serif"
                                                         : "inherit",
-                                                unicodeBidi: "embed",
                                             }}
                                         >
                                             {currentLocale === "ar"
@@ -1000,7 +996,6 @@ export default function SubscriptionPlans({
                                                   )}
                                         </p>
                                     </motion.div>
-
                                     <motion.div
                                         className="border-b border-gray-200 dark:border-gray-700 pb-6"
                                         whileHover={{
