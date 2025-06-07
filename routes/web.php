@@ -16,7 +16,8 @@ use Inertia\Inertia;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/lang/{locale}', function ($locale) {
+Route::get('/lang/{locale}', function ($locale)
+{
     session(['locale' => $locale]);
     return redirect()->back();
 });
@@ -26,7 +27,8 @@ Route::get('/lang/{locale}', function ($locale) {
 | Welcome Page (Landing Page)
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
+Route::get('/', function ()
+{
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -40,8 +42,10 @@ Route::get('/', function () {
 | Dashboard
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
+Route::middleware(['auth'])->group(function ()
+{
+    Route::get('/dashboard', function ()
+    {
         return Inertia::render('Dashboard/Dashboard');
     })->name('dashboard');
 });
@@ -51,7 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | User Profile Management
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function ()
+{
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -62,14 +67,16 @@ Route::middleware('auth')->group(function () {
 | Protected Routes (Auth + Verified)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function ()
+{
 
     /*
     |--------------------------------------------------------------------------
     | Projects Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('projects')->name('projects.')->group(function () {
+    Route::prefix('projects')->name('projects.')->group(function ()
+    {
         Route::get('/', [ProjectController::class, 'index'])->name('index');
         Route::get('/create', [ProjectController::class, 'create'])->name('create');
         Route::post('/', [ProjectController::class, 'store'])->name('store');
@@ -89,7 +96,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Plans Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('plans')->name('plans.')->group(function () {
+    Route::prefix('plans')->name('plans.')->group(function ()
+    {
         Route::get('/', [PlanController::class, 'index'])->name('index');
         Route::get('/create', [PlanController::class, 'create'])->name('create');
         Route::post('/', [PlanController::class, 'store'])->name('store');
@@ -108,7 +116,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Direct AI Planner Route
     |--------------------------------------------------------------------------
     */
-    Route::get('/create-with-ai', function () {
+    Route::get('/create-with-ai', function ()
+    {
         $user = auth()->user();
         return Inertia::render('Plans/AiPlanner', [
             'projects' => $user->projects
@@ -120,7 +129,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Contract Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('contracts')->name('contracts.')->group(function () {
+    Route::prefix('contracts')->name('contracts.')->group(function ()
+    {
         Route::get('/', [ContractController::class, 'index'])->name('index');
         Route::get('/create', [ContractController::class, 'create'])->name('create');
         Route::post('/', [ContractController::class, 'store'])->name('store');
@@ -135,7 +145,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Subscription Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+    Route::prefix('subscriptions')->name('subscriptions.')->group(function ()
+    {
         Route::get('/', [SubscriptionController::class, 'index'])->name('index');
         Route::get('/plans', [SubscriptionController::class, 'plans'])->name('plans');
         Route::post('/free', [SubscriptionController::class, 'createFreeSubscription'])->name('create-free');
@@ -150,7 +161,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Payment Routes
     |--------------------------------------------------------------------------
     */
-    Route::prefix('payments')->name('payments.')->group(function () {
+    Route::prefix('payments')->name('payments.')->group(function ()
+    {
         Route::get('/checkout', [PaymentController::class, 'checkout'])->name('checkout');
         Route::post('/process', [PaymentController::class, 'process'])->name('process');
         Route::post('/cancel-subscription', [PaymentController::class, 'cancelSubscription'])->name('cancel-subscription');
@@ -167,10 +179,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | API v1 Routes (Sanctum Authentication)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')->group(function () {
-        Route::prefix('subscriptions')->name('subscriptions.')->group(function () {
+    Route::middleware(['auth:sanctum'])->prefix('api/v1')->name('api.v1.')->group(function ()
+    {
+        Route::prefix('subscriptions')->name('subscriptions.')->group(function ()
+        {
             Route::get('/current', [SubscriptionController::class, 'status'])->name('current');
-            Route::get('/plans', function () {
+            Route::get('/plans', function ()
+            {
                 return response()->json([
                     'free' => ['name' => 'مجاني', 'price' => 0],
                     'monthly' => ['name' => 'شهري', 'price' => 29.99],
@@ -186,7 +201,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Webhook Routes (No Authentication)
 |--------------------------------------------------------------------------
 */
-Route::prefix('webhooks')->name('webhooks.')->group(function () {
+Route::prefix('webhooks')->name('webhooks.')->group(function ()
+{
     // Meeser payment callback/webhook
     Route::post('/meeser/callback', [PaymentController::class, 'callback'])->name('meeser.callback');
 });
