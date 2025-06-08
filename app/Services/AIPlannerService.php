@@ -294,14 +294,6 @@ class AIPlannerService
     }
 
 
-
-
-
-
-
-
-
-
     /**
      * Generate first question based on business idea and project context
      */
