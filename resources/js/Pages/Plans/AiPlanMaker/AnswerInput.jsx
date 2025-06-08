@@ -23,7 +23,58 @@ export default function AnswerInput({
     const isNumericQuestion = question?.type === "number";
     const isCostBreakdownQuestion = question?.type === "cost_breakdown";
 
-    // Auto-focus the input when component mounts or question changes
+    // Smart auto-resize textarea function with proper scrolling
+    const autoResize = (textarea) => {
+        if (!textarea) return;
+
+        // Reset height to auto to get the correct scrollHeight
+        textarea.style.height = "auto";
+
+        const minHeight = 144; // 9rem
+        const maxHeight = 400; // 25rem - reasonable max before scrolling
+        const scrollHeight = textarea.scrollHeight;
+
+        if (scrollHeight <= maxHeight) {
+            // Auto-resize if content fits within max height
+            const newHeight = Math.max(minHeight, scrollHeight);
+            textarea.style.height = newHeight + "px";
+            textarea.style.overflowY = "hidden";
+        } else {
+            // Enable scrolling if content exceeds max height
+            textarea.style.height = maxHeight + "px";
+            textarea.style.overflowY = "auto";
+
+            // Ensure the textarea can be scrolled with mouse wheel
+            textarea.style.scrollBehavior = "smooth";
+        }
+    };
+
+    // Enhanced textarea input with mouse wheel support
+    useEffect(() => {
+        const textarea = textareaRef.current;
+        if (!textarea || isNumericQuestion || isCostBreakdownQuestion) return;
+
+        // Handle mouse wheel scrolling
+        const handleWheel = (e) => {
+            // Check if textarea has scrollable content
+            if (textarea.scrollHeight > textarea.clientHeight) {
+                e.stopPropagation(); // Prevent page scroll when scrolling textarea
+
+                const delta = e.deltaY;
+                textarea.scrollTop += delta;
+            }
+        };
+
+        // Add event listener
+        textarea.addEventListener("wheel", handleWheel, { passive: false });
+
+        // Cleanup
+        return () => {
+            textarea.removeEventListener("wheel", handleWheel);
+        };
+    }, [isNumericQuestion, isCostBreakdownQuestion]);
+
+    // Auto-focus and setup resize observer
     useEffect(() => {
         if (autoFocus && !disabled && !isCostBreakdownQuestion) {
             const element = isNumericQuestion
@@ -31,6 +82,11 @@ export default function AnswerInput({
                 : textareaRef.current;
             if (element) {
                 element.focus();
+
+                // Auto-resize for textarea
+                if (!isNumericQuestion && textareaRef.current) {
+                    autoResize(textareaRef.current);
+                }
             }
         }
     }, [
@@ -40,6 +96,23 @@ export default function AnswerInput({
         isNumericQuestion,
         isCostBreakdownQuestion,
     ]);
+
+    // Auto-resize when answer changes
+    useEffect(() => {
+        if (
+            !isNumericQuestion &&
+            !isCostBreakdownQuestion &&
+            textareaRef.current
+        ) {
+            autoResize(textareaRef.current);
+        }
+    }, [answer, isNumericQuestion, isCostBreakdownQuestion]);
+
+    // Handle textarea input with auto-resize
+    const handleTextareaChange = (e) => {
+        onChange(e.target.value);
+        autoResize(e.target);
+    };
 
     // Handle keyboard events
     const handleKeyDown = (e) => {
@@ -127,6 +200,12 @@ export default function AnswerInput({
 
             if (result.success && result.suggested_answer) {
                 onChange(result.suggested_answer);
+                // Auto-resize after AI content is added
+                setTimeout(() => {
+                    if (textareaRef.current) {
+                        autoResize(textareaRef.current);
+                    }
+                }, 100);
             } else {
                 console.error("AI Answer Error:", result.message);
                 alert(
@@ -238,15 +317,22 @@ export default function AnswerInput({
                 <textarea
                     ref={textareaRef}
                     value={answer}
-                    onChange={(e) => onChange(e.target.value)}
+                    onChange={handleTextareaChange}
                     onKeyDown={handleKeyDown}
                     placeholder={
                         placeholder ||
                         t("enter_answer_placeholder", "Share your thoughts...")
                     }
-                    className="creative-textarea"
+                    className="enhanced-auto-textarea"
                     autoFocus={autoFocus}
                     disabled={disabled}
+                    style={{
+                        minHeight: "144px", // 9rem equivalent
+                        maxHeight: "400px",
+                        height: "auto",
+                        resize: "none",
+                        overflow: "hidden", // Hide scrollbar, let auto-resize handle it
+                    }}
                 />
 
                 {/* Enhanced character counter */}
