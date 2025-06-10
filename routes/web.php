@@ -215,30 +215,72 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
 |--------------------------------------------------------------------------
 */
 
+Route::get('/test-email-detailed', function ()
+{
+    try
+    {
+        // Test 1: Send to admin email
+        Mail::raw('Test email #1 - This is a test from Laravel to admin@firstdraft.sa', function ($message)
+        {
+            $message->to('admin@firstdraft.sa')
+                ->subject('Laravel Test Email - Admin')
+                ->from('contact@firstdraft.sa', 'First Draft Test');
+        });
 
+        // Test 2: Send to a different email (like Gmail) to see if it reaches
+        Mail::raw('Test email #2 - This is a test from Laravel to external email', function ($message)
+        {
+            $message->to('nsma22k@gmail.com') // The email from your contact form test
+                ->subject('Laravel Test Email - External')
+                ->from('contact@firstdraft.sa', 'First Draft Test');
+        });
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Both emails sent successfully!',
+            'details' => [
+                'email_1' => 'Sent to admin@firstdraft.sa',
+                'email_2' => 'Sent to nsma22k@gmail.com',
+                'from' => 'contact@firstdraft.sa',
+                'smtp_host' => config('mail.mailers.smtp.host'),
+                'smtp_port' => config('mail.mailers.smtp.port'),
+            ],
+            'instructions' => [
+                'Check admin@firstdraft.sa inbox and spam folder',
+                'Check nsma22k@gmail.com inbox and spam folder',
+                'If Gmail receives it but admin@firstdraft.sa doesn\'t, there\'s an issue with your domain email setup'
+            ]
+        ]);
+    }
+    catch (\Exception $e)
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+    }
+});
 
-Route::get('/debug-auth', function ()
+// Add this route to check your email server settings
+Route::get('/check-email-server', function ()
 {
     return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => auth()->id(),
-        'user' => auth()->user(),
-        'session_id' => session()->getId(),
-        'guard' => config('auth.defaults.guard'),
-    ]);
-})->name('debug.auth');
-
-
-// Add this to routes/web.php temporarily
-Route::get('/debug-project/{project}', function (Project $project)
-{
-    return response()->json([
-        'project_id' => $project->id,
-        'project_user_id' => $project->user_id,
-        'authenticated_user_id' => auth()->id(),
-        'owns_project' => $project->user_id === auth()->id(),
-        'project' => $project,
+        'mail_config' => [
+            'mailer' => config('mail.default'),
+            'host' => config('mail.mailers.smtp.host'),
+            'port' => config('mail.mailers.smtp.port'),
+            'username' => config('mail.mailers.smtp.username'),
+            'encryption' => config('mail.mailers.smtp.encryption'),
+            'from_address' => config('mail.from.address'),
+            'from_name' => config('mail.from.name'),
+        ],
+        'server_info' => [
+            'php_version' => PHP_VERSION,
+            'server_time' => date('Y-m-d H:i:s'),
+            'timezone' => date_default_timezone_get(),
+        ]
     ]);
 });
 

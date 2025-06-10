@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ContactController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +20,8 @@ use App\Models\Plan;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum'])->get('/user', function (Request $request)
+{
     return $request->user();
 });
 
@@ -27,7 +30,8 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 | AI Business Plan API Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum'])->prefix('ai')->name('api.ai.')->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('ai')->name('api.ai.')->group(function ()
+{
     // Business plan creation routes
     Route::post('/start-business-plan', [PlanController::class, 'startBusinessPlan'])->name('start-business-plan');
     Route::post('/next-question', [PlanController::class, 'getNextQuestion'])->name('next-question');
@@ -43,12 +47,16 @@ Route::middleware(['auth:sanctum'])->prefix('ai')->name('api.ai.')->group(functi
 | Plan Status API Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum'])->prefix('plans')->name('api.plans.')->group(function () {
+Route::middleware(['auth:sanctum'])->prefix('plans')->name('api.plans.')->group(function ()
+{
     // Plan status check
-    Route::get('/{plan}/status', function (Plan $plan) {
-        try {
+    Route::get('/{plan}/status', function (Plan $plan)
+    {
+        try
+        {
             // Ensure the authenticated user owns this plan
-            if ($plan->project->user_id !== auth()->id()) {
+            if ($plan->project->user_id !== auth()->id())
+            {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
@@ -63,7 +71,9 @@ Route::middleware(['auth:sanctum'])->prefix('plans')->name('api.plans.')->group(
                 'is_generating' => $plan->isGenerating(),
                 'has_failed' => $plan->hasFailed()
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Error checking plan status: ' . $e->getMessage());
             return response()->json([
                 'status' => 'unknown',
@@ -79,9 +89,12 @@ Route::middleware(['auth:sanctum'])->prefix('plans')->name('api.plans.')->group(
 | Debug API Routes
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth:sanctum'])->prefix('debug')->name('api.debug.')->group(function () {
-    Route::post('/ai-answer', function (Request $request) {
-        try {
+Route::middleware(['auth:sanctum'])->prefix('debug')->name('api.debug.')->group(function ()
+{
+    Route::post('/ai-answer', function (Request $request)
+    {
+        try
+        {
             Log::info('Debug route hit', ['data' => $request->all()]);
 
             $helper = app(App\Services\AIPlannAnswerHelper::class);
@@ -101,7 +114,9 @@ Route::middleware(['auth:sanctum'])->prefix('debug')->name('api.debug.')->group(
                     'helper_loaded' => true
                 ]
             ]);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e)
+        {
             Log::error('Debug route error', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -117,4 +132,25 @@ Route::middleware(['auth:sanctum'])->prefix('debug')->name('api.debug.')->group(
             ], 500);
         }
     })->name('ai-answer');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Contact API Routes
+|--------------------------------------------------------------------------
+| Add these routes to your routes/api.php file
+*/
+
+// Public contact form submission (no authentication required)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Protected contact management routes (require authentication)
+Route::middleware(['auth:sanctum'])->group(function ()
+{
+    Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
+    Route::get('/contacts/stats', [ContactController::class, 'stats'])->name('contacts.stats');
+    Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
+    Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.update-status');
+    Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 });

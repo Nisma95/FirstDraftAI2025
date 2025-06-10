@@ -1,3 +1,4 @@
+// Updated Contact component with API integration
 import React, { useState, useEffect, useRef } from "react";
 import { Slash } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -18,16 +19,19 @@ const Contact = () => {
     const [activeField, setActiveField] = useState(null);
     const [isSubmitActive, setIsSubmitActive] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitMessage, setSubmitMessage] = useState("");
+    const [submitError, setSubmitError] = useState("");
     const [animated, setAnimated] = useState(false);
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
     const [stars, setStars] = useState([]);
 
-    // Track mouse position for particle effects - with throttling for performance
+    // Your existing useEffect hooks for mouse tracking and stars...
     useEffect(() => {
         let timeoutId = null;
 
         const handleMouseMove = (e) => {
-            if (timeoutId) return; // Skip if we're throttling
+            if (timeoutId) return;
 
             timeoutId = setTimeout(() => {
                 if (containerRef.current) {
@@ -38,7 +42,7 @@ const Contact = () => {
                     });
                 }
                 timeoutId = null;
-            }, 50); // Throttle to 50ms
+            }, 50);
         };
 
         window.addEventListener("mousemove", handleMouseMove);
@@ -48,9 +52,7 @@ const Contact = () => {
         };
     }, []);
 
-    // Generate stars for background effect
     useEffect(() => {
-        // Reduce number of stars for better performance
         const newStars = Array.from({ length: 15 }, (_, i) => ({
             id: i,
             x: Math.random() * 100,
@@ -63,7 +65,6 @@ const Contact = () => {
         setStars(newStars);
     }, []);
 
-    // Apply animation on component mount - with simpler transitions
     useEffect(() => {
         if (!animated && formRef.current) {
             const formElements =
@@ -92,6 +93,9 @@ const Contact = () => {
             ...prevState,
             [name]: value,
         }));
+
+        // Clear any previous error messages
+        setSubmitError("");
     };
 
     // Handle input focus
@@ -111,23 +115,79 @@ const Contact = () => {
         setIsSubmitActive(hasContent);
     };
 
-    // Handle form submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Form submitted:", formData);
-        setSubmitted(true);
+    // API submission function
+    const submitToAPI = async (data) => {
+        const response = await fetch("/api/contact", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                // Include CSRF token if using Laravel Sanctum
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute("content"),
+            },
+            body: JSON.stringify(data),
+        });
 
-        // Reset form after successful submission
-        setTimeout(() => {
-            setFormData({
-                name: "",
-                company: "",
-                email: "",
-                message: "",
-            });
-            setIsSubmitActive(false);
-            setSubmitted(false);
-        }, 3000);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Network response was not ok");
+        }
+
+        return response.json();
+    };
+
+    // Handle form submission
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Validate form
+        if (
+            !formData.name.trim() ||
+            !formData.email.trim() ||
+            !formData.message.trim()
+        ) {
+            setSubmitError("Please fill in all required fields.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setSubmitError("");
+
+        try {
+            const result = await submitToAPI(formData);
+
+            if (result.success) {
+                setSubmitted(true);
+                setSubmitMessage(
+                    result.message ||
+                        "Thank you for your message! We'll get back to you soon."
+                );
+
+                // Reset form after successful submission
+                setTimeout(() => {
+                    setFormData({
+                        name: "",
+                        company: "",
+                        email: "",
+                        message: "",
+                    });
+                    setIsSubmitActive(false);
+                    setSubmitted(false);
+                    setSubmitMessage("");
+                }, 3000);
+            } else {
+                setSubmitError(
+                    result.message || "Something went wrong. Please try again."
+                );
+            }
+        } catch (error) {
+            console.error("Contact form submission error:", error);
+            setSubmitError("Failed to send message. Please try again later.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const inputStyles = (fieldName) => ({
@@ -142,7 +202,7 @@ const Contact = () => {
                 : "1px solid rgba(107, 114, 128, 0.6)",
         paddingBottom: "6px",
         outline: "none",
-        color: "currentColor", // Use currentColor to inherit from parent
+        color: "currentColor",
         boxShadow: "none",
         borderRadius: 0,
         WebkitAppearance: "none",
@@ -212,6 +272,20 @@ const Contact = () => {
                     </div>
                 </div>
 
+                {/* Error Message */}
+                {submitError && (
+                    <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded animate-item">
+                        {submitError}
+                    </div>
+                )}
+
+                {/* Success Message */}
+                {submitted && submitMessage && (
+                    <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded animate-item">
+                        {submitMessage}
+                    </div>
+                )}
+
                 {/* Name Field */}
                 <div className="mb-10 animate-item overflow-hidden">
                     <div
@@ -240,6 +314,7 @@ const Contact = () => {
                             placeholder={t("contact.name_placeholder")}
                             style={inputStyles("name")}
                             required
+                            disabled={isSubmitting}
                         />
                     </div>
                 </div>
@@ -271,6 +346,7 @@ const Contact = () => {
                             className="w-full placeholder-gray-500 dark:placeholder-gray-400"
                             placeholder={t("contact.company_placeholder")}
                             style={inputStyles("company")}
+                            disabled={isSubmitting}
                         />
                     </div>
                 </div>
@@ -303,6 +379,7 @@ const Contact = () => {
                             placeholder={t("contact.email_placeholder")}
                             style={inputStyles("email")}
                             required
+                            disabled={isSubmitting}
                         />
                     </div>
                 </div>
@@ -323,66 +400,78 @@ const Contact = () => {
                                 <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 animate-pulse"></div>
                             )}
                         </label>
-                        <input
-                            type="text"
+                        <textarea
                             id="message"
                             name="message"
                             value={formData.message}
                             onChange={handleChange}
                             onFocus={() => handleFocus("message")}
                             onBlur={handleBlur}
-                            className="w-full placeholder-gray-500 dark:placeholder-gray-400"
+                            className="w-full placeholder-gray-500 dark:placeholder-gray-400 resize-none"
                             placeholder={t("contact.message_placeholder")}
-                            style={inputStyles("message")}
+                            style={{
+                                ...inputStyles("message"),
+                                minHeight: "100px",
+                            }}
+                            rows="4"
                             required
+                            disabled={isSubmitting}
                         />
                     </div>
                 </div>
 
-                {/* Submit Button with dark/light mode aware styling */}
+                {/* Submit Button with loading state */}
                 <div className="mt-10 animate-item">
                     <button
                         type="submit"
                         className={`group flex items-center ${
                             isRTL ? "flex-row-reverse" : ""
                         } justify-between w-full rounded-full py-4 px-5 text-2xl font-bold transition-all duration-300 relative overflow-hidden ${
-                            isSubmitActive
+                            isSubmitActive && !isSubmitting
                                 ? "Fdbg text-white"
                                 : "bg-gray-200 text-gray-800 dark:bg-white dark:text-black"
+                        } ${
+                            isSubmitting ? "opacity-75 cursor-not-allowed" : ""
                         }`}
                         style={{ borderRadius: "9999px" }}
-                        disabled={submitted}
+                        disabled={submitted || isSubmitting}
                     >
                         <span
                             className={`transition-all duration-300 relative z-10 ${
                                 submitted ? "animate-pulse" : ""
                             }`}
                         >
-                            {submitted
-                                ? t("contact.thanks_message")
+                            {isSubmitting
+                                ? "Sending..."
+                                : submitted
+                                ? submitMessage || t("contact.thanks_message")
                                 : t("contact.submit_button")}
                         </span>
 
                         {/* Button background effect */}
-                        {isSubmitActive && !submitted && (
+                        {isSubmitActive && !submitted && !isSubmitting && (
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-500 to-purple-600 opacity-90 background-animate"></div>
                         )}
 
                         <div
                             className={`flex items-center justify-center h-8 w-8 rounded-full transition-all duration-300 ${
-                                isSubmitActive
+                                isSubmitActive && !isSubmitting
                                     ? "bg-black text-white"
                                     : "bg-gray-800 text-white dark:bg-black dark:text-white"
                             }`}
                             style={{ borderRadius: "9999px" }}
                         >
-                            <Slash
-                                size={16}
-                                strokeWidth={5}
-                                className={`transition-transform duration-300 ${
-                                    isSubmitActive ? "rotate-[90deg]" : ""
-                                }`}
-                            />
+                            {isSubmitting ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                                <Slash
+                                    size={16}
+                                    strokeWidth={5}
+                                    className={`transition-transform duration-300 ${
+                                        isSubmitActive ? "rotate-[90deg]" : ""
+                                    }`}
+                                />
+                            )}
                         </div>
                     </button>
                 </div>
@@ -418,14 +507,16 @@ const Contact = () => {
 
                 /* Light mode specific styles */
                 @media (prefers-color-scheme: light) {
-                    input::placeholder {
+                    input::placeholder,
+                    textarea::placeholder {
                         color: rgba(107, 114, 128, 0.8);
                     }
                 }
 
                 /* Dark mode specific styles */
                 @media (prefers-color-scheme: dark) {
-                    input::placeholder {
+                    input::placeholder,
+                    textarea::placeholder {
                         color: rgba(209, 213, 219, 0.8);
                     }
                 }
