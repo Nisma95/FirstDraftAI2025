@@ -115,43 +115,77 @@ const Contact = () => {
         setIsSubmitActive(hasContent);
     };
 
-    // API submission function
     const submitToAPI = async (data) => {
+        console.log("🚀 Submitting to API:", data);
+
         try {
-            // Make sure you're using the correct URL
             const response = await fetch("/api/contact", {
-                // ← This should be /api/contact
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json",
-                    // Add CSRF token if needed
-                    "X-CSRF-TOKEN": document
-                        .querySelector('meta[name="csrf-token"]')
-                        ?.getAttribute("content"),
+                    // Add CSRF token from meta tag if it exists
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
                 },
                 body: JSON.stringify(data),
             });
 
-            console.log("Response status:", response.status);
-            console.log("Response headers:", response.headers);
+            console.log("📡 Response status:", response.status);
+            console.log("📡 Response URL:", response.url);
+
+            // Log the raw response for debugging
+            const responseText = await response.text();
+            console.log("📄 Raw response:", responseText);
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error("Response error:", errorText);
-                throw new Error(`HTTP ${response.status}: ${errorText}`);
+                console.error(
+                    "❌ Response not OK:",
+                    response.status,
+                    responseText
+                );
+                throw new Error(`HTTP ${response.status}: ${responseText}`);
             }
 
-            const result = await response.json();
-            console.log("Success response:", result);
+            // Parse the JSON response
+            const result = JSON.parse(responseText);
+            console.log("✅ Parsed result:", result);
+
             return result;
         } catch (error) {
-            console.error("API submission error:", error);
+            console.error("💥 API Error:", error);
+
+            // If fetch fails, try with full URL as backup
+            try {
+                console.log("🔄 Trying full URL...");
+                const backupResponse = await fetch(
+                    "https://firstdraft.sa/api/contact",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Accept: "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    }
+                );
+
+                if (backupResponse.ok) {
+                    const backupResult = await backupResponse.json();
+                    console.log("✅ Backup URL worked:", backupResult);
+                    return backupResult;
+                }
+            } catch (backupError) {
+                console.error("💥 Backup URL failed:", backupError);
+            }
+
             throw error;
         }
     };
 
-    // Handle form submission
+    // Also update your handleSubmit function to include better error handling:
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -165,11 +199,14 @@ const Contact = () => {
             return;
         }
 
+        console.log("📝 Form data being submitted:", formData);
+
         setIsSubmitting(true);
         setSubmitError("");
 
         try {
             const result = await submitToAPI(formData);
+            console.log("🎯 Final result:", result);
 
             if (result.success) {
                 setSubmitted(true);
@@ -196,8 +233,10 @@ const Contact = () => {
                 );
             }
         } catch (error) {
-            console.error("Contact form submission error:", error);
-            setSubmitError("Failed to send message. Please try again later.");
+            console.error("💔 Contact form submission failed:", error);
+            setSubmitError(
+                `Failed to send message: ${error.message}. Please try again later.`
+            );
         } finally {
             setIsSubmitting(false);
         }
