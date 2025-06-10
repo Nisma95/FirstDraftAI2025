@@ -219,28 +219,27 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
 });
 
 
-Route::get('/test-api-contact', function ()
+
+
+Route::get('/test-direct-api', function ()
 {
     try
     {
-        // Create a fake request to test your controller
-        $request = new \Illuminate\Http\Request();
-        $request->merge([
-            'name' => 'API Test User',
+        // Make a direct HTTP POST request to your API
+        $response = \Illuminate\Support\Facades\Http::post(url('/api/contact'), [
+            'name' => 'Direct API Test',
             'company' => 'Test Company',
             'email' => 'nsma22k@gmail.com',
-            'message' => 'This is a test message to check if the API controller is working.'
+            'message' => 'This is a direct test of the /api/contact endpoint.'
         ]);
-
-        // Call your actual controller method
-        $controller = new ContactController();
-        $response = $controller->store($request);
 
         return response()->json([
             'success' => true,
-            'message' => 'Controller test completed',
-            'controller_response' => $response->getData(),
-            'status_code' => $response->getStatusCode()
+            'message' => 'Direct API test completed',
+            'api_url' => url('/api/contact'),
+            'status_code' => $response->status(),
+            'response_body' => $response->json(),
+            'response_headers' => $response->headers()
         ]);
     }
     catch (\Exception $e)
@@ -248,42 +247,10 @@ Route::get('/test-api-contact', function ()
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'api_url' => url('/api/contact')
         ]);
     }
 });
-
-// Add this route to check if your API route is accessible
-Route::get('/check-api-route', function ()
-{
-    try
-    {
-        $response = \Illuminate\Support\Facades\Http::post(url('/api/contact'), [
-            'name' => 'HTTP Test User',
-            'company' => 'HTTP Test Company',
-            'email' => 'nsma22k@gmail.com',
-            'message' => 'This is a test via HTTP client to check API route.'
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'API route test completed',
-            'status' => $response->status(),
-            'body' => $response->json(),
-            'url_tested' => url('/api/contact')
-        ]);
-    }
-    catch (\Exception $e)
-    {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage(),
-            'url_tested' => url('/api/contact')
-        ]);
-    }
-});
-
-
 
 /*
 |--------------------------------------------------------------------------
