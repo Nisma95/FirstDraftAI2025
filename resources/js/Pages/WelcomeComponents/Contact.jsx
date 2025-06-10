@@ -117,25 +117,38 @@ const Contact = () => {
 
     // API submission function
     const submitToAPI = async (data) => {
-        const response = await fetch("/api/contact", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-                // Include CSRF token if using Laravel Sanctum
-                "X-CSRF-TOKEN": document
-                    .querySelector('meta[name="csrf-token"]')
-                    ?.getAttribute("content"),
-            },
-            body: JSON.stringify(data),
-        });
+        try {
+            // Make sure you're using the correct URL
+            const response = await fetch("/api/contact", {
+                // ← This should be /api/contact
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    // Add CSRF token if needed
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute("content"),
+                },
+                body: JSON.stringify(data),
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || "Network response was not ok");
+            console.log("Response status:", response.status);
+            console.log("Response headers:", response.headers);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Response error:", errorText);
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+
+            const result = await response.json();
+            console.log("Success response:", result);
+            return result;
+        } catch (error) {
+            console.error("API submission error:", error);
+            throw error;
         }
-
-        return response.json();
     };
 
     // Handle form submission

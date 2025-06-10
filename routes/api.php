@@ -143,7 +143,6 @@ Route::middleware(['auth:sanctum'])->prefix('debug')->name('api.debug.')->group(
 |--------------------------------------------------------------------------
 | Add these routes to your routes/api.php file
 */
-
 // Public contact form submission (no authentication required)
 Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 

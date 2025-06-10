@@ -5,6 +5,7 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ContactController;
 
 use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
@@ -218,7 +219,69 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
 });
 
 
+Route::get('/test-api-contact', function ()
+{
+    try
+    {
+        // Create a fake request to test your controller
+        $request = new \Illuminate\Http\Request();
+        $request->merge([
+            'name' => 'API Test User',
+            'company' => 'Test Company',
+            'email' => 'nsma22k@gmail.com',
+            'message' => 'This is a test message to check if the API controller is working.'
+        ]);
 
+        // Call your actual controller method
+        $controller = new ContactController();
+        $response = $controller->store($request);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Controller test completed',
+            'controller_response' => $response->getData(),
+            'status_code' => $response->getStatusCode()
+        ]);
+    }
+    catch (\Exception $e)
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+    }
+});
+
+// Add this route to check if your API route is accessible
+Route::get('/check-api-route', function ()
+{
+    try
+    {
+        $response = \Illuminate\Support\Facades\Http::post(url('/api/contact'), [
+            'name' => 'HTTP Test User',
+            'company' => 'HTTP Test Company',
+            'email' => 'nsma22k@gmail.com',
+            'message' => 'This is a test via HTTP client to check API route.'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'API route test completed',
+            'status' => $response->status(),
+            'body' => $response->json(),
+            'url_tested' => url('/api/contact')
+        ]);
+    }
+    catch (\Exception $e)
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'url_tested' => url('/api/contact')
+        ]);
+    }
+});
 
 
 
