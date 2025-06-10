@@ -5,7 +5,6 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\ContactController;
 
 use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
@@ -219,26 +218,6 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
 });
 
 
-
-/*
-|--------------------------------------------------------------------------
-| Contact API Routes
-|--------------------------------------------------------------------------
-| Add these routes to your routes/api.php file
-*/
-
-// Public contact form submission (no authentication required)
-Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
-
-// Protected contact management routes (require authentication)
-Route::middleware(['auth:sanctum'])->group(function ()
-{
-    Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
-    Route::get('/contacts/stats', [ContactController::class, 'stats'])->name('contacts.stats');
-    Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
-    Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.update-status');
-    Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
-});
 
 
 
