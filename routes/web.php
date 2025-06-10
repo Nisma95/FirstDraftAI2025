@@ -5,10 +5,18 @@ use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ContactController;
+
 use App\Http\Controllers\PaymentController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mime\Email;
 
 use App\Models\Project;  // Add this line
 
@@ -209,46 +217,62 @@ Route::prefix('webhooks')->name('webhooks.')->group(function ()
     Route::post('/meeser/callback', [PaymentController::class, 'callback'])->name('meeser.callback');
 });
 
+
+
 /*
 |--------------------------------------------------------------------------
-| Authentication Routes
+| Contact API Routes
 |--------------------------------------------------------------------------
+| Add these routes to your routes/api.php file
 */
 
-Route::get('/test-email-detailed', function ()
+// Public contact form submission (no authentication required)
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
+
+// Protected contact management routes (require authentication)
+Route::middleware(['auth:sanctum'])->group(function ()
+{
+    Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
+    Route::get('/contacts/stats', [ContactController::class, 'stats'])->name('contacts.stats');
+    Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
+    Route::patch('/contacts/{contact}/status', [ContactController::class, 'updateStatus'])->name('contacts.update-status');
+    Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+});
+
+
+
+
+Route::get('/force-email-test', function ()
 {
     try
     {
-        // Test 1: Send to admin email
-        Mail::raw('Test email #1 - This is a test from Laravel to admin@firstdraft.sa', function ($message)
-        {
-            $message->to('admin@firstdraft.sa')
-                ->subject('Laravel Test Email - Admin')
-                ->from('contact@firstdraft.sa', 'First Draft Test');
-        });
+        // Create SMTP transport manually (bypasses Laravel config)
+        $transport = new EsmtpTransport('mail.firstdraft.sa', 465, true);
+        $transport->setUsername('contact@firstdraft.sa');
+        $transport->setPassword('B8tV#k2$!mY');
 
-        // Test 2: Send to a different email (like Gmail) to see if it reaches
-        Mail::raw('Test email #2 - This is a test from Laravel to external email', function ($message)
-        {
-            $message->to('nsma22k@gmail.com') // The email from your contact form test
-                ->subject('Laravel Test Email - External')
-                ->from('contact@firstdraft.sa', 'First Draft Test');
-        });
+        // Create mailer
+        $mailer = new Mailer($transport);
+
+        // Create email
+        $email = (new Email())
+            ->from('contact@firstdraft.sa')
+            ->to('admin@firstdraft.sa')
+            ->subject('FORCE TEST - Direct SMTP')
+            ->text('This email was sent directly via SMTP, bypassing Laravel config cache.');
+
+        // Send email
+        $mailer->send($email);
 
         return response()->json([
             'success' => true,
-            'message' => 'Both emails sent successfully!',
+            'message' => 'Email sent directly via SMTP!',
             'details' => [
-                'email_1' => 'Sent to admin@firstdraft.sa',
-                'email_2' => 'Sent to nsma22k@gmail.com',
+                'method' => 'Direct SMTP (bypassing Laravel config)',
+                'host' => 'mail.firstdraft.sa',
+                'port' => 465,
                 'from' => 'contact@firstdraft.sa',
-                'smtp_host' => config('mail.mailers.smtp.host'),
-                'smtp_port' => config('mail.mailers.smtp.port'),
-            ],
-            'instructions' => [
-                'Check admin@firstdraft.sa inbox and spam folder',
-                'Check nsma22k@gmail.com inbox and spam folder',
-                'If Gmail receives it but admin@firstdraft.sa doesn\'t, there\'s an issue with your domain email setup'
+                'to' => 'admin@firstdraft.sa'
             ]
         ]);
     }
@@ -257,32 +281,45 @@ Route::get('/test-email-detailed', function ()
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
+            'details' => [
+                'method' => 'Direct SMTP test failed',
+                'host' => 'mail.firstdraft.sa',
+                'port' => 465
+            ]
         ]);
     }
 });
 
-// Add this route to check your email server settings
-Route::get('/check-email-server', function ()
+// Also add this to check what .env values are actually being read
+Route::get('/check-env-values', function ()
 {
     return response()->json([
-        'mail_config' => [
-            'mailer' => config('mail.default'),
-            'host' => config('mail.mailers.smtp.host'),
-            'port' => config('mail.mailers.smtp.port'),
-            'username' => config('mail.mailers.smtp.username'),
-            'encryption' => config('mail.mailers.smtp.encryption'),
-            'from_address' => config('mail.from.address'),
-            'from_name' => config('mail.from.name'),
+        'env_values' => [
+            'MAIL_MAILER' => env('MAIL_MAILER'),
+            'MAIL_HOST' => env('MAIL_HOST'),
+            'MAIL_PORT' => env('MAIL_PORT'),
+            'MAIL_USERNAME' => env('MAIL_USERNAME'),
+            'MAIL_ENCRYPTION' => env('MAIL_ENCRYPTION'),
+            'MAIL_FROM_ADDRESS' => env('MAIL_FROM_ADDRESS'),
+            'MAIL_FROM_NAME' => env('MAIL_FROM_NAME'),
+            'MAIL_ADMIN_EMAIL' => env('MAIL_ADMIN_EMAIL'),
         ],
-        'server_info' => [
-            'php_version' => PHP_VERSION,
-            'server_time' => date('Y-m-d H:i:s'),
-            'timezone' => date_default_timezone_get(),
+        'config_values' => [
+            'mail.default' => config('mail.default'),
+            'mail.mailers.smtp.host' => config('mail.mailers.smtp.host'),
+            'mail.mailers.smtp.port' => config('mail.mailers.smtp.port'),
+            'mail.from.address' => config('mail.from.address'),
         ]
     ]);
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
 
 
 require __DIR__ . '/auth.php';
