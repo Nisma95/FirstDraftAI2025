@@ -12,6 +12,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Models\Contact;
 
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
@@ -242,37 +243,91 @@ Route::middleware(['auth:sanctum'])->group(function ()
 
 
 
-Route::get('/force-email-test', function ()
+Route::get('/test-contact-form-submit', function ()
 {
     try
     {
-        // Create SMTP transport manually (bypasses Laravel config)
+        // Create a test contact (like your contact form would)
+        $contact = Contact::create([
+            'name' => 'Test User',
+            'company' => 'Test Company',
+            'email' => 'nsma22k@gmail.com', // Use the email from your previous test
+            'message' => 'This is a test message from the contact form debug route.',
+            'status' => 'new',
+            'metadata' => [
+                'ip_address' => '127.0.0.1',
+                'user_agent' => 'Test Browser',
+                'referer' => 'https://firstdraft.sa',
+                'submitted_at' => now()->toISOString(),
+            ]
+        ]);
+
+        // Setup SMTP transport (same as working force test)
         $transport = new EsmtpTransport('mail.firstdraft.sa', 465, true);
         $transport->setUsername('contact@firstdraft.sa');
         $transport->setPassword('B8tV#k2$!mY');
-
-        // Create mailer
         $mailer = new Mailer($transport);
 
-        // Create email
-        $email = (new Email())
-            ->from('contact@firstdraft.sa')
-            ->to('admin@firstdraft.sa')
-            ->subject('FORCE TEST - Direct SMTP')
-            ->text('This email was sent directly via SMTP, bypassing Laravel config cache.');
+        $results = [];
 
-        // Send email
-        $mailer->send($email);
+        // Test 1: Send user confirmation email
+        try
+        {
+            $userEmail = (new Email())
+                ->from('contact@firstdraft.sa')
+                ->to('nsma22k@gmail.com')
+                ->subject('Thank you for contacting us - First Draft')
+                ->html('
+                    <h2>Thank You, Test User!</h2>
+                    <p>Thank you for reaching out to us! We received your message:</p>
+                    <blockquote>"This is a test message from the contact form debug route."</blockquote>
+                    <p>We will get back to you within 24 hours.</p>
+                    <p>Best regards,<br>The First Draft Team</p>
+                ');
+
+            $mailer->send($userEmail);
+            $results['user_email'] = 'SUCCESS - Sent to nsma22k@gmail.com';
+        }
+        catch (\Exception $e)
+        {
+            $results['user_email'] = 'FAILED: ' . $e->getMessage();
+        }
+
+        // Test 2: Send admin notification email
+        try
+        {
+            $adminEmail = (new Email())
+                ->from('contact@firstdraft.sa')
+                ->to('admin@firstdraft.sa')
+                ->replyTo('nsma22k@gmail.com')
+                ->subject('New Contact Form Submission - Test User')
+                ->html('
+                    <h2>🚨 New Contact Form Submission</h2>
+                    <p><strong>Name:</strong> Test User</p>
+                    <p><strong>Company:</strong> Test Company</p>
+                    <p><strong>Email:</strong> <a href="mailto:nsma22k@gmail.com">nsma22k@gmail.com</a></p>
+                    <p><strong>Message:</strong><br>This is a test message from the contact form debug route.</p>
+                    <p><strong>Submitted:</strong> ' . now()->format('M d, Y \a\t g:i A') . '</p>
+                    <p><a href="mailto:nsma22k@gmail.com?subject=Re:%20Your%20Contact%20Form%20Submission">📧 Reply to Test User</a></p>
+                ');
+
+            $mailer->send($adminEmail);
+            $results['admin_email'] = 'SUCCESS - Sent to admin@firstdraft.sa';
+        }
+        catch (\Exception $e)
+        {
+            $results['admin_email'] = 'FAILED: ' . $e->getMessage();
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Email sent directly via SMTP!',
-            'details' => [
-                'method' => 'Direct SMTP (bypassing Laravel config)',
-                'host' => 'mail.firstdraft.sa',
-                'port' => 465,
-                'from' => 'contact@firstdraft.sa',
-                'to' => 'admin@firstdraft.sa'
+            'message' => 'Contact form test completed!',
+            'contact_id' => $contact->id,
+            'email_results' => $results,
+            'instructions' => [
+                'Check nsma22k@gmail.com inbox and spam folder',
+                'Check admin@firstdraft.sa inbox and spam folder',
+                'Both emails should arrive within 1-2 minutes'
             ]
         ]);
     }
@@ -281,38 +336,41 @@ Route::get('/force-email-test', function ()
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'details' => [
-                'method' => 'Direct SMTP test failed',
-                'host' => 'mail.firstdraft.sa',
-                'port' => 465
-            ]
+            'trace' => $e->getTraceAsString()
         ]);
     }
 });
 
-// Also add this to check what .env values are actually being read
-Route::get('/check-env-values', function ()
+// Add this route to check if contact form endpoint is working
+Route::get('/test-contact-endpoint', function ()
 {
-    return response()->json([
-        'env_values' => [
-            'MAIL_MAILER' => env('MAIL_MAILER'),
-            'MAIL_HOST' => env('MAIL_HOST'),
-            'MAIL_PORT' => env('MAIL_PORT'),
-            'MAIL_USERNAME' => env('MAIL_USERNAME'),
-            'MAIL_ENCRYPTION' => env('MAIL_ENCRYPTION'),
-            'MAIL_FROM_ADDRESS' => env('MAIL_FROM_ADDRESS'),
-            'MAIL_FROM_NAME' => env('MAIL_FROM_NAME'),
-            'MAIL_ADMIN_EMAIL' => env('MAIL_ADMIN_EMAIL'),
-        ],
-        'config_values' => [
-            'mail.default' => config('mail.default'),
-            'mail.mailers.smtp.host' => config('mail.mailers.smtp.host'),
-            'mail.mailers.smtp.port' => config('mail.mailers.smtp.port'),
-            'mail.from.address' => config('mail.from.address'),
-        ]
-    ]);
-});
+    try
+    {
+        // Simulate a POST request to your contact form
+        $response = app()->call('App\Http\Controllers\ContactController@store', [
+            'request' => new \Illuminate\Http\Request([
+                'name' => 'Test User Endpoint',
+                'company' => 'Test Company',
+                'email' => 'nsma22k@gmail.com',
+                'message' => 'This is a test from the endpoint test route.'
+            ])
+        ]);
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Contact endpoint test completed',
+            'controller_response' => $response->getData()
+        ]);
+    }
+    catch (\Exception $e)
+    {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'message' => 'Contact endpoint test failed'
+        ]);
+    }
+});
 
 /*
 |--------------------------------------------------------------------------
