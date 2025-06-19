@@ -23,7 +23,7 @@ export default function MobileHome() {
                     </h1>
                     <p className="text-lg text-gray-600 dark:text-white/80">
                         {t("choose_action") ||
-                            "Choose an action to get started xxxxxx"}
+                            "Choose an action to get started"}
                     </p>
                 </motion.div>
 
