@@ -398,8 +398,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.4 }}
                                 >
-                                    {t("plans.business_plan_details") ||
-                                        "Business Plan Overview"}
+                                    {t("plans.business_plan_overview")}
                                 </motion.p>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
@@ -479,13 +478,14 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         </div>
                                         <div>
                                             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                                                {t("plans.overall_progress") ||
-                                                    "Overall Progress"}
+                                                {t("plans.overall_progress")}
                                             </h3>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
-                                                {completedSections} of{" "}
-                                                {totalSections} sections
-                                                completed
+                                                {t("plans.sections_completed", {
+                                                    completed:
+                                                        completedSections,
+                                                    total: totalSections,
+                                                })}
                                             </p>
                                         </div>
                                     </div>
@@ -533,7 +533,6 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                             }}
                                         />
                                     </div>
-                                    {/* REMOVED THE ANIMATED LIGHT EFFECT */}
                                 </div>
                             </motion.div>
 
@@ -558,11 +557,12 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                                                Business Plan Sections
+                                                {t(
+                                                    "plans.business_plan_sections"
+                                                )}
                                             </h2>
                                             <p className="text-gray-600 dark:text-gray-400">
-                                                Explore your comprehensive
-                                                business strategy
+                                                {t("plans.explore_strategy")}
                                             </p>
                                         </div>
                                     </div>
@@ -579,7 +579,10 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                     >
                                         <FireIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                                         <span className="text-sm font-bold text-green-700 dark:text-green-300">
-                                            {completionPercentage}% Complete
+                                            {t("plans.completion_percentage", {
+                                                percentage:
+                                                    completionPercentage,
+                                            })}
                                         </span>
                                     </motion.div>
                                 </div>
@@ -684,20 +687,28 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                                 }}
                                                                             >
                                                                                 <CheckCircleIcon className="h-3 w-3 mr-1" />
-                                                                                Completed
+                                                                                {t(
+                                                                                    "plans.completed"
+                                                                                )}
                                                                             </motion.span>
                                                                         )}
                                                                     {!section.completed && (
                                                                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-yellow-500 text-white shadow-lg">
                                                                             <ClockIcon className="h-3 w-3 mr-1" />
-                                                                            Pending
+                                                                            {t(
+                                                                                "plans.pending"
+                                                                            )}
                                                                         </span>
                                                                     )}
                                                                 </div>
                                                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                                                     {section.completed
-                                                                        ? "Click to view detailed analysis"
-                                                                        : "Complete your project details to generate this section"}
+                                                                        ? t(
+                                                                              "plans.click_to_view_analysis"
+                                                                          )
+                                                                        : t(
+                                                                              "plans.complete_project_details"
+                                                                          )}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -777,22 +788,14 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                                 <ClockIcon className="h-10 w-10 text-indigo-600 dark:text-indigo-400" />
                                                                             </motion.div>
                                                                             <h4 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-                                                                                Section
-                                                                                Not
-                                                                                Completed
+                                                                                {t(
+                                                                                    "plans.section_not_completed_title"
+                                                                                )}
                                                                             </h4>
                                                                             <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                                                                                Complete
-                                                                                your
-                                                                                project
-                                                                                information
-                                                                                to
-                                                                                generate
-                                                                                AI-powered
-                                                                                insights
-                                                                                for
-                                                                                this
-                                                                                section
+                                                                                {t(
+                                                                                    "plans.complete_project_info_message"
+                                                                                )}
                                                                             </p>
                                                                             <button
                                                                                 onClick={
@@ -801,8 +804,9 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                                                 className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                                                                             >
                                                                                 <PencilIcon className="h-5 w-5 mr-2" />
-                                                                                Complete
-                                                                                Section
+                                                                                {t(
+                                                                                    "plans.complete_section_button"
+                                                                                )}
                                                                                 <SparklesIcon className="h-4 w-4 ml-2 text-yellow-300" />
                                                                             </button>
                                                                         </div>
@@ -823,43 +827,6 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                             variants={itemVariants}
                             className="space-y-6"
                         >
-                            {/* Status Overview */}
-                            <motion.div
-                                variants={cardVariants}
-                                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 dark:border-gray-700/30 p-6 hover:shadow-2xl transition-shadow duration-300"
-                            >
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-3">
-                                    <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-xl">
-                                        <StarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                    </div>
-                                    Plan Status
-                                </h3>
-                                <div
-                                    className={`p-4 rounded-2xl ${statusInfo.bgGradient} border border-white/20 dark:border-gray-600/30`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-white/20 dark:bg-gray-800/50 rounded-lg">
-                                            <StatusIcon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-                                        </div>
-                                        <div>
-                                            <div className="font-semibold text-gray-800 dark:text-gray-200">
-                                                {statusInfo.text}
-                                            </div>
-                                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                                                {plan.status === "completed"
-                                                    ? "Ready to download"
-                                                    : plan.status ===
-                                                      "generating"
-                                                    ? "AI is working..."
-                                                    : plan.status === "draft"
-                                                    ? "In progress"
-                                                    : "Needs attention"}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-
                             {/* Project Information */}
                             {plan.project && (
                                 <motion.div
@@ -870,15 +837,13 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         <div className="p-2 bg-blue-100 dark:bg-blue-900/50 rounded-xl">
                                             <BuildingOffice2Icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                         </div>
-                                        {t("plans.project_info") ||
-                                            "Project Information"}
+                                        {t("plans.project_info")}
                                     </h2>
 
                                     <div className="space-y-4">
                                         <motion.div variants={cardVariants}>
                                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                {t("plans.project_name") ||
-                                                    "Project Name"}
+                                                {t("plans.project_name")}
                                             </label>
                                             <div className="flex items-center gap-3 bg-indigo-50/80 dark:bg-indigo-900/30 rounded-2xl p-4 border border-indigo-200/50 dark:border-indigo-700/50">
                                                 <div className="p-1.5 bg-indigo-100 dark:bg-indigo-800/50 rounded-lg">
@@ -892,8 +857,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
 
                                         <motion.div variants={cardVariants}>
                                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                {t("plans.industry") ||
-                                                    "Industry"}
+                                                {t("plans.industry")}
                                             </label>
                                             <div className="flex items-center gap-3 bg-green-50/80 dark:bg-green-900/30 rounded-2xl p-4 border border-green-200/50 dark:border-green-700/50">
                                                 <div className="p-1.5 bg-green-100 dark:bg-green-800/50 rounded-lg">
@@ -911,7 +875,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
 
                                         <motion.div variants={cardVariants}>
                                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                Business Type
+                                                {t("projects.business_type")}
                                             </label>
                                             <div className="flex items-center gap-3 bg-purple-50/80 dark:bg-purple-900/30 rounded-2xl p-4 border border-purple-200/50 dark:border-purple-700/50">
                                                 <div className="p-1.5 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
@@ -929,8 +893,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
 
                                         <motion.div variants={cardVariants}>
                                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                {t("plans.location") ||
-                                                    "Location"}
+                                                {t("plans.location")}
                                             </label>
                                             <div className="flex items-center gap-3 bg-orange-50/80 dark:bg-orange-900/30 rounded-2xl p-4 border border-orange-200/50 dark:border-orange-700/50">
                                                 <div className="p-1.5 bg-orange-100 dark:bg-orange-800/50 rounded-lg">
@@ -948,7 +911,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         {plan.project.team_size && (
                                             <motion.div variants={cardVariants}>
                                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Team Size
+                                                    {t("projects.team_size")}
                                                 </label>
                                                 <div className="flex items-center gap-3 bg-blue-50/80 dark:bg-blue-900/30 rounded-2xl p-4 border border-blue-200/50 dark:border-blue-700/50">
                                                     <div className="p-1.5 bg-blue-100 dark:bg-blue-800/50 rounded-lg">
@@ -958,8 +921,10 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                         {plan.project.team_size}{" "}
                                                         {plan.project
                                                             .team_size === 1
-                                                            ? "person"
-                                                            : "people"}
+                                                            ? t("common.person")
+                                                            : t(
+                                                                  "common.people"
+                                                              )}
                                                     </span>
                                                 </div>
                                             </motion.div>
@@ -969,7 +934,9 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                         {plan.project.revenue_model && (
                                             <motion.div variants={cardVariants}>
                                                 <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                                    Revenue Model
+                                                    {t(
+                                                        "projects.revenue_model"
+                                                    )}
                                                 </label>
                                                 <div className="space-y-2">
                                                     {(() => {
@@ -1080,7 +1047,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                             size={20}
                                         />
                                     </div>
-                                    Plan Details
+                                    {t("plans.plan_details")}
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between p-3 bg-gray-50/80 dark:bg-gray-700/50 rounded-xl border border-gray-200/50 dark:border-gray-600/50">
@@ -1092,7 +1059,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                 />
                                             </div>
                                             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                Created At
+                                                {t("plans.created_at")}
                                             </span>
                                         </div>
                                         <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
@@ -1108,7 +1075,7 @@ export default function Show({ auth, plan, canGeneratePDF, isPremium }) {
                                                 />
                                             </div>
                                             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                                Updated At
+                                                {t("plans.updated_at")}
                                             </span>
                                         </div>
                                         <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">

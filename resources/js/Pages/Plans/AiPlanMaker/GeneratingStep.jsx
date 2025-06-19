@@ -22,11 +22,9 @@ export default function GeneratingStep() {
                         ease: "linear",
                     }}
                     className="w-full h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-                >
-                    <SparklesIcon className="w-12 h-12 text-white" />
-                </motion.div>
+                ></motion.div>
             </div>
-
+            <SparklesIcon className="w-12 h-12 text-white" />
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                 {t("creating_business_plan", "Creating Your Business Plan...")}
             </h1>

@@ -506,13 +506,13 @@ class PlanController extends Controller
         try
         {
             // Load project with all related data
-            $project = Project::with(['industry', 'businessType'])->findOrFail($validated['project_id']);
+            $project = Project::with(['industry', 'business_type'])->findOrFail($validated['project_id']);
             // Prepare complete project data for AI
             $projectData = [
                 'project_name' => $project->name,
                 'project_description' => $project->description,
                 'project_industry' => $project->industry ? $project->industry->name : 'Not specified',
-                'project_business_type' => $project->businessType ? $project->businessType->business_type_name : 'Not specified',
+                'project_business_type' => $project->business_type ? $project->business_type->business_type_name : 'Not specified',
                 'project_target' => $this->formatTargetAudience($project->target_market),
                 'project_location' => $project->location ?? 'Not specified',
                 'project_revenue_model' => $this->formatRevenueModel($project->revenue_model),
@@ -585,7 +585,7 @@ class PlanController extends Controller
                     'project_name' => $project->name,
                     'project_description' => $project->description,
                     'project_industry' => $project->industry ? $project->industry->name : 'Not specified',
-                    'project_business_type' => $project->businessType ? $project->businessType->business_type_name : 'Not specified',
+                    'project_business_type' => $project->business_type ? $project->business_type->business_type_name : 'Not specified',
                     'project_target' => $this->formatTargetAudience($project->target_market),
                     'project_location' => $project->location ?? 'Not specified',
                     'project_revenue_model' => $this->formatRevenueModel($project->revenue_model),

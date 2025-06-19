@@ -192,7 +192,6 @@
     "server_returned_html_error": "الخادم أرجع صفحة خطأ بدلاً من JSON",
     "server_invalid_response": "الخادم ما أرجع استجابة صحيحة",
     "plan_generation_failed_alert": "حدث خطأ أثناء إنشاء خطة العمل. جرب مرة ثانية.",
-    "select_project_to_begin": "بس اختر مشروع عشان تبدأ!",
     "project_description_fallback": "وصف المشروع",
     "strat_writing_the_ai_will_help_you_enhance_it": "ابدأ بالكتابة، الذكاء الاصطناعي بيساعدك تحسنها",
     "common": {
@@ -296,17 +295,18 @@
         "create_business_plan": "إنشاء خطة عمل",
         "create_business_plan_ai": "إنشاء خطة عمل بالذكاء الاصطناعي",
         "business_plan": "خطة العمل",
+        "business_plan_overview": "نظرة عامة على خطة العمل",
+        "business_plan_details": "نظرة عامة على خطة العمل",
         "plan_title": "عنوان الخطة",
         "plan_description": "وصف الخطة",
         "ai_plan_title": "إنشاء خطة عمل بالذكاء الاصطناعي",
         "ai_plan_intro_title": "يلا نسوي خطة عملك سوا!",
-        "ai_plan_intro_description": "بسألك 5 أسئلة ذكية عن خطة عملك وبسوي لك تحليل شامل بناءً على إجاباتك.",
+        "ai_plan_intro_description": "الذكاء الاصطناعي بيساعدك تسوي خطة واضحة وذكية لشغلك",
         "select_project_label": "اختر مشروع لهذه خطة العمل:",
-        "select_project_to_begin": "بس اختر مشروع عشان تبدأ!",
         "create_new_project_label": "إنشاء مشروع جديد",
         "create_new_project_description": "ابدأ مشروع جديد لخطتك",
         "start_ai_conversation": "ابدأ المحادثة مع الذكاء الاصطناعي",
-        "starting_ai_conversation": "جاري بدء المحادثة مع الذكاء الاصطناعي...",
+        "starting_ai_conversation": "جاري التحضير...",
         "question_progress": "السؤال {{current}} من {{total}}",
         "ai_assistant": "مساعد الذكاء الاصطناعي",
         "your_answer": "إجابتك:",
@@ -344,11 +344,30 @@
         },
         "overall_progress": "التقدم العام",
         "sections_completed": "تم إكمال {{completed}} من {{total}} أقسام",
+        "sections_completed_count": "تم إكمال {{completed}} من {{total}} أقسام",
+        "business_plan_sections": "أقسام خطة العمل",
+        "explore_strategy": "استكشف استراتيجية عملك الشاملة",
+        "completion_percentage": "{{percentage}}% مكتمل",
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "click_to_view_analysis": "انقر لعرض التحليل التفصيلي",
+        "complete_project_details": "أكمل تفاصيل مشروعك لإنشاء هذا القسم",
+        "section_not_completed_title": "القسم غير مكتمل",
+        "complete_project_info_message": "أكمل معلومات مشروعك لإنشاء رؤى مدعومة بالذكاء الاصطناعي لهذا القسم",
+        "complete_section_button": "إكمال القسم",
+        "plan_status": "حالة الخطة",
+        "status_ready_download": "جاهز للتحميل",
+        "status_ai_working": "الذكاء الاصطناعي يعمل...",
+        "status_in_progress": "قيد التقدم",
+        "status_needs_attention": "يحتاج انتباه",
         "project_info": "معلومات المشروع",
         "project_name": "اسم المشروع",
         "industry": "المجال",
         "target_market": "السوق المستهدف",
         "location": "الموقع",
+        "plan_details": "تفاصيل الخطة",
+        "created_at": "تاريخ الإنشاء",
+        "updated_at": "آخر تحديث",
         "sections": {
             "executive_summary": "الملخص التنفيذي",
             "market_analysis": "تحليل السوق",
@@ -492,88 +511,6 @@
     "ai_analyzing_project": "الذكاء الاصطناعي يحلل مشروعك...",
     "ai_suggestion_ready": "اقتراح الذكاء الاصطناعي جاهز!",
     "ai_suggestion_error": "فشل في إنشاء الاقتراح. جرب مرة ثانية.",
-
-    "subscriptions": {
-        "title": "إدارة الاشتراك",
-        "subtitle": "اعرض وأدر خطة اشتراكك الحالية واستكشف الخيارات المتاحة",
-        "currentSubscription": "الاشتراك الحالي",
-        "noActiveSubscription": "لا يوجد اشتراك نشط",
-        "noSubscriptionDescription": "ابدأ بالخطة المجانية أو اشترك في إحدى خططنا المدفوعة",
-        "planType": "نوع الخطة",
-        "amount": "المبلغ",
-        "startDate": "تاريخ البداية",
-        "daysRemaining": "الأيام المتبقية",
-        "free": "مجاني",
-        "unlimited": "غير محدد",
-        "days": "يوم",
-        "usageStats": "إحصائيات الاستخدام",
-        "plansCreated": "خطط تم إنشاؤها",
-        "plansCompleted": "خطط مكتملة",
-        "pdfsGenerated": "ملفات PDF",
-        "aiSuggestions": "اقتراحات الذكاء الاصطناعي",
-        "subscriptionActions": "إجراءات الاشتراك",
-        "viewAllPlans": "عرض جميع الخطط",
-        "paymentHistory": "تاريخ المدفوعات",
-        "upgradeSubscription": "ترقية الاشتراك",
-        "cancelSubscription": "إلغاء الاشتراك",
-        "activateFree": "تفعيل الخطة المجانية",
-        "viewPaidPlans": "عرض الخطط المدفوعة",
-        "activating": "جاري التفعيل...",
-        "cancelling": "جاري الإلغاء...",
-        "confirmCancel": "هل أنت متأكد من إلغاء الاشتراك؟",
-        "backToDashboard": "العودة للوحة التحكم",
-        "status": {
-            "active": "نشط",
-            "inactive": "غير نشط",
-            "expired": "منتهي",
-            "canceled": "ملغى"
-        }
-    },
-    "plans": {
-        "title": "اختر خطة الاشتراك المناسبة",
-        "subtitle": "اختر الخطة التي تناسب احتياجاتك وابدأ في إنشاء خطط عمل احترافية بمساعدة الذكاء الاصطناعي",
-        "currentPlan": "الخطة الحالية:",
-        "mostPopular": "الأكثر شعبية",
-        "current": "الخطة الحالية",
-        "features": "المميزات:",
-        "subscribeNow": "اشترك الآن",
-        "activateFree": "تفعيل الخطة المجانية",
-        "loading": "جاري التحميل...",
-        "discount": "خصم",
-        "insteadOf": "بدلاً من",
-        "saveYearly": "وفر {amount} ر.س سنوياً",
-        "sar": "ر.س",
-        "monthly": "شهرياً",
-        "yearly": "سنوياً",
-        "planNames": {
-            "free": "الخطة المجانية",
-            "monthly": "الخطة الشهرية",
-            "yearly": "الخطة السنوية"
-        },
-        "features": {
-            "limitedPlans": "خطط عمل محدودة (3 خطط)",
-            "basicAI": "تحليل ذكي أساسي",
-            "pdfExport": "تصدير PDF",
-            "limitedSupport": "دعم فني محدود",
-            "unlimitedPlans": "خطط عمل غير محدودة",
-            "advancedAI": "تحليل ذكي متقدم",
-            "advancedPDF": "تصدير PDF متقدم",
-            "swotAnalysis": "تحليل SWOT",
-            "operationalPlan": "خطة التشغيل",
-            "personalConsultation": "استشارات شخصية",
-            "advancedSupport": "دعم فني متقدم",
-            "detailedReports": "تقارير مفصلة",
-            "allMonthlyFeatures": "جميع مميزات الخطة الشهرية",
-            "yearlyDiscount": "خصم 17% على السعر",
-            "freeConsultation": "استشارة مجانية شهرياً",
-            "prioritySupport": "أولوية في الدعم الفني"
-        }
-    },
-    "quickActions": {
-        "checkProjects": "عرض قائمة المشاريع",
-        "checkPlans": "عرض قائمة الخطط",
-        "checkSubscription": "عرض الاشتراك"
-    },
     "subscriptions": {
         "title": "إدارة الاشتراك",
         "subtitle": "اعرض وأدر خطة اشتراكك الحالية واستكشف الخيارات المتاحة",
@@ -636,8 +573,7 @@
             "confirmCancel": "هل أنت متأكد من إلغاء الاشتراك؟"
         }
     },
-
-    "plans": {
+    "planTypes": {
         "title": "اختر خطة الاشتراك المناسبة",
         "subtitle": "اختر الخطة التي تناسب احتياجاتك وابدأ في إنشاء خطط عمل احترافية بمساعدة الذكاء الاصطناعي",
         "mostPopular": "الأكثر شعبية",
@@ -698,5 +634,16 @@
             "freePlanFailed": "فشل في تفعيل الخطة المجانية. يرجى المحاولة مرة أخرى.",
             "checkoutFailed": "فشل في تحميل صفحة الدفع. يرجى المحاولة مرة أخرى."
         }
-    }
+    },
+    "quickActions": {
+        "checkProjects": "عرض قائمة المشاريع",
+        "checkPlans": "عرض قائمة الخطط",
+        "checkSubscription": "عرض الاشتراك"
+    },
+
+    "choose_action": "اختر إجراء للبدء",
+    "create_project": "إنشاء مشروع",
+    "create_project_desc": "ابدأ مشروع جديد لعملك",
+    "create_plan": "إنشاء خطة عمل",
+    "create_plan_desc": "اصنع خطة عمل شاملة بمساعدة الذكاء الاصطناعي"
 }

@@ -1,3 +1,4 @@
+// resources/js/Pages/Welcome.jsx
 import { Head } from "@inertiajs/react";
 import React, { useEffect, useRef } from "react";
 import Navigation from "../Layouts/Navigation";
@@ -9,10 +10,10 @@ import StarBackground from "@/Components/StarBackground";
 import ScrollToTop from "@/Components/ScrollToTop";
 import Features from "./WelcomeComponents/Features";
 import ImgHero from "./WelcomeComponents/ImgHero";
-
-// Import the new FAQ component
 import FAQ from "./WelcomeComponents/FAQ";
 import Contact from "./WelcomeComponents/Contact";
+
+import MobileHome from "./MobileHome";
 
 export default function Welcome({ auth }) {
     const { t, i18n } = useTranslation();
@@ -25,23 +26,28 @@ export default function Welcome({ auth }) {
         document.documentElement.setAttribute("lang", i18n.language);
         document.body.setAttribute("lang", i18n.language);
 
-        const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smooth: true,
-            direction: "vertical",
-            gestureDirection: "vertical",
-            smoothTouch: false,
-        });
+        // Only enable smooth scrolling on desktop
+        const isMobile = window.innerWidth < 640;
 
-        function raf(time) {
-            lenis.raf(time);
+        if (!isMobile) {
+            const lenis = new Lenis({
+                duration: 1.2,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                smooth: true,
+                direction: "vertical",
+                gestureDirection: "vertical",
+                smoothTouch: false,
+            });
+
+            function raf(time) {
+                lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+
             requestAnimationFrame(raf);
+
+            return () => lenis.destroy();
         }
-
-        requestAnimationFrame(raf);
-
-        return () => lenis.destroy();
     }, [isRTL, i18n.language]);
 
     return (
@@ -51,10 +57,15 @@ export default function Welcome({ auth }) {
             {/* Background Effect */}
             <StarBackground />
 
-            {/* Navigation - hidden below 426px */}
+            {/* Navigation - always visible */}
             <Navigation auth={auth} />
 
-            {/* Desktop and Tablet content (hidden on mobile) */}
+            {/* Mobile content - visible ONLY on small screens */}
+            <div className="block sm:hidden relative z-10">
+                <MobileHome />
+            </div>
+
+            {/* Desktop and Tablet content - hidden on mobile */}
             <div
                 ref={featuresRef}
                 className={`hidden sm:block ${
@@ -72,10 +83,10 @@ export default function Welcome({ auth }) {
                 {/* Image Hero */}
                 <ImgHero />
 
-                {/* FAQ Section - NEW */}
+                {/* FAQ Section */}
                 <FAQ />
 
-                {/* contact us */}
+                {/* Contact us */}
                 <Contact />
 
                 <div className="mt-20"></div>

@@ -6,6 +6,33 @@ import { useTranslation } from "react-i18next";
 export default function IntroStep({ isLoading, projectSelection }) {
     const { t } = useTranslation();
 
+    // If loading, show only the loading state centered
+    if (isLoading) {
+        return (
+            <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center justify-center min-h-[400px]"
+            >
+                <motion.div
+                    className="flex items-center justify-center gap-3 text-purple-600"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-2xl font-medium">
+                        {t("starting_ai_conversation", "Its getting Ready...")}
+                    </span>
+                </motion.div>
+            </motion.div>
+        );
+    }
+
+    // Show intro content when not loading
     return (
         <motion.div
             key="intro"
@@ -52,42 +79,19 @@ export default function IntroStep({ isLoading, projectSelection }) {
                 >
                     {t(
                         "ai_plan_intro_description",
-                        "I'll ask you 5 smart questions about your business plan and create a comprehensive analysis based on your answers."
-                    )}{" "}
-                    {t(
-                        "select_project_to_begin",
-                        "Simply select a project to begin!"
+                        "Ai Will Help You Create Clear and Smart Plan For Your Business"
                     )}
                 </motion.p>
             </div>
 
-            {/* Loading state when a project is being processed */}
-            {isLoading && (
-                <motion.div
-                    className="flex items-center justify-center gap-2 text-purple-600"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                >
-                    <div className="w-5 h-5 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
-                    <span>
-                        {t(
-                            "starting_ai_conversation",
-                            "Starting AI Conversation..."
-                        )}
-                    </span>
-                </motion.div>
-            )}
-
-            {/* Project Selection - only show when not loading */}
-            {!isLoading && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                >
-                    {projectSelection}
-                </motion.div>
-            )}
+            {/* Project Selection */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+            >
+                {projectSelection}
+            </motion.div>
         </motion.div>
     );
 }

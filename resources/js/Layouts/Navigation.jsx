@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, usePage } from "@inertiajs/react";
+import { Menu, X } from "lucide-react";
 import LanguageSwitcher from "@/Components/Langs/LanguageSwitcher";
 import ModeSwitcher from "@/Components/Mode/ModeSwitcher";
 import AuthIcon from "@/Components/AuthIcon";
@@ -13,15 +14,11 @@ export default function Navigation({ auth }) {
     const dropdownRef = useRef(null);
     const mobileMenuRef = useRef(null);
     const { t, i18n } = useTranslation();
-    const isRTL = i18n.language === "ar"; // Only detect Arabic, not other RTL languages
+    const isRTL = i18n.language === "ar";
 
-    // Toggle the dropdown menu
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
-
-    // Toggle mobile menu
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-    // Close dropdown and mobile menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (
@@ -47,11 +44,11 @@ export default function Navigation({ auth }) {
 
     return (
         <header
-            className="fixed top-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[1200px] bg-white dark:bg-black rounded-full shadow-lg dark:shadow-white/10 z-50 transition-all duration-300"
+            className="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[1200px] bg-white dark:bg-black rounded-full shadow-lg dark:shadow-white/10 z-50 transition-all duration-300 lg:top-4 lg:bottom-auto"
             dir={usePage().props.locale === "ar" ? "rtl" : "ltr"}
         >
             <div className="flex items-center justify-between px-3 py-2">
-                {/* Logo (Left side on mobile) */}
+                {/* Logo */}
                 <Link
                     href={auth?.user ? route("dashboard") : route("login")}
                     className="flex items-center"
@@ -72,7 +69,7 @@ export default function Navigation({ auth }) {
                     </span>
                 </Link>
 
-                {/* Navigation Links - Only visible on medium screens and above */}
+                {/* Navigation Links */}
                 <nav className="hidden">
                     <Link
                         href="#"
@@ -106,10 +103,9 @@ export default function Navigation({ auth }) {
                     </Link>
                 </nav>
 
-                {/* Right Section - Only visible on medium screens and above */}
-                {/* Right Section - Only visible on medium screens and above */}
+                {/* Right Section - Desktop only */}
                 <div
-                    className={`hidden md:flex items-center ${
+                    className={`hidden lg:flex items-center ${
                         isRTL ? "space-x-reverse space-x-4" : "space-x-4"
                     }`}
                 >
@@ -118,95 +114,95 @@ export default function Navigation({ auth }) {
                     <AuthIcon user={auth?.user} />
                 </div>
 
-                {/* Mobile Menu Button - Right side on mobile */}
-                <button
-                    className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
-                    onClick={toggleMobileMenu}
-                    aria-label="Toggle mobile menu"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 text-gray-800 dark:text-gray-200"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d={
-                                isMobileMenuOpen
-                                    ? "M6 18L18 6M6 6l12 12"
-                                    : "M4 6h16M4 12h16M4 18h16"
-                            }
-                        />
-                    </svg>
-                </button>
-            </div>
-
-            {/* Mobile Menu - Only shows when toggled on small screens */}
-            {isMobileMenuOpen && (
+                {/* Mobile/Tablet Right Section */}
                 <div
-                    ref={mobileMenuRef}
-                    className="md:hidden bg-white dark:bg-black rounded-2xl mt-2 shadow-lg p-4 absolute left-0 right-0 transition-all duration-300"
+                    className={`flex lg:hidden items-center ${
+                        isRTL ? "space-x-reverse space-x-2" : "space-x-2"
+                    }`}
                 >
-                    <nav
-                        className={`flex flex-col ${
-                            isRTL
-                                ? "space-y-reverse space-y-3 rtl-text"
-                                : "space-y-3 ltr-text"
-                        }`}
-                    >
-                        <Link
-                            href="#"
-                            className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium"
-                        >
-                            {t("About")}
-                        </Link>
-                        <Link
-                            href="#"
-                            className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium"
-                        >
-                            {t("Pricing")}
-                        </Link>
-                        <Link
-                            href="#"
-                            className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium"
-                        >
-                            {t("Product")}
-                        </Link>
-                        <Link
-                            href="#"
-                            className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium"
-                        >
-                            {t("Contact")}
-                        </Link>
-                        <Link
-                            href="#"
-                            className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium"
-                        >
-                            {t("Blog")}
-                        </Link>
-                    </nav>
+                    <LanguageSwitcher />
+                    <ModeSwitcher />
 
-                    {/* Auth, Language and Mode Switchers in mobile menu */}
-                    <div className="mt-4 space-y-3">
-                        <div
-                            className={`flex justify-center ${
-                                isRTL
-                                    ? "space-x-reverse space-x-4"
-                                    : "space-x-4"
-                            }`}
+                    {/* Mobile Menu Button - Same style as ModeSwitcher */}
+                    <div className="relative" ref={mobileMenuRef}>
+                        <button
+                            onClick={toggleMobileMenu}
+                            className="w-12 h-12 rounded-full flex items-center justify-center p-4 mx-2 transition-all duration-300"
+                            style={{
+                                background:
+                                    "linear-gradient(90deg, #5956e9, #6077a1, #2c2b2b)",
+                                color: "#d4d3d3",
+                            }}
                         >
-                            <LanguageSwitcher />
-                            <ModeSwitcher />
-                        </div>
+                            {isMobileMenuOpen ? (
+                                <X size={20} />
+                            ) : (
+                                <Menu size={20} />
+                            )}
+                        </button>
 
-                        {/* Removed Auth Section */}
+                        {/* Mobile Menu Dropdown */}
+                        {isMobileMenuOpen && (
+                            <div className="absolute bottom-full mb-2 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 min-w-[200px] z-50">
+                                <nav className="flex flex-col space-y-3">
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium transition-colors"
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                    >
+                                        {t("About")}
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium transition-colors"
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                    >
+                                        {t("Pricing")}
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium transition-colors"
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                    >
+                                        {t("Product")}
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium transition-colors"
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                    >
+                                        {t("Contact")}
+                                    </Link>
+                                    <Link
+                                        href="#"
+                                        className="text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white font-medium transition-colors"
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
+                                    >
+                                        {t("Blog")}
+                                    </Link>
+                                </nav>
+
+                                {/* Auth section */}
+                                <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                                    <div className="flex justify-center">
+                                        <AuthIcon user={auth?.user} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
         </header>
     );
 }
