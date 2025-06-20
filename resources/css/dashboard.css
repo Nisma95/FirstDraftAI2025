@@ -238,3 +238,192 @@
 .brand-shadow {
     box-shadow: 0 4px 14px rgba(15, 122, 49, 0.2);
 }
+
+/*************************************************************/
+
+/* Mobile Responsive Fixes */
+@media (max-width: 768px) {
+    /* Main container adjustments */
+    .dashboard-main {
+        padding: 0.5rem !important;
+        min-height: 100vh;
+    }
+
+    /* Reduce excessive padding on mobile */
+    .dashboard-content {
+        padding: 1rem !important;
+    }
+
+    .dashboard-section {
+        margin: 1rem !important;
+        padding: 1rem !important;
+    }
+
+    /* Background animations - reduce for mobile performance */
+    .bg-gradient-mobile {
+        background: linear-gradient(
+            135deg,
+            rgba(59, 130, 246, 0.05) 0%,
+            rgba(147, 51, 234, 0.05) 100%
+        );
+    }
+
+    /* Hide complex animations on mobile */
+    .mobile-hide-animation {
+        animation: none !important;
+    }
+
+    /* Ensure proper touch targets */
+    .mobile-touch-target {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Very small screens */
+    .sm-padding {
+        padding: 0.75rem !important;
+    }
+
+    .sm-margin {
+        margin: 0.5rem !important;
+    }
+
+    /* Text sizing for mobile */
+    .mobile-text-adjust h1 {
+        font-size: 1.5rem !important;
+    }
+
+    .mobile-text-adjust h2 {
+        font-size: 1.25rem !important;
+    }
+
+    /* Card spacing */
+    .mobile-card-spacing {
+        gap: 0.75rem !important;
+    }
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+    .landscape-mobile {
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+}
+
+/* WelcomeSection Mobile Fixes */
+@media (max-width: 768px) {
+    /* Welcome section mobile adjustments */
+    .welcome-mobile {
+        padding: 1rem !important;
+    }
+
+    .welcome-card-mobile {
+        padding: 1.5rem !important;
+        margin: 0.5rem !important;
+    }
+
+    /* Large text scaling for mobile */
+    .welcome-name-mobile {
+        font-size: 2.5rem !important; /* Much smaller than lg:text-9xl */
+        line-height: 1.1 !important;
+    }
+
+    .welcome-greeting-mobile {
+        font-size: 1.25rem !important; /* Smaller than md:text-4xl */
+    }
+
+    /* Time element sizing */
+    .time-element-mobile {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+
+    /* Date section mobile */
+    .date-section-mobile {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.875rem !important;
+    }
+
+    /* Reduce spacing for mobile */
+    .welcome-spacing-mobile {
+        gap: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Quick actions mobile positioning */
+    .quick-actions-mobile {
+        margin-top: 1rem !important;
+        padding: 0 !important;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Extra small screens */
+    .welcome-name-xs {
+        font-size: 2rem !important;
+    }
+
+    .welcome-greeting-xs {
+        font-size: 1.125rem !important;
+    }
+
+    .welcome-card-xs {
+        padding: 1rem !important;
+        border-radius: 1rem !important;
+    }
+
+    /* Hide complex animations on very small screens */
+    .xs-no-animation {
+        animation: none !important;
+    }
+
+    .xs-no-animation * {
+        animation: none !important;
+    }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+    /* Reduce backdrop blur for better performance */
+    .mobile-backdrop-light {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    /* Simplify gradients for mobile */
+    .mobile-gradient-simple {
+        background: linear-gradient(
+            135deg,
+            rgba(59, 130, 246, 0.8),
+            rgba(147, 51, 234, 0.8)
+        ) !important;
+    }
+
+    /* Reduce particle effects */
+    .mobile-particles-hidden {
+        display: none !important;
+    }
+}
+
+/* Welcome Section Positioning Fix */
+.welcome-section-spacing {
+    margin-top: 2rem !important;
+    padding-top: 1rem !important;
+}
+
+@media (max-width: 768px) {
+    .welcome-section-spacing {
+        margin-top: 1.5rem !important;
+        padding-top: 0.75rem !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .welcome-section-spacing {
+        margin-top: 1rem !important;
+        padding-top: 0.5rem !important;
+    }
+}
