@@ -254,6 +254,17 @@ Route::get('/test-direct-api', function ()
 
 /*
 |--------------------------------------------------------------------------
+| AI Enhancement Routes (for Web Forms)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('ai')->name('ai.')->group(function ()
+{
+    Route::post('/generate-field', [ProjectController::class, 'generateFieldSuggestion'])->name('generate-field');
+    Route::post('/enhance-field', [ProjectController::class, 'enhanceFieldContent'])->name('enhance-field');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */

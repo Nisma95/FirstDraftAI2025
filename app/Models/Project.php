@@ -55,7 +55,8 @@ class Project extends Model
         return $this->belongsTo(Industry::class);
     }
 
-    public function business_type()
+    // Change this method name from business_type to businessType
+    public function businessType()
     {
         return $this->belongsTo(BusinessType::class);
     }
@@ -72,6 +73,6 @@ class Project extends Model
 
     public function getBusinessTypeNameAttribute(): string
     {
-        return $this->business_type ? $this->business_type->business_type_name : 'Not specified';
+        return $this->businessType ? $this->businessType->business_type_name : 'Not specified';
     }
 }
