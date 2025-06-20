@@ -1,3 +1,4 @@
+// ProjectCreationHeader.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -13,14 +14,20 @@ export default function ProjectCreationHeader({
     const { i18n } = useTranslation();
     const isRTL = i18n.dir() === "rtl";
 
+    const appIconStyle = {
+        background: "linear-gradient(90deg, #5956e9, #6077a1, #2c2b2b)",
+        color: "#d4d3d3",
+    };
+
     return (
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex justify-between items-center mb-4 sm:mb-8 px-1">
             {/* Back Button - Left side */}
-            <div className="w-24">
+            <div className="w-16 sm:w-24">
                 {showBackButton && (
                     <motion.button
                         onClick={onBack}
-                        className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-black dark:text-white rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
+                        style={appIconStyle}
                         whileTap={{ scale: 0.95 }}
                         type="button"
                     >
@@ -34,18 +41,21 @@ export default function ProjectCreationHeader({
             </div>
 
             {/* Title - Center */}
-            <div className="flex-1 text-center">
+            <div className="flex-1 text-center px-2 sm:px-4">
                 {title && (
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                    <h1 className="text-lg sm:text-2xl font-bold text-gray-800 dark:text-gray-200 leading-tight">
                         {title}
                     </h1>
                 )}
             </div>
 
             {/* Step Numbers - Right side */}
-            <div className="w-24 flex justify-end">
+            <div className="w-16 sm:w-24 flex justify-end">
                 {currentStep && totalSteps && (
-                    <span className="fdIcon w-12 h-12 inline-flex items-center justify-center text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+                    <span
+                        className="w-12 h-12 rounded-full inline-flex items-center justify-center text-sm font-medium transition-all duration-300"
+                        style={appIconStyle}
+                    >
                         {currentStep} / {totalSteps}
                     </span>
                 )}

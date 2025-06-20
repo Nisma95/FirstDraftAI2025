@@ -1,34 +1,53 @@
-// Features.jsx - Updated main component
-import React, { useEffect } from "react";
+// resources/js/Pages/WelcomeComponents/Features.jsx
+import React, { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "@studio-freight/lenis";
 import VerticalScroll from "./VerticalScroll";
 import HorizontalScroll from "./HorizontalScroll";
+import { cleanupScrollTrigger } from "../../utils/scrollTriggerUtils";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Features = () => {
+    const lenisRef = useRef(null);
+    const rafIdRef = useRef(null);
+
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
         // Initialize smooth scrolling with Lenis
-        const lenis = new Lenis({
+        lenisRef.current = new Lenis({
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         });
 
-        lenis.on("scroll", ScrollTrigger.update);
+        lenisRef.current.on("scroll", ScrollTrigger.update);
 
-        function raf(time) {
-            lenis.raf(time);
-            ScrollTrigger.update();
-            requestAnimationFrame(raf);
-        }
+        const raf = (time) => {
+            if (lenisRef.current) {
+                lenisRef.current.raf(time);
+                ScrollTrigger.update();
+                rafIdRef.current = requestAnimationFrame(raf);
+            }
+        };
 
-        requestAnimationFrame(raf);
+        rafIdRef.current = requestAnimationFrame(raf);
 
         return () => {
-            lenis.destroy(); // Properly clean up Lenis instance
-            ScrollTrigger.killAll(); // Clean up all ScrollTrigger instances
+            // Cancel animation frame
+            if (rafIdRef.current) {
+                cancelAnimationFrame(rafIdRef.current);
+            }
+
+            // Destroy Lenis
+            if (lenisRef.current) {
+                lenisRef.current.destroy();
+                lenisRef.current = null;
+            }
+
+            // Clean up ScrollTrigger
+            cleanupScrollTrigger();
         };
     }, []);
 

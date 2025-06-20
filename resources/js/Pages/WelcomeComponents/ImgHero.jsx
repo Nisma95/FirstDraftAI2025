@@ -1,85 +1,92 @@
+// resources/js/Pages/WelcomeComponents/ImgHero.jsx
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import ScrollToPlugin from "gsap/ScrollToPlugin";
 import { ChevronDown } from "lucide-react";
+import { cleanupScrollTrigger } from "../../utils/scrollTriggerUtils";
 
 const ImgHero = () => {
     const { t, i18n } = useTranslation();
     const isRTL = i18n.dir() === "rtl";
     const sectionRef = useRef(null);
     const textRef = useRef(null);
+    const timelineRef = useRef(null);
+    const arrowHandlersRef = useRef({});
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
         // Register GSAP plugins
         gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
         // Animation for the overlay
         gsap.fromTo(
             ".overlay",
-            {
-                opacity: 0,
-            },
-            {
-                opacity: 0.2,
-                duration: 2,
-                ease: "sine.inOut",
-            }
+            { opacity: 0 },
+            { opacity: 0.2, duration: 2, ease: "sine.inOut" }
         );
 
         // Create parallax scrolling effect
-        gsap.timeline({
-            scrollTrigger: {
-                trigger: sectionRef.current,
-                start: "top top",
-                end: "bottom top",
-                scrub: 1,
-            },
-        })
-            .fromTo(
-                sectionRef.current,
-                { backgroundPositionY: "-30%" },
-                { backgroundPositionY: "0%" },
-                0
-            )
-            .fromTo(
-                textRef.current.querySelector("h1"),
-                { y: 0 },
-                { y: -50 },
-                0
-            )
-            .fromTo(
-                textRef.current.querySelector("p"),
-                { y: 0 },
-                { y: -30 },
-                0
-            );
+        if (sectionRef.current && textRef.current) {
+            timelineRef.current = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: 1,
+                    onRefresh: () => {
+                        // Ensure elements exist on refresh
+                        if (!sectionRef.current || !textRef.current) return;
+                    },
+                },
+            });
+
+            timelineRef.current
+                .fromTo(
+                    sectionRef.current,
+                    { backgroundPositionY: "-30%" },
+                    { backgroundPositionY: "0%" },
+                    0
+                )
+                .fromTo(
+                    textRef.current.querySelector("h1"),
+                    { y: 0 },
+                    { y: -50 },
+                    0
+                )
+                .fromTo(
+                    textRef.current.querySelector("p"),
+                    { y: 0 },
+                    { y: -30 },
+                    0
+                );
+        }
 
         // Add hover effect for the arrow
-        const arrowRef = textRef.current.querySelector(".scroll-arrow");
+        const arrowRef = textRef.current?.querySelector(".scroll-arrow");
         if (arrowRef) {
-            arrowRef.addEventListener("mouseenter", () => {
+            const handleMouseEnter = () => {
                 gsap.to(arrowRef, {
                     y: 10,
                     duration: 0.8,
                     ease: "back.inOut(3)",
                     overwrite: "auto",
                 });
-            });
+            };
 
-            arrowRef.addEventListener("mouseleave", () => {
+            const handleMouseLeave = () => {
                 gsap.to(arrowRef, {
                     y: 0,
                     duration: 0.5,
                     ease: "power3.out",
                     overwrite: "auto",
                 });
-            });
+            };
 
-            arrowRef.addEventListener("click", () => {
-                // Scroll down to the next section
-                const nextSection = sectionRef.current.nextElementSibling;
+            const handleClick = () => {
+                const nextSection = sectionRef.current?.nextElementSibling;
                 if (nextSection) {
                     gsap.to(window, {
                         scrollTo: nextSection.offsetTop,
@@ -87,25 +94,51 @@ const ImgHero = () => {
                         ease: "power1.inOut",
                     });
                 } else {
-                    // If no next section, scroll down one viewport height
                     gsap.to(window, {
                         scrollTo: window.scrollY + window.innerHeight,
                         duration: 1.5,
                         ease: "power1.inOut",
                     });
                 }
-            });
+            };
+
+            // Store handlers for cleanup
+            arrowHandlersRef.current = {
+                handleMouseEnter,
+                handleMouseLeave,
+                handleClick,
+            };
+
+            arrowRef.addEventListener("mouseenter", handleMouseEnter);
+            arrowRef.addEventListener("mouseleave", handleMouseLeave);
+            arrowRef.addEventListener("click", handleClick);
         }
 
-        // Clean up
         return () => {
-            if (arrowRef) {
-                arrowRef.removeEventListener("mouseenter", () => {});
-                arrowRef.removeEventListener("mouseleave", () => {});
-                arrowRef.removeEventListener("click", () => {});
+            // Clean up event listeners
+            const arrowRef = textRef.current?.querySelector(".scroll-arrow");
+            if (arrowRef && arrowHandlersRef.current) {
+                arrowRef.removeEventListener(
+                    "mouseenter",
+                    arrowHandlersRef.current.handleMouseEnter
+                );
+                arrowRef.removeEventListener(
+                    "mouseleave",
+                    arrowHandlersRef.current.handleMouseLeave
+                );
+                arrowRef.removeEventListener(
+                    "click",
+                    arrowHandlersRef.current.handleClick
+                );
             }
-            // Kill ScrollTrigger instances
-            ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+
+            // Kill timeline if it exists
+            if (timelineRef.current) {
+                timelineRef.current.kill();
+            }
+
+            // Clean up ScrollTrigger
+            cleanupScrollTrigger();
         };
     }, []);
 
@@ -119,9 +152,7 @@ const ImgHero = () => {
             }}
             dir={isRTL ? "rtl" : "ltr"}
         >
-            {/* Overlay for contrast */}
             <div className="absolute inset-0 bg-black/20 overlay"></div>
-            {/* Text container */}
             <div
                 ref={textRef}
                 className="relative z-10 text-center px-4 flex flex-col items-center"
@@ -139,7 +170,6 @@ const ImgHero = () => {
                     {t("hero_subtitle")}
                 </p>
 
-                {/* Arrow button using ChevronDown - app CSS will handle RTL rotation */}
                 <div className="mt-10 cursor-pointer scroll-arrow">
                     <div
                         className="flex items-center justify-center w-12 h-12 rounded-full"

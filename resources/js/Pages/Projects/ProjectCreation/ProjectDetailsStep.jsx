@@ -1,4 +1,3 @@
-// Components/ProjectCreation/ProjectDetailsStep.jsx
 import React from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -88,26 +87,30 @@ export default function ProjectDetailsStep({
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
-            className="w-full"
+            className="w-full px-3 sm:px-0" // Mobile padding
         >
-            <form onSubmit={handleSubmit}>
-                <div className="mb-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                {" "}
+                {/* Responsive spacing */}
+                <div className="mb-4 sm:mb-6">
+                    {" "}
+                    {/* Responsive margin */}
                     <ProjectCreationHeader
                         currentStep={safeGetCurrentFieldIndex()}
                         totalSteps={fields?.length || 1}
                         onBack={onPrevious}
                         title={getFieldLabel()}
                     />
-                    <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700 mb-8">
+                    {/* Mobile-optimized progress bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 dark:bg-gray-700 mb-6 sm:mb-8">
                         <div
-                            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                            className="bg-indigo-600 h-1.5 sm:h-2 rounded-full transition-all duration-300"
                             style={{
                                 width: `${safeGetProgressPercentage()}%`,
                             }}
                         ></div>
                     </div>
                 </div>
-
                 <FormField
                     field={currentField}
                     fieldData={currentFieldData || {}}
@@ -130,14 +133,12 @@ export default function ProjectDetailsStep({
                     generatingFieldName={generatingFieldName}
                     getAiButtonText={getAiButtonText}
                 />
-
                 <NextButton
                     onNext={onNextStep}
                     canProceed={canProceed}
                     isLastField={safeIsLastField()}
                     isRTL={isRTL}
                 />
-
                 <CustomScrollbarStyles />
             </form>
         </motion.div>
