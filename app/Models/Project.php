@@ -75,4 +75,12 @@ class Project extends Model
     {
         return $this->businessType ? $this->businessType->business_type_name : 'Not specified';
     }
+
+
+
+    // Add this method to your Project model
+    public function business_type()
+    {
+        return $this->belongsTo(BusinessType::class, 'business_type_id');
+    }
 }
