@@ -1,5 +1,4 @@
 import React from "react";
-import ChatWidget from "../../Components/Chat/ChatWidget";
 
 const Chat = () => {
     return (
@@ -39,14 +38,6 @@ const Chat = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Chat Widget */}
-            <ChatWidget
-                position="bottom-right"
-                size="medium"
-                autoOpen={false}
-                showNotification={false}
-            />
         </div>
     );
 };
