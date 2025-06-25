@@ -1,5 +1,5 @@
 import React from "react";
-import ChatWidget from "../components/Chat/ChatWidget";
+import ChatWidget from "../../Components/Chat/ChatWidget";
 
 const Chat = () => {
     return (
