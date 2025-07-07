@@ -8,14 +8,12 @@ class AddAiAnalysisToPlansTable extends Migration
 {
     public function up()
     {
-        Schema::table('plans', function (Blueprint $table) {
-            $table->json('ai_analysis')->nullable()->after('summary');
-        });
     }
 
     public function down()
     {
-        Schema::table('plans', function (Blueprint $table) {
+        Schema::table('plans', function (Blueprint $table)
+        {
             $table->dropColumn('ai_analysis');
         });
     }

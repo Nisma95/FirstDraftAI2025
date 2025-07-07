@@ -58,7 +58,7 @@ return new class extends Migration
                 'user_id' => 1,
                 'name' => 'breezes95',
                 'description' => 'BREEZES95: It\'s like having a travel buddy in your pocket! Breezes95 is a web and mobile app that helps you plan trips, find places nearby, connect with other travelers, and discover events.',
-                'status' => 'new_project',
+                'status' => 'idea',
                 'industry_id' => 1,
                 'business_type_id' => 3,
                 'main_product_service' => '1. Trip planning\n2. Nearby places\n3. Connect with travelers\n4. Discover events\n5. Explore destinations',

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
+        Schema::table('plans', function (Blueprint $table)
+        {
             // Add new fields for dynamic questioning
             $table->integer('progress_percentage')->default(0)->after('status');
             $table->enum('questioning_status', ['pending', 'active', 'completed', 'paused'])->nullable()->after('progress_percentage');
@@ -19,8 +20,7 @@ return new class extends Migration
 
             // Convert ai_analysis to JSON if it's not already
             // Note: This might need adjustment based on your current data
-            $table->json('ai_analysis')->change();
-
+            DB::statement('ALTER TABLE plans ALTER COLUMN ai_analysis TYPE json USING ai_analysis::json');
             // Add index for questioning status
             $table->index('questioning_status');
         });
@@ -31,7 +31,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
+        Schema::table('plans', function (Blueprint $table)
+        {
             $table->dropColumn(['progress_percentage', 'questioning_status', 'ai_conversation_context']);
             $table->dropIndex(['questioning_status']);
         });
