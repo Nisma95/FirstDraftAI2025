@@ -34,7 +34,8 @@ RUN composer install --no-dev --optimize-autoloader
 # Install Node dependencies and build assets
 RUN npm install && npm run build
 
-# Generate Laravel key if not set
+# Copy environment file and generate Laravel key
+RUN cp .env.example .env || touch .env
 RUN php artisan key:generate --force
 
 # Cache Laravel configuration
