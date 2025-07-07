@@ -34,6 +34,9 @@ RUN composer install --no-dev --optimize-autoloader
 # Install Node dependencies and build assets
 RUN npm install && npm run build
 
+# Generate Laravel key if not set
+RUN php artisan key:generate --force
+
 # Cache Laravel configuration
 RUN php artisan config:cache && \
     php artisan route:cache && \
