@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# Install system dependencies and PostgreSQL
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev libpq-dev zip unzip nodejs npm \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -20,19 +20,6 @@ COPY . .
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
-
-# Set environment
-RUN echo "APP_ENV=production" > .env
-RUN echo "APP_DEBUG=false" >> .env
-RUN echo "DB_CONNECTION=pgsql" >> .env
-RUN echo "SESSION_DRIVER=cookie" >> .env
-RUN echo "CACHE_DRIVER=array" >> .env
-RUN echo "QUEUE_CONNECTION=sync" >> .env
-
-# Generate key and cache
-RUN php artisan key:generate --force
-RUN php artisan config:cache || true
-RUN php artisan route:cache || true
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
