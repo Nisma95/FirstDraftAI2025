@@ -36,6 +36,9 @@ RUN npm install && npm run build
 
 # Copy environment file and generate Laravel key
 RUN cp .env.example .env || touch .env
+RUN echo "DB_CONNECTION=pgsql" >> .env
+RUN echo "SESSION_DRIVER=cookie" >> .env
+RUN echo "CACHE_DRIVER=array" >> .env
 RUN php artisan key:generate --force
 
 # Cache Laravel configuration
