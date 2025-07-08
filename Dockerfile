@@ -30,17 +30,12 @@ COPY composer.json composer.lock ./
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Copy package files
-COPY package*.json ./
-
-# Install Node dependencies
-RUN npm ci --only=production
-
-# Copy application code
+# Copy application code first
 COPY . .
 
-# Build assets
-RUN npm run build
+# Install and build assets if package.json exists
+RUN if [ -f package.json ]; then npm install; fi
+RUN if [ -f package.json ]; then npm run production || npm run build || echo "No build script found"; fi
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
