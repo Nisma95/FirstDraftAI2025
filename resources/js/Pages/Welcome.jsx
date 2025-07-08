@@ -61,7 +61,7 @@ export default function Welcome({ auth }) {
             <Navigation auth={auth} />
 
             {/* Mobile content - visible ONLY on small screens */}
-            <div className="block sm:hidden relative z-10">
+            <div className="sm:hidden">
                 <MobileHome />
             </div>
 
