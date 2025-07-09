@@ -1,20 +1,9 @@
-# Alternative: Native PHP Configuration (recommended for simplicity)
 services:
-  # Web Service
   - type: web
     name: firstdraftai2025
-    env: php
+    runtime: docker
     plan: free
     healthCheckPath: /up
-    buildCommand: |
-      composer install --optimize-autoloader --no-dev
-      if [ -f package.json ]; then npm ci && npm run build; fi
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: |
-      php artisan migrate --force
-      php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
         value: FirstDraftAI
@@ -70,7 +59,7 @@ services:
       - key: MAIL_FROM_NAME
         value: FirstDraftAI
       - key: OPENAI_API_KEY
-        value: your_openai_key_here
+        value: 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
       - key: APP_TIMEZONE
         value: UTC
 
