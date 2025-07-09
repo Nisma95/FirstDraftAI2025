@@ -1,49 +1,23 @@
 services:
   - type: web
     name: firstdraftai2025
-    runtime: docker
+    env: php
     plan: free
-    # REMOVE healthCheckPath completely
+    buildCommand: composer install --no-dev && npm ci && npm run build
+    startCommand: php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
-      - key: APP_NAME
-        value: FirstDraftAI
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_URL
-        fromService:
-          type: web
-          name: firstdraftai2025
-          property: host
-      - key: LOG_CHANNEL
-        value: stderr
-      - key: LOG_LEVEL
-        value: error
-      - key: SESSION_DRIVER
-        value: database
-      - key: CACHE_DRIVER
-        value: database
-      - key: QUEUE_CONNECTION
-        value: database
       - key: APP_KEY
         value: "base64:fuYBlHVyLXPuRkpP0mLcJu0PaWR6tVpX9bT7sFiblS0="
       - key: DATABASE_URL
         fromDatabase:
           name: firstdraftai-db
           property: connectionString
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: MAIL_MAILER
-        value: log
-      - key: MAIL_FROM_ADDRESS
-        value: hello@firstdraft.sa
-      - key: MAIL_FROM_NAME
-        value: FirstDraftAI
       - key: OPENAI_API_KEY
         value: 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
-      - key: APP_TIMEZONE
-        value: UTC
 
 databases:
   - name: firstdraftai-db
