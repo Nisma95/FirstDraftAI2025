@@ -1,15 +1,20 @@
-# Fixed render.yaml
+# Alternative: Native PHP Configuration (recommended for simplicity)
 services:
   # Web Service
   - type: web
     name: firstdraftai2025
-    runtime: docker
+    env: php
     plan: free
-    # Add health check configuration
     healthCheckPath: /up
-    # Increase timeout for health checks
-    buildCommand: docker build -t firstdraftai2025 .
-    startCommand: apache2-foreground
+    buildCommand: |
+      composer install --optimize-autoloader --no-dev
+      if [ -f package.json ]; then npm ci && npm run build; fi
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: |
+      php artisan migrate --force
+      php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
         value: FirstDraftAI
@@ -18,7 +23,10 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://firstdraftai2025.onrender.com
+        fromService:
+          type: web
+          name: firstdraftai2025
+          property: host
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
@@ -53,26 +61,20 @@ services:
         fromDatabase:
           name: firstdraftai-db
           property: password
-      # Add SSL configuration for PostgreSQL
       - key: DB_SSLMODE
         value: require
-      # Add missing mail configuration
       - key: MAIL_MAILER
         value: log
       - key: MAIL_FROM_ADDRESS
         value: hello@firstdraft.sa
       - key: MAIL_FROM_NAME
         value: FirstDraftAI
-      # Add missing OpenAI key (redacted in production)
       - key: OPENAI_API_KEY
         value: your_openai_key_here
-      # Add missing timezone
       - key: APP_TIMEZONE
         value: UTC
 
-  # Database Service (Fixed)
 databases:
   - name: firstdraftai-db
     databaseName: firstdraftai
     user: firstdraftai
-    plan: free
