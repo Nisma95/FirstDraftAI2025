@@ -3,7 +3,7 @@ services:
     name: firstdraftai2025
     runtime: docker
     plan: free
-    healthCheckPath: /up
+    # REMOVE healthCheckPath completely
     envVars:
       - key: APP_NAME
         value: FirstDraftAI
@@ -34,8 +34,6 @@ services:
           property: connectionString
       - key: DB_CONNECTION
         value: pgsql
-      - key: DB_SSLMODE
-        value: require
       - key: MAIL_MAILER
         value: log
       - key: MAIL_FROM_ADDRESS
