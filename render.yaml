@@ -1,10 +1,15 @@
-# File: render.yaml
+# Fixed render.yaml
 services:
   # Web Service
   - type: web
     name: firstdraftai2025
     runtime: docker
     plan: free
+    # Add health check configuration
+    healthCheckPath: /up
+    # Increase timeout for health checks
+    buildCommand: docker build -t firstdraftai2025 .
+    startCommand: apache2-foreground
     envVars:
       - key: APP_NAME
         value: FirstDraftAI
@@ -13,12 +18,11 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        fromService:
-          type: web
-          name: firstdraftai2025
-          property: host
+        value: https://firstdraftai2025.onrender.com
       - key: LOG_CHANNEL
         value: stderr
+      - key: LOG_LEVEL
+        value: error
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_DRIVER
@@ -26,7 +30,7 @@ services:
       - key: QUEUE_CONNECTION
         value: database
       - key: APP_KEY
-        generateValue: true
+        value: "base64:fuYBlHVyLXPuRkpP0mLcJu0PaWR6tVpX9bT7sFiblS0="
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
@@ -49,22 +53,26 @@ services:
         fromDatabase:
           name: firstdraftai-db
           property: password
+      # Add SSL configuration for PostgreSQL
       - key: DB_SSLMODE
         value: require
+      # Add missing mail configuration
+      - key: MAIL_MAILER
+        value: log
+      - key: MAIL_FROM_ADDRESS
+        value: hello@firstdraft.sa
+      - key: MAIL_FROM_NAME
+        value: FirstDraftAI
+      # Add missing OpenAI key (redacted in production)
       - key: OPENAI_API_KEY
-        value: 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
+        value: your_openai_key_here
+      # Add missing timezone
+      - key: APP_TIMEZONE
+        value: UTC
 
-  # Database Service
-  - type: pserv
-    name: firstdraftai-db
-    runtime: postgresql
-    plan: free
-    disk:
-      name: firstdraftai-data
-      mountPath: /var/lib/postgresql/data
-      sizeGB: 1
-
+  # Database Service (Fixed)
 databases:
   - name: firstdraftai-db
     databaseName: firstdraftai
     user: firstdraftai
+    plan: free
