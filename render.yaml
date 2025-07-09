@@ -1,22 +1,13 @@
+# File: render.yaml
 services:
   # Web Service
   - type: web
-    name: firstdraft-app
-    env: php
+    name: firstdraftai2025
+    runtime: docker
     plan: free
-    buildCommand: |
-      composer install --optimize-autoloader --no-dev
-      npm ci
-      npm run build
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: |
-      php artisan migrate --force
-      php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
-        value: FirstDraft
+        value: FirstDraftAI
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -24,7 +15,7 @@ services:
       - key: APP_URL
         fromService:
           type: web
-          name: firstdraft-app
+          name: firstdraftai2025
           property: host
       - key: LOG_CHANNEL
         value: stderr
@@ -36,18 +27,44 @@ services:
         value: database
       - key: APP_KEY
         generateValue: true
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: firstdraftai-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: firstdraftai-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: firstdraftai-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: firstdraftai-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: firstdraftai-db
+          property: password
+      - key: DB_SSLMODE
+        value: require
+      - key: OPENAI_API_KEY
+        value: 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
 
   # Database Service
   - type: pserv
-    name: firstdraft-db
-    env: postgresql
+    name: firstdraftai-db
+    runtime: postgresql
     plan: free
     disk:
-      name: firstdraft-data
+      name: firstdraftai-data
       mountPath: /var/lib/postgresql/data
       sizeGB: 1
 
 databases:
-  - name: firstdraft
-    databaseName: firstdraft
-    user: firstdraft_user
+  - name: firstdraftai-db
+    databaseName: firstdraftai
+    user: firstdraftai
