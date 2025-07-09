@@ -1,13 +1,16 @@
 <?php
+// File: app/Http/Controllers/Auth/AuthenticatedSessionController.php
 
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,18 +29,59 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     * NOW WORKS WITH SQLITE!
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Force remember me to be true by default
-        $remember = true;
+        try
+        {
+            // Try authentication first
+            $credentials = $request->only('email', 'password');
 
-        // Authenticate with remember option
-        $request->authenticate($remember);
+            if (Auth::attempt($credentials, true))
+            {
+                // SUCCESS!
+                $request->session()->regenerate();
 
-        $request->session()->regenerate();
+                Log::info('User logged in successfully', [
+                    'user_id' => Auth::id(),
+                    'email' => $request->email
+                ]);
 
-        return redirect()->intended(route('dashboard', absolute: false));
+                return redirect()->intended(route('dashboard', absolute: false));
+            }
+
+            // Authentication failed - check if user exists
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user)
+            {
+                // User doesn't exist - redirect to register
+                return redirect()->route('register', ['email' => $request->email])
+                    ->with('status', 'user_not_found')
+                    ->with('message', 'البريد الإلكتروني غير مسجل لدينا. هل تريد إنشاء حساب جديد؟')
+                    ->with('suggested_action', 'register');
+            }
+            else
+            {
+                // User exists but wrong password
+                return redirect()->route('password.request', ['email' => $request->email])
+                    ->with('status', 'wrong_password')
+                    ->with('message', 'كلمة المرور غير صحيحة. هل نسيت كلمة المرور؟')
+                    ->with('suggested_action', 'reset_password');
+            }
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Login error', [
+                'email' => $request->email,
+                'error' => $e->getMessage()
+            ]);
+
+            return back()->withInput()->withErrors([
+                'email' => 'حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.'
+            ]);
+        }
     }
 
     /**
@@ -46,11 +90,8 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+// File: database/migrations/2025_05_12_114027_add_questioning_fields_to_plans_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,12 +16,12 @@ return new class extends Migration
         {
             // Add new fields for dynamic questioning
             $table->integer('progress_percentage')->default(0)->after('status');
-            $table->enum('questioning_status', ['pending', 'active', 'completed', 'paused'])->nullable()->after('progress_percentage');
-            $table->json('ai_conversation_context')->nullable()->after('questioning_status');
+            $table->string('questioning_status')->nullable()->after('progress_percentage');
+            $table->text('ai_conversation_context')->nullable()->after('questioning_status');
 
-            // Convert ai_analysis to JSON if it's not already
-            // Note: This might need adjustment based on your current data
-            DB::statement('ALTER TABLE plans ALTER COLUMN ai_analysis TYPE json USING ai_analysis::json');
+            // SQLite doesn't support ALTER COLUMN TYPE - skip the conversion
+            // The ai_analysis column will remain as longText which works fine
+
             // Add index for questioning status
             $table->index('questioning_status');
         });
@@ -33,8 +34,8 @@ return new class extends Migration
     {
         Schema::table('plans', function (Blueprint $table)
         {
-            $table->dropColumn(['progress_percentage', 'questioning_status', 'ai_conversation_context']);
             $table->dropIndex(['questioning_status']);
+            $table->dropColumn(['progress_percentage', 'questioning_status', 'ai_conversation_context']);
         });
     }
 };

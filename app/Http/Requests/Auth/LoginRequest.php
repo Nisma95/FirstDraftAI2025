@@ -1,4 +1,5 @@
 <?php
+// File: app/Http/Requests/Auth/LoginRequest.php
 
 namespace App\Http\Requests\Auth;
 
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class LoginRequest extends FormRequest
 {
@@ -22,14 +24,25 @@ class LoginRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>
      */
     public function rules(): array
     {
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'remember' => ['boolean'],
+        ];
+    }
+
+    /**
+     * Custom validation messages
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'البريد الإلكتروني مطلوب.',
+            'email.email' => 'البريد الإلكتروني غير صحيح.',
+            'password.required' => 'كلمة المرور مطلوبة.',
         ];
     }
 
@@ -38,20 +51,53 @@ class LoginRequest extends FormRequest
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function authenticate(): void
+    public function authenticate($remember = false): void
     {
         $this->ensureIsNotRateLimited();
 
-        // Always use true for remember, regardless of what was submitted
-        if (! Auth::attempt($this->only('email', 'password'), true)) {
-            RateLimiter::hit($this->throttleKey());
+        try
+        {
+            // Simple authentication attempt - user existence is handled in controller
+            if (!Auth::attempt($this->only('email', 'password'), $remember))
+            {
+                RateLimiter::hit($this->throttleKey());
+
+                throw ValidationException::withMessages([
+                    'email' => ['بيانات الدخول غير صحيحة.'],
+                ]);
+            }
+
+            RateLimiter::clear($this->throttleKey());
+        }
+        catch (ValidationException $e)
+        {
+            // Re-throw validation exceptions
+            throw $e;
+        }
+        catch (\Exception $e)
+        {
+            Log::error('Authentication database error', [
+                'email' => $this->email,
+                'error' => $e->getMessage()
+            ]);
+
+            // Check for database connection issues
+            if (
+                str_contains($e->getMessage(), 'connection') ||
+                str_contains($e->getMessage(), 'server closed') ||
+                str_contains($e->getMessage(), 'SSL')
+            )
+            {
+
+                throw ValidationException::withMessages([
+                    'email' => ['حدث خطأ في الاتصال بقاعدة البيانات. يرجى المحاولة مرة أخرى لاحقاً.'],
+                ]);
+            }
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => ['حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.'],
             ]);
         }
-
-        RateLimiter::clear($this->throttleKey());
     }
 
     /**
@@ -61,7 +107,8 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5))
+        {
             return;
         }
 
@@ -82,6 +129,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
     }
 }
