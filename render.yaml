@@ -2,7 +2,6 @@ services:
   - type: web
     name: firstdraftai2025
     env: php
-    plan: free
     buildCommand: composer install --no-dev && npm ci && npm run build
     startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
@@ -16,8 +15,6 @@ services:
         fromDatabase:
           name: firstdraftai-db
           property: connectionString
-      - key: DB_CONNECTION
-        value: pgsql
       - key: OPENAI_API_KEY
         value: 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
 
