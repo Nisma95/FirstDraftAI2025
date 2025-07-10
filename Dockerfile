@@ -25,23 +25,37 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy composer files first for better caching
+# Copy composer files first
 COPY composer.json composer.lock ./
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# Copy the essential Laravel files that composer needs
+COPY artisan ./
+COPY bootstrap/ ./bootstrap/
+COPY config/ ./config/
+COPY database/ ./database/
+COPY public/ ./public/
+COPY resources/ ./resources/
+COPY routes/ ./routes/
+COPY storage/ ./storage/
+COPY app/ ./app/
 
-# Copy the rest of the application
-COPY . .
+# Create .env file from example
+COPY .env.example .env
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Copy the rest (package.json, etc.)
+COPY package*.json ./
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
 
 # Install npm dependencies and build assets
 RUN npm ci && npm run build
 
 # Set permissions
 RUN chmod -R 755 storage bootstrap/cache
-
-# Generate optimized autoloader
-RUN composer dump-autoloader --optimize
 
 # Create SQLite database file if it doesn't exist
 RUN touch database/database.sqlite
