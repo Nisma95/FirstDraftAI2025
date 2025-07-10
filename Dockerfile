@@ -16,7 +16,8 @@ RUN apk add --no-cache \
     libwebp-dev \
     freetype-dev \
     libxml2-dev \
-    git
+    git \
+    gettext
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
@@ -41,7 +42,8 @@ RUN npm ci && npm run build
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 
 # Expose port 80 for Nginx
-EXPOSE 80
+
 
 # Run Nginx and PHP-FPM
-CMD php-fpm && nginx -g 'daemon off;'
+CMD envsubst '$PORT' < /etc/nginx/http.d/default.conf > /etc/nginx/conf.d/default.conf && php-fpm && nginx -g 'daemon off;'
+
