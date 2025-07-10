@@ -5,8 +5,8 @@ services:
     env: php
     plan: free
     buildCommand: |
-      composer install --optimize-autoloader --no-dev
-      npm ci
+      composer install --optimize-autoloader --no-dev --no-interaction
+      npm ci --production=false
       npm run build
       php artisan config:cache
       php artisan route:cache
@@ -38,14 +38,12 @@ services:
         value: pgsql
       - key: DATABASE_URL
         fromDatabase:
-          name: firstdraftai
+          name: FirstDraft-DB
           property: connectionString
       - key: APP_KEY
         generateValue: true
-      - key: OPENAI_API_KEY
-        value: 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
 
 databases:
-  - name: firstdraftai
-    databaseName: firstdraftai
-    user: firstdraftai_user
+  - name: FirstDraft-DB
+    databaseName: firstdraftai_gmbq
+    user: firstdraftai_gmbq_user
