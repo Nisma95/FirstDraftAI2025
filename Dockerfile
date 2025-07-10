@@ -41,7 +41,7 @@ RUN npm ci && npm run build
 RUN chmod -R 755 storage bootstrap/cache
 
 # Generate optimized autoloader
-RUN composer dump-autoload --optimize
+RUN composer dump-autoloader --optimize
 
 # Create SQLite database file if it doesn't exist
 RUN touch database/database.sqlite
