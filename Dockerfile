@@ -21,7 +21,7 @@ RUN apk add --no-cache \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo_pgsql zip bcmath exif pcntl intl opcache
+    && docker-php-ext-install -j$(nproc ) gd pdo_pgsql zip bcmath exif pcntl intl opcache
 
 # Install Composer
 COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
@@ -42,9 +42,11 @@ RUN npm ci && npm run build
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
 RUN mkdir -p /etc/nginx/conf.d/
 
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port 80 for Nginx
 
 
 # Run Nginx and PHP-FPM
-CMD envsubst '$PORT' < /etc/nginx/http.d/default.conf > /etc/nginx/conf.d/default.conf && php-fpm && nginx -g 'daemon off;'
-
+ENTRYPOINT ["docker-entrypoint.sh"]
