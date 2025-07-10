@@ -2,8 +2,18 @@ services:
   # Web Service
   - type: web
     name: firstdraftai2025
-    env: docker
+    env: php
     plan: free
+    buildCommand: |
+      composer install --optimize-autoloader --no-dev
+      npm ci
+      npm run build
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: |
+      php artisan migrate --force
+      php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
         value: FirstDraftAI
@@ -50,4 +60,4 @@ services:
 databases:
   - name: firstdraftai
     databaseName: firstdraftai
-    user: firstdraftai_user
+    user: firs
