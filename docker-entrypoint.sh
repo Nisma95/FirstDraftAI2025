@@ -1,11 +1,11 @@
 #!/bin/sh
+set -e
 
-# Substitute the PORT environment variable into the Nginx configuration
-envsubst 
-'$PORT' < /etc/nginx/http.d/default.conf > /etc/nginx/conf.d/default.conf
+# Set default PORT if not provided
+export PORT=${PORT:-8080}
 
-# Start PHP-FPM in the background
-php-fpm &
+# Substitute environment variables in nginx config
+envsubst '$PORT' < /etc/nginx/http.d/default.conf.template > /etc/nginx/http.d/default.conf
 
-# Start Nginx in the foreground
-nginx -g 'daemon off;'
+# Start nginx
+exec nginx -g 'daemon off;'

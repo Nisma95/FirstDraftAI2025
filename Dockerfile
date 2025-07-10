@@ -1,52 +1,52 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-cli
 
 # Install system dependencies
-RUN apk add --no-cache \
-    nginx \
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    libsqlite3-dev \
+    zip \
+    unzip \
     nodejs \
     npm \
-    build-base \
-    autoconf \
-    libzip-dev \
-    postgresql-dev \
-    icu-dev \
-    oniguruma-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev \
-    freetype-dev \
-    libxml2-dev \
-    git \
-    gettext
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc ) gd pdo_pgsql zip bcmath exif pcntl intl opcache
+RUN docker-php-ext-install pdo_pgsql pdo_sqlite pgsql mbstring exif pcntl bcmath gd
 
 # Install Composer
-COPY --from=composer/composer:latest-bin /composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Set working directory
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Copy application code
+# Copy composer files first for better caching
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# Copy the rest of the application
 COPY . .
 
-# Install Composer dependencies
-RUN composer install --no-dev --optimize-autoloader
-
-# Install Node.js dependencies and build frontend assets
+# Install npm dependencies and build assets
 RUN npm ci && npm run build
 
-# Configure Nginx
-COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
-RUN mkdir -p /etc/nginx/conf.d/
+# Set permissions
+RUN chmod -R 755 storage bootstrap/cache
 
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Generate optimized autoloader
+RUN composer dump-autoload --optimize
 
-# Expose port 80 for Nginx
+# Create SQLite database file if it doesn't exist
+RUN touch database/database.sqlite
 
+EXPOSE 8080
 
-# Run Nginx and PHP-FPM
-ENTRYPOINT ["docker-entrypoint.sh"]
+# Use the PORT environment variable or default to 8080
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
