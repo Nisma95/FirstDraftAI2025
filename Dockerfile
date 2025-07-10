@@ -40,6 +40,7 @@ RUN npm ci && npm run build
 
 # Configure Nginx
 COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+RUN mkdir -p /etc/nginx/conf.d/
 
 # Expose port 80 for Nginx
 
