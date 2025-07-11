@@ -1,7 +1,4 @@
 /* Import FullCalendar CSS from node_modules FIRST */
-@import "~@fullcalendar/core/main.css";
-@import "~@fullcalendar/daygrid/main.css";
-@import "~@fullcalendar/timegrid/main.css";
 
 /* Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,500&display=swap");
