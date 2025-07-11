@@ -1,14 +1,15 @@
-[build]
-builder = "nixpacks"
+[phases.install]
+cmds = ["composer install --no-dev --optimize-autoloader", "npm install"]
 
-[deploy]
-startCommand = "touch /tmp/database.sqlite && php -S 0.0.0.0:$PORT -t public"
-healthcheckPath = "/"
-healthcheckTimeout = 100
-restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
+[phases.build]
+cmds = ["npm run build"]
 
-[env]
-NODE_ENV = "production"
-APP_ENV = "production"
-APP_DEBUG = "false"
+[start]
+cmd = "cd /app && php artisan serve --host=0.0.0.0 --port=$PORT"
+
+[variables]
+NIXPACKS_PHP_ROOT_DIR = "/app/public"
+
+[healthcheck]
+path = "/"
+timeout = "30s"
