@@ -1,51 +1,31 @@
-FROM php:8.2-cli
+# Build stage for Node.js assets
+FROM node:18-alpine AS build-stage
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    nodejs \
-    npm \
-    unzip \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_pgsql pdo_mysql
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
 
-# Copy composer files first for better caching
-COPY composer.json composer.lock ./
-
-# Install PHP dependencies
-RUN composer install --no-dev --no-scripts --optimize-autoloader
-
-# Copy package files for npm
-COPY package.json package-lock.json ./
-
-# Install npm dependencies
-RUN npm ci
-
-# Copy the rest of the application
 COPY . .
-
-# Build assets
 RUN npm run build
 
-# Cache Laravel configuration
-RUN php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Production stage
+FROM richarvey/nginx-php-fpm:latest
 
-# Create .env file with basic database settings
-RUN echo "DB_CONNECTION=pgsql" > .env.production
+COPY --from=build-stage /app .
 
-# Expose port
-EXPOSE 8080
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-# Start command
-CMD cp .env.production .env && php artisan config:clear && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
+
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
+
+CMD ["/start.sh"]

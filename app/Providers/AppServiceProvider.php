@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Routing\UrlGenerator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Request;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,12 +18,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(UrlGenerator $url): void
     {
-        // Add rate limiter to fix the API rate limiting error
-        RateLimiter::for('api', function (Request $request)
+        if (env('APP_ENV') === 'production')
         {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+            $url->forceScheme('https');
+        }
     }
 }
