@@ -1,46 +1,30 @@
-# استخدم PHP مع Apache
-FROM php:8.2-apache
+FROM php:8.2-cli
 
-# تثبيت المتطلبات
+WORKDIR /app
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
     unzip \
     nodejs \
-    npm \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+    npm
 
-# تثبيت Composer
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# تعيين مجلد العمل
-WORKDIR /var/www/html
-
-# نسخ ملفات المشروع
+# Copy files
 COPY . .
 
-# تثبيت المتطلبات
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
+
+# Install Node dependencies and build
 RUN npm install && npm run build
 
-# إعداد الصلاحيات
-RUN chown -R www-data:www-data /var/www/html/storage
-RUN chown -R www-data:www-data /var/www/html/bootstrap/cache
+# Create SQLite database
+RUN touch /tmp/database.sqlite
 
-# تكوين Apache
-RUN a2enmod rewrite
-COPY .htaccess /var/www/html/.htaccess
+EXPOSE $PORT
 
-# إنشاء ملف .env من .env.example
-RUN cp .env.example .env
-RUN php artisan key:generate
-
-# فتح البورت
-EXPOSE 80
-
-# تشغيل Apache
-CMD ["apache2-foreground"]
+# Start PHP server
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
