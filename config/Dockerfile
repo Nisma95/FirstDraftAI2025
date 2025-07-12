@@ -1,30 +1,33 @@
 FROM php:8.2-cli
 
-WORKDIR /app
-
-# Install dependencies
+# Install only essential stuff
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
+    libpq-dev \
     nodejs \
-    npm
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-install pdo_pgsql
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy files
+WORKDIR /app
+
+# Copy everything at once
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install dependencies and build assets
+RUN composer install --no-dev --no-scripts --optimize-autoloader \
+    && npm ci \
+    && npm run build \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
 
-# Install Node dependencies and build
-RUN npm install && npm run build
-
-# Create SQLite database
-RUN touch /tmp/database.sqlite
-
+# Expose port
 EXPOSE $PORT
 
-# Start PHP server
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+# Run migrations and start server
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
