@@ -29,5 +29,7 @@ RUN composer install --no-dev --no-scripts --optimize-autoloader \
 # Expose port
 EXPOSE $PORT
 
+
+
 # Run migrations and start server
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
