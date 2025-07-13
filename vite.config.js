@@ -18,25 +18,13 @@ export default defineConfig({
   build: {
     manifest: true,
     outDir: "public/build",
-    chunkSizeWarningLimit: 1000,
+    assetsDir: "",
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom"],
-          ui: ["@headlessui/react", "@material-tailwind/react"],
-          three: ["three"],
-          gsap: ["gsap", "@gsap/react"],
-          utils: ["axios", "dayjs", "date-fns"],
-        },
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
       },
     },
-  },
-  server: {
-    hmr: {
-      overlay: false,
-    },
-  },
-  define: {
-    global: "globalThis",
   },
 });
