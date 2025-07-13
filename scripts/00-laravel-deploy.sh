@@ -1,7 +1,22 @@
 #!/usr/bin/env bash
 
+echo "Installing Node.js dependencies..."
+npm install
+
+echo "Building frontend assets..."
+npm run build
+
 echo "Running composer..."
 composer install --no-dev --working-dir=/var/www/html
+
+echo "Clearing all caches..."
+php artisan config:clear
+php artisan route:clear  
+php artisan view:clear
+php artisan cache:clear
+
+echo "Running fresh migrations (this will delete and recreate all tables)..."
+php artisan migrate:fresh --force
 
 echo "Caching config..."
 php artisan config:cache
@@ -11,14 +26,5 @@ php artisan route:cache
 
 echo "Caching views..."
 php artisan view:cache
-
-echo "Running migrations..."
-php artisan migrate --force
-
-echo "Clearing and caching events..."
-php artisan event:cache
-
-echo "Optimizing autoloader..."
-composer dump-autoload --optimize
 
 echo "Laravel deployment completed successfully!"
