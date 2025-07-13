@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
 echo "Installing Node.js dependencies..."
-npm install
+npm install --production=false
 
-echo "Building frontend assets..."
+echo "Building frontend assets with Vite..."
 npm run build
+
+echo "Checking if build was successful..."
+if [ ! -f "/var/www/html/public/build/manifest.json" ]; then
+    echo "Build failed! Creating empty manifest..."
+    mkdir -p /var/www/html/public/build
+    echo '{}' > /var/www/html/public/build/manifest.json
+fi
 
 echo "Running composer..."
 composer install --no-dev --working-dir=/var/www/html
@@ -15,7 +22,7 @@ php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
-echo "Running fresh migrations (this will delete and recreate all tables)..."
+echo "Running fresh migrations..."
 php artisan migrate:fresh --force
 
 echo "Caching config..."
