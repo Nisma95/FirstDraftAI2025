@@ -1,17 +1,6 @@
-# Build stage for Node.js assets
-FROM node:18-alpine AS build-stage
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
+FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
-RUN npm run build
-
-# Production stage
-FROM richarvey/nginx-php-fpm:latest
-
-COPY --from=build-stage /app .
 
 # Image config
 ENV SKIP_COMPOSER 1
