@@ -1,19 +1,10 @@
 # Stage 1: Build frontend assets
 FROM node:18-alpine AS node-builder
-
 WORKDIR /app
-
-# Copy package files first for better caching
 COPY package*.json ./
-
-# Install ALL dependencies (including dev)
 RUN npm install
-
-# Copy all source files
 COPY . .
-
-# Build assets with verbose output
-RUN npm run build && ls -la public/build/
+RUN npm run build
 
 # Stage 2: PHP/Nginx runtime
 FROM richarvey/nginx-php-fpm:3.1.6
@@ -21,14 +12,11 @@ FROM richarvey/nginx-php-fpm:3.1.6
 # Copy application files
 COPY . .
 
-# Copy built assets from node builder - ensure the path exists
+# Copy built assets from node builder
 COPY --from=node-builder /app/public/build ./public/build
 
-# Create empty manifest if build failed
-RUN mkdir -p /var/www/html/public/build && \
-    if [ ! -f "/var/www/html/public/build/manifest.json" ]; then \
-        echo '{"resources/js/app.jsx":{"file":"assets/app.js","css":["assets/app.css"]}}' > /var/www/html/public/build/manifest.json; \
-    fi
+# Copy nginx configuration
+COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
 
 # Image config
 ENV SKIP_COMPOSER 1
@@ -45,7 +33,10 @@ ENV LOG_CHANNEL stderr
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Set working directory
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+
 WORKDIR /var/www/html
 
 CMD ["/start.sh"]
