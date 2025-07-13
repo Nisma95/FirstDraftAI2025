@@ -28,8 +28,8 @@
 
     <!-- Scripts -->
     @routes
-    <script src="{{ asset('js/app.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @viteReactRefresh
+    @vite(['resources/js/app.jsx'])
     @inertiaHead
 
     <!-- Add a script to set the initial dark/light mode -->
