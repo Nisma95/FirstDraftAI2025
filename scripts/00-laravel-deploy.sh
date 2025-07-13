@@ -1,18 +1,5 @@
 #!/usr/bin/env bash
 
-echo "Installing Node.js dependencies..."
-npm install --production=false
-
-echo "Building frontend assets with Vite..."
-npm run build
-
-echo "Checking if build was successful..."
-if [ ! -f "/var/www/html/public/build/manifest.json" ]; then
-    echo "Build failed! Creating empty manifest..."
-    mkdir -p /var/www/html/public/build
-    echo '{}' > /var/www/html/public/build/manifest.json
-fi
-
 echo "Running composer..."
 composer install --no-dev --working-dir=/var/www/html
 

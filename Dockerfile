@@ -1,6 +1,28 @@
+# Stage 1: Build frontend assets
+FROM node:18-alpine AS node-builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build frontend assets
+RUN npm run build
+
+# Stage 2: PHP/Nginx runtime
 FROM richarvey/nginx-php-fpm:3.1.6
 
+# Copy application files
 COPY . .
+
+# Copy built assets from node builder
+COPY --from=node-builder /app/public/build ./public/build
 
 # Image config
 ENV SKIP_COMPOSER 1
@@ -16,10 +38,6 @@ ENV LOG_CHANNEL stderr
 
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Install Node.js 18
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs
 
 # Set working directory
 WORKDIR /var/www/html
