@@ -7,17 +7,17 @@ import Head from "@/Pages/MobileComponents/Head";
 import MobileHero from "@/Pages/MobileComponents/MobileHero";
 
 export default function MobileHome() {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
 
-    return (
-        <div className="min-h-screen relative overflow-x-hidden">
-            <StarBackground />
+  return (
+    <div className="min-h-screen relative overflow-x-hidden">
+      <StarBackground />
 
-            {/* Page Content (pushed down so it's not under the header) */}
-            <div className="">
-                <MobileHero />
-                {/* other mobile content... */}
-            </div>
-        </div>
-    );
+      {/* Page Content (pushed down so it's not under the header) */}
+      <div className="">
+        <h1>Hey</h1>
+        {/* other mobile content... */}
+      </div>
+    </div>
+  );
 }
