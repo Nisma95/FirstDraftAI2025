@@ -18,6 +18,14 @@ html {
   scroll-behavior: smooth;
 }
 
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .contract-content-scroll {
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -499,13 +507,6 @@ select option {
   }
   100% {
     background-size: 110%; /* End slightly zoomed in */
-  }
-}
-
-@media (max-width: 768px) {
-  .bg-zoom {
-    background-size: cover;
-    height: 100vh;
   }
 }
 

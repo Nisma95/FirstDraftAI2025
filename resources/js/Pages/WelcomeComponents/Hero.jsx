@@ -34,15 +34,17 @@ const Hero = () => {
 
   return (
     <section
-      className="bg-zoom relative flex h-screen items-center justify-center bg-gray-100 dark:bg-gray-900 bg-cover bg-no-repeat bg-center"
+      className="bg-zoom relative flex items-center justify-center bg-cover bg-center bg-no-repeat lg:bg-[url('/images/firstdraft1bg.jpg')]"
       style={{
-        backgroundImage: "url('/images/firstdraft1bg.jpg')",
-        direction: isRTL ? "rtl" : "ltr", // Set text direction dynamically
+        direction: isRTL ? "rtl" : "ltr",
+        minHeight: "100vh", // Ensures minimum full screen height
+        height: "auto", // Allows flexibility on tall/small screens
+        backgroundColor: "transparent", // For mobile/tablet fallback
       }}
     >
       {/* Mobile Version - Visible on small screens only */}
       <div
-        className="sm:hidden p-6 rounded-lg text-center w-full max-w-sm"
+        className="lg:hidden p-6 rounded-lg text-center w-full "
         style={{ textAlign: "center" }}
       >
         <h1 className="relative overflow-hidden">
@@ -51,19 +53,18 @@ const Hero = () => {
             {words.map((item, index) => (
               <span
                 key={index}
-                className="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-1 text-lg"
+                className="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-1 text-base sm:text-lg"
                 style={{
                   opacity: animateIn ? 1 : 0,
-                  transform: animateIn ? "translateY(0)" : "translateY(80px)", // Reduced translateY for mobile
+                  transform: animateIn ? "translateY(0)" : "translateY(50px)",
                   transitionDelay: `${item.delay}ms`,
                   cursor: "default",
-                  lineHeight: isRTL ? "1.6" : "1.4", // Adjusted line height for mobile
-                  paddingBottom: isRTL ? "0.2em" : "0",
-                  marginBottom: isRTL ? "0.1em" : "0",
+                  lineHeight: isRTL ? "1.5" : "1.4",
+                  paddingBottom: isRTL ? "0.1em" : "0",
+                  marginBottom: isRTL ? "0.05em" : "0",
                 }}
                 onTouchStart={(e) => {
-                  // Mobile touch interaction
-                  e.target.style.transform = "translateY(-5px) scale(1.02)"; // Reduced scale for mobile
+                  e.target.style.transform = "translateY(-5px) scale(1.02)";
                   e.target.style.transition = "transform 0.2s ease";
                 }}
                 onTouchEnd={(e) => {
@@ -77,7 +78,6 @@ const Hero = () => {
           </div>
         </h1>
 
-        {/* Start Now Button - Mobile Version */}
         <div className="mt-6">
           <a
             href={route("plans.create")}
@@ -86,19 +86,17 @@ const Hero = () => {
             className="fdButton px-6 py-3 inline-flex items-center gap-2 text-sm font-medium"
             style={{
               opacity: animateIn ? 1 : 0,
-              transform: animateIn ? "translateY(0)" : "translateY(30px)", // Reduced translateY for mobile
-              transitionDelay: `${words.length * 200 + 400}ms`, // Faster timing for mobile
+              transform: animateIn ? "translateY(0)" : "translateY(30px)",
+              transitionDelay: `${words.length * 200 + 400}ms`,
               transition: "all 800ms ease-out",
-              minHeight: "44px", // Touch-friendly button height
-              minWidth: "120px", // Adequate button width for mobile
+              minHeight: "44px",
+              minWidth: "120px",
             }}
           >
             {t("startNow")}
-
-            {/* Single arrow based on language direction */}
             {isRTL ? (
               <svg
-                className="w-4 h-4 flex-shrink-0"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -112,7 +110,7 @@ const Hero = () => {
               </svg>
             ) : (
               <svg
-                className="w-4 h-4 flex-shrink-0"
+                className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -131,8 +129,8 @@ const Hero = () => {
 
       {/* Desktop Version - Hidden on small screens */}
       <div
-        className="hidden sm:block p-12 rounded-lg text-center"
-        style={{ textAlign: "center" }} // Ensure text is centered
+        className="hidden lg:block rounded-lg text-center"
+        style={{ textAlign: "center" }}
       >
         <h1 className="relative overflow-hidden">
           <span className="sr-only">{t("welcome")}</span>

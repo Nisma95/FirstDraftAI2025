@@ -12,93 +12,93 @@
 @import url("https://fonts.googleapis.com/css2?family=League+Script&display=swap");
 
 .fdGradientColorzTX {
-    text-transform: uppercase;
-    font-weight: bold;
-    background: linear-gradient(90deg, #5956e9, #6077a1, #333333);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-size: 2.8rem;
-    line-height: 1.2 !important;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: linear-gradient(90deg, #5956e9, #6077a1, #333333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2.8rem;
+  line-height: 1.2 !important;
 }
 
 /* For Arabic text in gradient color class */
 [dir="rtl"] .fdGradientColorzTX {
-    line-height: 1.6 !important;
-    padding-bottom: 0.25em;
+  line-height: 1.6 !important;
+  padding-bottom: 0.25em;
 }
 
 .dark .fdGradientColorzTX {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Mobile styles */
 @media (max-width: 767px) {
-    .fdGradientColorzTX {
-        font-size: 1.8rem;
-        line-height: 1.2 !important;
-    }
+  .fdGradientColorzTX {
+    font-size: 1.8rem;
+    line-height: 1.2 !important;
+  }
 
-    /* Hide paragraph on mobile */
-    .fdDiveCard p {
-        display: none;
-    }
+  /* Hide paragraph on mobile */
+  .fdDiveCard p {
+    display: none;
+  }
 }
 
 /* Extra small devices */
 @media (max-width: 479px) {
-    .fdGradientColorzTX {
-        font-size: 1.8rem;
-        line-height: 1.1 !important;
-    }
+  .fdGradientColorzTX {
+    font-size: 1.8rem;
+    line-height: 1.1 !important;
+  }
 }
 
 .fdHighLighTXT {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    position: relative;
-    display: inline-block;
-    scale: 1;
-    animation: onloadscale 1s ease-out forwards;
-    font-size: 7rem;
-    line-height: 1.5 !important;
-    font-weight: bold; /* This makes the text bold */
+  background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  display: inline-block;
+  scale: 1;
+  animation: onloadscale 1s ease-out forwards;
+  font-size: 7rem;
+  line-height: 1.5 !important;
+  font-weight: bold; /* This makes the text bold */
 }
 
 .fdHighLighTXT::before {
-    content: attr(data-text);
-    position: absolute;
-    pointer-events: none;
-    color: #fffaf6;
-    background: linear-gradient(0deg, #dfe5ee 0%, #fffaf6 50%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: url(#glow-4);
-    -moz-filter: url(#glow-4);
-    -webkit-filter: url(#glow-4);
-    opacity: 0;
-    animation: onloadopacity 1s ease-out forwards;
+  content: attr(data-text);
+  position: absolute;
+  pointer-events: none;
+  color: #fffaf6;
+  background: linear-gradient(0deg, #dfe5ee 0%, #fffaf6 50%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: url(#glow-4);
+  -moz-filter: url(#glow-4);
+  -webkit-filter: url(#glow-4);
+  opacity: 0;
+  animation: onloadopacity 1s ease-out forwards;
 }
 
 @keyframes onloadscale {
-    24% {
-        scale: 1;
-    }
-    100% {
-        scale: 1.02;
-    }
+  24% {
+    scale: 1;
+  }
+  100% {
+    scale: 1.02;
+  }
 }
 
 @keyframes onloadopacity {
-    24% {
-        opacity: 0;
-    }
-    100% {
-        opacity: 1;
-    }
+  24% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /**********************************************************************************/
@@ -106,47 +106,82 @@
 
 /* For RTL languages like Arabic */
 [dir="rtl"] .fdHeroTX {
-    line-height: 1.6 !important;
-    padding-bottom: 0.25em;
-    margin-bottom: 0.1em;
+  line-height: 1.6 !important;
+  padding-bottom: 0.25em;
+  margin-bottom: 0.1em;
 }
 
 .fdHeroTX {
-    font-size: 8rem !important;
-    text-transform: uppercase;
-    font-weight: bold;
-    background: linear-gradient(90deg, #5956e9, #6077a1, #333333);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    line-height: 1.2 !important;
+  font-size: 8rem !important;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: linear-gradient(90deg, #5956e9, #6077a1, #333333);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2 !important;
 }
 
 .dark .fdHeroTX {
-    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #090909 70%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0px 0px 2px rgb(255 255 255 / 18%);
+  background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #000000 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0px 0px 2px rgb(255 255 255 / 18%);
 }
 
 /* Responsive font size adjustments handled by Tailwind classes in component */
 
 /* For screens 425px and below */
-@media (max-width: 426px) {
-    .fdHeroTX {
-        font-size: 2.9rem !important;
-    }
+/* Hero Text Responsive Styles */
+
+/* Mobile phones (320px - 480px) */
+@media (max-width: 480px) {
+  .fdHeroTX {
+    font-size: 3rem !important;
+    line-height: 1.4 !important;
+  }
+  .dark .fdHeroTX {
+    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 2px rgb(255 255 255 / 18%);
+  }
+}
+
+/* Large mobile phones (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .fdHeroTX {
+    font-size: 6rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .dark .fdHeroTX {
+    background: linear-gradient(90deg, #5956e9 0%, #6077a1 40%, #ffffff 70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0px 0px 2px rgb(255 255 255 / 18%);
+  }
+}
+
+/* Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .fdHeroTX {
+    font-size: clamp(5rem, 10vw, 5rem) !important;
+    line-height: 1.2 !important;
+  }
 }
 
 /* For hover effects on mobile */
 @media (hover: hover) {
-    .fdHeroTX:hover {
-        transform: translateY(-5px) scale(1.05);
-        transition: transform 0.3s ease;
-    }
+  .fdHeroTX:hover {
+    transform: translateY(-5px) scale(1.05);
+    transition: transform 0.3s ease;
+  }
 }
 
 .text-shadow-lg {
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Adds a subtle shadow */
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); /* Adds a subtle shadow */
 }

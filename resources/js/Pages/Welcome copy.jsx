@@ -55,14 +55,31 @@ export default function Welcome({ auth }) {
       <Navigation auth={auth} />
 
       {/* Main Content */}
-      <main className="relative min-h-screen pb-24 lg:pb-8">
-        {/* Hero Section */}
-
+      <div
+        ref={featuresRef}
+        className={`${
+          isRTL ? "rtl font-arabic text-right" : "ltr font-sans text-left"
+        } relative z-10 text-white`}
+      >
+        {/* Hero */}
         <Hero />
-      </main>
 
-      {/* Scroll to Top Button */}
-      <ScrollToTop />
+        {/* Features */}
+        <Features />
+
+        {/* Image Hero */}
+        <ImgHero />
+
+        {/* FAQ Section */}
+        <FAQ />
+
+        {/* Contact us */}
+        <Contact />
+
+        <div className="mt-20"></div>
+
+        <ScrollToTop />
+      </div>
     </>
   );
 }
