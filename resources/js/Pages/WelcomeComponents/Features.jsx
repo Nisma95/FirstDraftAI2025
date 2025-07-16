@@ -10,53 +10,53 @@ import { cleanupScrollTrigger } from "../../utils/scrollTriggerUtils";
 gsap.registerPlugin(ScrollTrigger);
 
 const Features = () => {
-    const lenisRef = useRef(null);
-    const rafIdRef = useRef(null);
+  const lenisRef = useRef(null);
+  const rafIdRef = useRef(null);
 
-    useEffect(() => {
-        if (typeof window === "undefined") return;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-        // Initialize smooth scrolling with Lenis
-        lenisRef.current = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        });
+    // Initialize smooth scrolling with Lenis
+    lenisRef.current = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    });
 
-        lenisRef.current.on("scroll", ScrollTrigger.update);
+    lenisRef.current.on("scroll", ScrollTrigger.update);
 
-        const raf = (time) => {
-            if (lenisRef.current) {
-                lenisRef.current.raf(time);
-                ScrollTrigger.update();
-                rafIdRef.current = requestAnimationFrame(raf);
-            }
-        };
-
+    const raf = (time) => {
+      if (lenisRef.current) {
+        lenisRef.current.raf(time);
+        ScrollTrigger.update();
         rafIdRef.current = requestAnimationFrame(raf);
+      }
+    };
 
-        return () => {
-            // Cancel animation frame
-            if (rafIdRef.current) {
-                cancelAnimationFrame(rafIdRef.current);
-            }
+    rafIdRef.current = requestAnimationFrame(raf);
 
-            // Destroy Lenis
-            if (lenisRef.current) {
-                lenisRef.current.destroy();
-                lenisRef.current = null;
-            }
+    return () => {
+      // Cancel animation frame
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
 
-            // Clean up ScrollTrigger
-            cleanupScrollTrigger();
-        };
-    }, []);
+      // Destroy Lenis
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
 
-    return (
-        <>
-            <VerticalScroll />
-            <HorizontalScroll />
-        </>
-    );
+      // Clean up ScrollTrigger
+      cleanupScrollTrigger();
+    };
+  }, []);
+
+  return (
+    <div className="hidden lg:block">
+      <VerticalScroll />
+      <HorizontalScroll />
+    </div>
+  );
 };
 
 export default Features;

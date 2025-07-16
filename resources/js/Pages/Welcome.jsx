@@ -57,8 +57,11 @@ export default function Welcome({ auth }) {
       {/* Main Content */}
       <main className="relative min-h-screen pb-24 lg:pb-8">
         {/* Hero Section */}
-
         <Hero />
+
+        {/*Features section */}
+
+        <Features />
       </main>
 
       {/* Scroll to Top Button */}
