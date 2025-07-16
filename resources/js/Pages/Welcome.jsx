@@ -59,9 +59,23 @@ export default function Welcome({ auth }) {
         {/* Hero Section */}
         <Hero />
 
-        {/*Features section */}
+        <div className="hidden lg:block">
+          {/*Features section */}
+          <Features />
 
-        <Features />
+          {/* Image Hero */}
+          <ImgHero />
+
+          {/* FAQ Section */}
+          <FAQ />
+
+          {/* Contact us */}
+          <Contact />
+
+          <div className="mt-20"></div>
+
+          <ScrollToTop />
+        </div>
       </main>
 
       {/* Scroll to Top Button */}
