@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 const Hero = () => {
   const { t, i18n } = useTranslation();
   const [animateIn, setAnimateIn] = useState(false);
+  const [showButton, setShowButton] = useState(false);
   const [words, setWords] = useState([]);
 
   // Determine text direction based on the current language
@@ -26,9 +27,15 @@ const Hero = () => {
       setAnimateIn(true);
     }, 300);
 
-    // Clean up timer on unmount
+    // Show button after text animation completes
+    const buttonTimer = setTimeout(() => {
+      setShowButton(true);
+    }, 300 + wordArray.length * 200 + 800); // Text delay + stagger + extra time
+
+    // Clean up timers on unmount
     return () => {
       clearTimeout(animationTimer);
+      clearTimeout(buttonTimer);
     };
   }, [t]);
 
@@ -78,19 +85,18 @@ const Hero = () => {
           </div>
         </h1>
 
-        <div className="mt-6">
+        <div className="mt-6 px-12">
           <a
             href={route("plans.create")}
             target="_blank"
             rel="noopener noreferrer"
-            className="fdButton px-6 py-3 inline-flex items-center gap-2 text-sm font-medium"
+            className="fdButton px-6 py-3 inline-flex items-center justify-center gap-2 text-sm font-medium w-[80%]"
             style={{
-              opacity: animateIn ? 1 : 0,
-              transform: animateIn ? "translateY(0)" : "translateY(30px)",
-              transitionDelay: `${words.length * 200 + 400}ms`,
-              transition: "all 800ms ease-out",
+              opacity: showButton ? 1 : 0,
+              transform: showButton ? "scaleX(1)" : "scaleX(0)",
+              transformOrigin: "center",
+              transition: "all 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94)",
               minHeight: "44px",
-              minWidth: "120px",
             }}
           >
             {t("startNow")}
