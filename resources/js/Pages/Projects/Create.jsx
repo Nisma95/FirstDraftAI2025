@@ -82,11 +82,11 @@ export default function Create({ auth, industries = [], businessTypes = [] }) {
     <AuthenticatedLayout user={auth.user}>
       <Head title={t("create_project")} />
 
-      <div className="min-h-screen flex items-center justify-center py-12 px-4 relative">
+      <div className="min-h-screen flex items-center justify-center pt-32 pb-12 md:pt-40 md:pb-16 lg:pt-24 lg:pb-16 px-3 sm:px-4 lg:px-4 relative">
         {/* Top Right Tools - Mode and Language Switchers */}
         <TopTools />
 
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-sm sm:max-w-lg md:max-w-2xl lg:max-w-3xl">
           <AnimatePresence mode="wait">
             {/* STEP 1: PROJECT STATUS SELECTION */}
             {step === "select" && (
