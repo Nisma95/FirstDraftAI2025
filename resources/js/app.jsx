@@ -1,7 +1,6 @@
-import "../css/app.css";
-import "../css/stylingFonts.css";
-import "../css/navigation-media.css"; // Add this line
-import "../css/dashboard.css"; // Add this line
+// Remove these CSS imports from your app.jsx:
+// import "../css/app.css";
+// import "../css/stylingFonts.css";
 
 import "./bootstrap";
 import "./locales/i18n";
@@ -28,7 +27,7 @@ function AppWrapper({ App, props }) {
 
     requestAnimationFrame(raf);
 
-    return () => lenis.destroy(); // Cleanup on unmount
+    return () => lenis.destroy();
   }, []);
 
   return (
@@ -49,11 +48,8 @@ createInertiaApp({
     } catch (error) {
       console.error("Page resolution failed for:", name);
       console.error("Error:", error);
-
-      // Try to get available pages for debugging
       const availablePages = import.meta.glob("./Pages/**/*.jsx");
       console.log("Available pages:", Object.keys(availablePages));
-
       throw error;
     }
   },

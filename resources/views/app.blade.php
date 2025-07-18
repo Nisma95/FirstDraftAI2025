@@ -24,15 +24,14 @@
     </script>
 
     @routes
-
-    @if(app()->environment('production'))
-    <script src="{{ asset('js/app.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @else
     @viteReactRefresh
-    @vite(['resources/js/app.jsx'])
-    @endif
-
+    @vite([
+    'resources/js/app.jsx',
+    'resources/css/app.css',
+    'resources/css/stylingFonts.css',
+    'resources/css/navigation-media.css',
+    'resources/css/dashboard.css'
+    ])
     @inertiaHead
 
     <script>
