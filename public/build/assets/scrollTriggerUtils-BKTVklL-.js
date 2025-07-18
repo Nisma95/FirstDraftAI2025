@@ -1,0 +1,1 @@
+const e=()=>{var o;if(typeof window<"u")try{(((o=window.ScrollTrigger)==null?void 0:o.getAll())||[]).forEach(r=>{r&&typeof r.kill=="function"&&r.kill()}),window.ScrollTrigger&&window.ScrollTrigger.refresh()}catch(l){console.warn("ScrollTrigger cleanup error:",l)}};export{e as c};
