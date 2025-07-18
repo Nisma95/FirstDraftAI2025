@@ -1,0 +1,1 @@
+import{r}from"./app-D5KJKhJS.js";function o(e,t){return r.createElement("svg",Object.assign({xmlns:"http://www.w3.org/2000/svg",fill:"none",viewBox:"0 0 24 24",strokeWidth:1.5,stroke:"currentColor","aria-hidden":"true",ref:t},e),r.createElement("path",{strokeLinecap:"round",strokeLinejoin:"round",d:"M12 3v18m9-9H3"}))}const s=r.forwardRef(o);export{s as F};
