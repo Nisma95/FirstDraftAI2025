@@ -1,1 +1,0 @@
-import{j as t}from"./app-BIY-FsyL.js";import{u as r}from"./useTranslation-DSiyCAzZ.js";const s=()=>{const{t:e}=r();return t.jsx("footer",{className:"bg-white py-8 dark:bg-gray-800",children:t.jsxs("div",{className:"container mx-auto text-center text-gray-600 dark:text-gray-300",children:["© ",new Date().getFullYear()," ",e("footer_text")]})})};export{s as default};
