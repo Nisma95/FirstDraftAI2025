@@ -2,22 +2,24 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Routing\UrlGenerator;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
         //
     }
 
-    public function boot(UrlGenerator $url): void
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
     {
-        // Force HTTPS in production
-        if (env('APP_ENV') === 'production')
-        {
-            $url->forceScheme('https');
-        }
+        Vite::prefetch(concurrency: 3);
     }
 }
