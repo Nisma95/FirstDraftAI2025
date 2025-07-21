@@ -1,42 +1,30 @@
-# Stage 1: Build Composer Dependencies with Full App
-FROM composer:2.7 AS vendor
+FROM php:8.2-apache
 
-WORKDIR /app
+# Install PHP extensions
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && docker-php-ext-install pdo_pgsql \
+    && a2enmod rewrite
 
-# Copy all project files (to have artisan and vendor at build time)
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy app files
 COPY . .
 
-# Install PHP dependencies for production
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+# Install composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Stage 2: PHP-FPM + nginx Production Image
-FROM php:8.2-fpm-alpine
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Install system packages & PHP extensions
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    bash \
-    curl \
-    postgresql-dev \
-    libpq \
-    oniguruma-dev \
-    libxml2-dev \
-    && docker-php-ext-install pdo_pgsql
+# Set permissions
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
-# Set working dir
-WORKDIR /app
+# Create .env if it doesn't exist
+RUN cp .env.example .env || true
 
-# Copy full Laravel project (from vendor build with vendor folder)
-COPY --from=vendor /app /app
+EXPOSE 80
 
-# Set permissions for storage & cache
-RUN chmod -R 775 storage bootstrap/cache
-
-# Copy nginx config & supervisor config
-COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
-COPY ./deploy/supervisord.conf /etc/supervisord.conf
-
-EXPOSE 8080
-
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["apache2-foreground"]
