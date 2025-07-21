@@ -1,26 +1,46 @@
-# 1. Install dependencies & PHP extensions as before
-FROM php:8.2-cli-alpine
+# Stage 1: Build Composer Dependencies
+FROM composer:2.7 AS vendor
 
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+# Stage 2: PHP-FPM with Laravel App
+FROM php:8.2-fpm-alpine
+
+# Install system dependencies & PHP extensions
 RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    curl \
+    bash \
     postgresql-dev \
     libpq \
     oniguruma-dev \
     libxml2-dev \
     && docker-php-ext-install pdo_pgsql
 
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+# Copy composer from vendor stage
+COPY --from=vendor /app/vendor /app/vendor
 
+# Set working directory
 WORKDIR /app
 
-# 2. Copy everything (artisan included)
+# Copy Laravel project files
 COPY . .
 
-# 3. Install Composer dependencies (with artisan present)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
-
-# 4. Set permissions
+# Set permissions for Laravel storage & cache
 RUN chmod -R 775 storage bootstrap/cache
 
-EXPOSE 8000
+# Copy nginx config
+COPY ./deploy/nginx.conf /etc/nginx/nginx.conf
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+# Copy Supervisor config
+COPY ./deploy/supervisord.conf /etc/supervisord.conf
+
+# Expose port (default Render forwards PORT env)
+EXPOSE 8080
+
+# Startup command to run supervisord (php-fpm + nginx)
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
