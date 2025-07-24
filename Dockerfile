@@ -1,28 +1,38 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Install PHP extensions
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && docker-php-ext-install pdo_pgsql \
-    && a2enmod rewrite
+    git \
+    zip \
+    unzip \
+    nginx \
+    supervisor \
+    curl \
+    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo_mysql zip
 
-# Set working directory
-WORKDIR /var/www/html
-
-# Copy app files
-COPY . .
-
-# Install composer and dependencies
 COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN mkdir -p /var/log/supervisor /run/php
+
+# Copy your Laravel app source
+COPY . /app
+WORKDIR /app
+
+# 👇 Copy the NGINX and supervisor configs from /deploy
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Laravel dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Set permissions
-RUN chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app/storage /app/bootstrap/cache
 
-# Create .env if it doesn't exist
-RUN cp .env.example .env || true
+EXPOSE 8080
 
-EXPOSE 80
-
-CMD ["apache2-foreground"]
+CMD ["/usr/bin/supervisord"]
