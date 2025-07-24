@@ -1,38 +1,49 @@
+# Start from official PHP with Apache
 FROM php:8.2-fpm
 
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
+    curl \
     zip \
     unzip \
     nginx \
     supervisor \
-    curl \
     libzip-dev \
     libonig-dev \
+    libpq-dev \
     libxml2-dev \
-    && docker-php-ext-install pdo_mysql zip
+    && docker-php-ext-install pdo pdo_pgsql zip
 
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+# Copy app files
+COPY . .
 
-RUN mkdir -p /var/log/supervisor /run/php
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
 
-# Copy your Laravel app source
-COPY . /app
-WORKDIR /app
+# Set correct permissions
+RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
 
-# 👇 Copy the NGINX and supervisor configs from /deploy
+# Laravel Cache Clear + Rebuild
+RUN php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan cache:clear && \
+    php artisan config:cache
+
+# Expose port
+EXPOSE 8080
+
+# Copy NGINX and Supervisor configs
 COPY deploy/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Set permissions
-RUN chown -R www-data:www-data /app \
-    && chmod -R 755 /app/storage /app/bootstrap/cache
-
-EXPOSE 8080
-
+# Start supervisord to manage NGINX + PHP-FPM
 CMD ["/usr/bin/supervisord"]
