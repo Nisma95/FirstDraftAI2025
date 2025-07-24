@@ -1,11 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/register', [RegisteredUserController::class, 'showRegistrationForm'])->name('register');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
