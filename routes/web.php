@@ -17,9 +17,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
-});
+Route::get('/health', fn() => response()->json(['ok' => true]));
 
 
 require __DIR__ . '/auth.php';

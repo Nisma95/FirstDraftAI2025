@@ -1,33 +1,31 @@
 FROM php:8.2-fpm
 
-# 1. Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git curl libpq-dev zip unzip nginx supervisor
+    git curl libpng-dev libjpeg-dev libonig-dev libxml2-dev zip unzip nginx supervisor \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# 2. Install PHP extensions
-RUN docker-php-ext-install pdo pdo_pgsql
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 3. Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# 4. Set working directory
+# Set working directory
 WORKDIR /app
 
-# 5. Copy app files
+# Copy Laravel app
 COPY . .
 
-# 6. Install PHP dependencies
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# 7. Set permissions
+# Set permissions
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# 8. Copy Nginx and Supervisor configs
+# Copy nginx and supervisord configs
 COPY deploy/nginx.conf /etc/nginx/nginx.conf
 COPY deploy/supervisord.conf /etc/supervisord.conf
 
-# 9. Expose port
-EXPOSE 8080
+# Expose port 80
+EXPOSE 80
 
-# 10. Start services
+# Start supervisor
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
