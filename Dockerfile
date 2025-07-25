@@ -2,39 +2,27 @@ FROM php:8.2-fpm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl libpng-dev libjpeg-dev libonig-dev libxml2-dev zip unzip nginx supervisor \
+    git curl libpng-dev libjpeg-dev libonig-dev libxml2-dev \
+    zip unzip nginx supervisor libpq-dev \
     && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
 # Set working directory
-WORKDIR /app
+WORKDIR /var/www
 
-# Copy application code
-COPY . .
+# Copy existing application directory contents
+COPY . /var/www
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Copy nginx config
+COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# Set permissions
-RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
+# Copy supervisor config
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Laravel config cache & route cache
-RUN php artisan config:clear && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+# Permissions
+RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
-# Run database migrations (if needed)
-RUN php artisan migrate --force
-
-# Copy nginx and supervisor config files
-COPY deploy/nginx.conf /etc/nginx/nginx.conf
-COPY deploy/supervisord.conf /etc/supervisord.conf
-
-# Expose port 80
+# Expose ports
 EXPOSE 80
 
-# Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+# Start all services
+CMD ["/usr/bin/supervisord"]
