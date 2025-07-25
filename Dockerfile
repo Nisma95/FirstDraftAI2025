@@ -11,7 +11,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www
 
-# Copy application code
+# Copy Laravel app
 COPY . .
 
 # Install PHP dependencies
@@ -21,11 +21,10 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
 
 # Copy configs
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-
-# Expose port 80 explicitly
+# Expose port 80
 EXPOSE 80
 
 # Start supervisor
