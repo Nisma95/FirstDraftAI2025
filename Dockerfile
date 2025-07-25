@@ -1,28 +1,41 @@
 FROM php:8.2-fpm
 
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip \
-    libpng-dev libjpeg-dev libonig-dev libxml2-dev libpq-dev \
-    nginx supervisor \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+    nginx \
+    supervisor \
+    git \
+    unzip \
+    curl \
+    libpq-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    libzip-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring zip xml
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
+# Set working directory
 WORKDIR /var/www
 
-COPY . .
+# Copy project files
+COPY . /var/www
 
+# Copy nginx and supervisor configs
+COPY deploy/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
+
+# Install Composer
+COPY --from=composer:2.5 /usr/bin/composer /usr/bin/composer
+
+# Laravel setup
 RUN composer install --no-dev --optimize-autoloader \
-    && php artisan config:clear \
     && php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache
 
-RUN chown -R www-data:www-data /var/www && chmod -R 755 /var/www
-
-COPY deploy/nginx.conf /etc/nginx/nginx.conf
-COPY deploy/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/usr/bin/supervisord"]
