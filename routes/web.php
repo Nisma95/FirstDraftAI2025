@@ -9,7 +9,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/register', [RegisteredUserController::class, 'showRegistrationForm'])->name('register');
 
 
 Route::get('/dashboard', function () {
