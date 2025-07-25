@@ -5,23 +5,34 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     buildCommand: ""
-    startCommand: ""
+    startCommand: |
+      php artisan config:cache && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_KEY
-        value: your-app-key
+        value: ""
+      - key: APP_URL
+        value: https://firstdraft.onrender.com # أو الرابط الخاص بك
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
-        value: your-db-host
+        value: dpg-d21qchfdiees73e3v9n0-a
       - key: DB_PORT
         value: 5432
       - key: DB_DATABASE
-        value: your-db-name
+        value: firstdraftai_db_app_2025
       - key: DB_USERNAME
-        value: your-db-user
+        value: firstdraftai_db_app_2025_user
       - key: DB_PASSWORD
-        value: your-db-pass
+        value: jZOQeAeOcthIUziK9lLUu0WoXPDssvac
+
+      # Important Laravel defaults
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
