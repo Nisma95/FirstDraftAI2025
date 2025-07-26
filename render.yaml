@@ -1,52 +1,27 @@
-# render.yaml
-
 services:
   - type: web
-    name: laravel-backend
-    env: php
-    repo: https://github.com/yourusername/your-repo-name
-    branch: main
-    buildCommand: |
-      composer install --no-dev
-      php artisan key:generate
-      php artisan migrate --force
-    startCommand: php artisan serve --host 0.0.0.0 --port 10000
+    name: firstdraft-laravel
+    env: docker
     plan: free
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: ""
     envVars:
       - key: APP_ENV
         value: production
-      - key: APP_KEY
-        sync: false
       - key: APP_DEBUG
         value: false
-      - key: APP_URL
-        value: https://laravel-backend.onrender.com
+      - key: APP_KEY
+        value: base64:XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx=
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
-        value: your-db-host
+        fromEnvVar: DB_HOST
       - key: DB_PORT
-        value: 3306
+        value: 5432
       - key: DB_DATABASE
-        value: your-db-name
+        fromEnvVar: DB_DATABASE
       - key: DB_USERNAME
-        value: your-db-user
+        fromEnvVar: DB_USERNAME
       - key: DB_PASSWORD
-        sync: false
-
-  - type: web
-    name: react-frontend
-    env: static
-    repo: https://github.com/yourusername/your-repo-name
-    branch: main
-    buildCommand: npm install && npm run build
-    staticPublishPath: frontend/build
-    headers:
-      - source: /*
-        headers:
-          - key: "Cache-Control"
-            value: "max-age=0"
-    routes:
-      - type: rewrite
-        source: "/*"
-        destination: "/index.html"
+        fromEnvVar: DB_PASSWORD

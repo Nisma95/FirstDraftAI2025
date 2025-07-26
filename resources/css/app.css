@@ -1,15 +1,7 @@
-/* Import FullCalendar CSS from node_modules FIRST */
-
-/* Import Google Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=League+Script&display=swap");
-
-/* Then Tailwind */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+<<<<<<< HEAD
 
 /* Rest of your CSS */
 html {
@@ -1059,3 +1051,5 @@ html:not(.dark) .enhanced-auto-textarea:disabled {
     transition: none;
   }
 }
+=======
+>>>>>>> b8dcdedda207f6fd5939147b2f6fd85453901106

@@ -1,29 +1,32 @@
-FROM php:8.2-fpm
+FROM webdevops/php-nginx:8.2
 
-# Install PHP extensions and system packages
-RUN apt-get update && apt-get install -y \
-    git zip unzip curl libzip-dev libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl xml
+# تعيين متغير البيئة لمجلد الـ public
+ENV WEB_DOCUMENT_ROOT=/app/public
 
-# Get Composer
-COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+# تثبيت PostgreSQL client و development headers
+RUN apt-get update && \
+    apt-get install -y postgresql-client libpq-dev && \
+    docker-php-ext-install pdo_pgsql pgsql && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set working directory
-WORKDIR /var/www/html
+WORKDIR /app
 
-# Copy all project files
-COPY . .
+# نسخ ملفات المشروع
+COPY . /app
 
-# Give permissions
-RUN chmod -R 775 storage bootstrap/cache \
- && chown -R www-data:www-data .
+# نسخ startup script
+COPY startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
 
-# Install Laravel dependencies without triggering artisan scripts
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts
+# تثبيت dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# You can run migrations manually later via:
-# docker exec -it <container> php artisan migrate --force
+# تعيين الصلاحيات
+RUN chown -R application:application /app && \
+    chmod -R 755 /app && \
+    chmod -R 775 /app/storage && \
+    chmod -R 775 /app/bootstrap/cache
 
-# Expose port and start PHP-FPM
-EXPOSE 9000
-CMD ["php-fpm"]
+EXPOSE 80
+
+CMD ["/usr/local/bin/startup.sh"]
