@@ -1,26 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}">
+<html lang="{{ app()->getLocale() }}" dir="{{ (app()->getLocale() == 'ar') ? 'rtl' : 'ltr' }}">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ __('First_Draft') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-    <!-- Tailwind CSS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- Lenis Smooth Scrolling -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.0.19/lenis.min.js"></script>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ __('home.title') }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Figtree', sans-serif;
-        }
-
         [dir="rtl"] .fdHeroTX {
             line-height: 1.6 !important;
             padding-bottom: 0.25em;
@@ -149,38 +135,81 @@
     </style>
 </head>
 
-<body class="antialiased" lang="{{ app()->getLocale() }}">
+<body>
 
-    <!-- Main Content -->
-    <main class="relative min-h-screen pb-24 lg:pb-8">
-        <!-- Hero Section -->
-        @include('HomeComponents.hero')
+    <section
+        class="bg-zoom relative flex items-center justify-center bg-cover bg-center bg-no-repeat lg:bg-[url('images/firstdraft1bg.jpg')]"
+        style="direction: {{ (app()->getLocale() == 'ar') ? 'rtl' : 'ltr' }}; min-height: 100vh; height: auto; background-color: transparent;">
 
-    </main>
+        <!-- Mobile Version - Visible on small screens only -->
+        <div
+            class="lg:hidden p-6 rounded-lg text-center w-full"
+            style="text-align: center;">
+            <h1 class="relative overflow-hidden">
+                <span class="sr-only">{{ __('home.welcome_message') }}</span>
+                <div class="flex flex-wrap justify-center" id="mobile-words-container">
+                    @foreach(__('home.welcome_split') as $index => $word)
+                    <span class="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-1 text-base sm:text-lg mobile-word"
+                        style="opacity: 0; transform: translateY(50px); transition-delay: {{ $index * 200 }}ms; cursor: default; line-height: 1.5; padding-bottom: 0.1em; margin-bottom: 0.05em;"
+                        data-index="{{ $index }}"
+                        ontouchstart="this.style.transform='translateY(-5px) scale(1.02)'; this.style.transition='transform 0.2s ease';"
+                        ontouchend="this.style.transform='translateY(0) scale(1)'; this.style.transition='transform 0.2s ease';">{{ $word }}</span>
+                    @endforeach
+                </div>
+            </h1>
 
-    <!-- Smooth Scrolling Script -->
+            <div class="mt-6 px-12">
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="fdButton px-6 py-3 inline-flex items-center justify-center gap-2 text-sm font-medium w-[80%]"
+                    id="mobile-button"
+                    style="opacity: 0; transform: scaleX(0); transform-origin: center; transition: all 800ms cubic-bezier(0.25, 0.46, 0.45, 0.94); min-height: 44px;">
+                    {{ __('home.start_now') }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- Desktop Version - Hidden on small screens -->
+        <div
+            class="hidden lg:block rounded-lg text-center"
+            style="text-align: center;">
+            <h1 class="relative overflow-hidden">
+                <span class="sr-only">{{ __('home.welcome_message') }}</span>
+                <div class="flex flex-wrap justify-center" id="desktop-words-container">
+                    @foreach(__('home.welcome_split') as $index => $word)
+                    <span class="fdHeroTX inline-block transform transition-all duration-1000 ease-out mx-2 lg:text-2xl xl:text-3xl desktop-word"
+                        style="opacity: 0; transform: translateY(100px); transition-delay: {{ $index * 200 }}ms; cursor: default; line-height: 1.6; padding-bottom: 0.2em; margin-bottom: 0.1em;"
+                        data-index="{{ $index }}"
+                        onmouseenter="this.style.transform='translateY(-10px) scale(1.05)'; this.style.transition='transform 0.3s ease';"
+                        onmouseleave="this.style.transform='translateY(0) scale(1)'; this.style.transition='transform 0.3s ease';">{{ $word }}</span>
+                    @endforeach
+                </div>
+            </h1>
+
+            <div class="mt-8">
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="fdButton px-10 inline-flex items-center gap-2"
+                    id="desktop-button"
+                    style="opacity: 0; transform: translateY(50px); transition-delay: 1500ms; transition: all 1000ms ease-out;">
+                    {{ __('home.start_now') }}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize smooth scrolling
-            const lenis = new Lenis({
-                duration: 1.2,
-                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                smooth: true,
-                direction: 'vertical',
-                gestureDirection: 'vertical',
-                smoothTouch: false,
-            });
-
-            function raf(time) {
-                lenis.raf(time);
-                requestAnimationFrame(raf);
-            }
-
-            requestAnimationFrame(raf);
-
-            // Store lenis instance globally for cleanup if needed
-            window.lenisInstance = lenis;
-
             const animateElements = () => {
                 const mobileWords = document.querySelectorAll('.mobile-word');
                 const mobileButton = document.getElementById('mobile-button');
@@ -216,14 +245,8 @@
 
             animateElements();
         });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', function() {
-            if (window.lenisInstance) {
-                window.lenisInstance.destroy();
-            }
-        });
     </script>
+
 </body>
 
 </html>
