@@ -1,0 +1,119 @@
+/* Auth pages shared animations and styles */
+
+/* Container styles */
+.icon-container {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Chart icon morphing animation */
+.icon-morph {
+    animation: morph 4s ease-in-out infinite;
+    transform-origin: center;
+    position: relative;
+    z-index: 10;
+}
+
+@keyframes morph {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2) rotate(5deg);
+        stroke: #5956e9;
+    }
+}
+
+/* Circle behind chart icon */
+.icon-circle {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(89, 86, 233, 0.3) 0%,
+        rgba(89, 86, 233, 0) 70%
+    );
+    animation: pulse 4s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+/* Document icon 3D flip animation */
+.icon-flip {
+    animation: flip 6s ease-in-out infinite;
+    transform-style: preserve-3d;
+}
+
+@keyframes flip {
+    0%,
+    100% {
+        transform: rotateY(0deg);
+    }
+    50% {
+        transform: rotateY(180deg);
+    }
+}
+
+/* Calendar 3D rotation */
+.icon-3d-rotate {
+    animation: rotate3d 8s ease-in-out infinite;
+}
+
+@keyframes rotate3d {
+    0%,
+    100% {
+        transform: rotate3d(0, 1, 0, 0deg);
+    }
+    25% {
+        transform: rotate3d(0, 1, 0, 15deg);
+    }
+    75% {
+        transform: rotate3d(0, 1, 0, -15deg);
+    }
+}
+
+/* Highlight sweep effect */
+.highlight-sweep {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: sweep 4s ease-in-out infinite;
+}
+
+@keyframes sweep {
+    0% {
+        left: -100%;
+    }
+    50%,
+    100% {
+        left: 200%;
+    }
+}
+
+/* Removed particle animations - no longer used */
