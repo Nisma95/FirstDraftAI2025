@@ -1,0 +1,11 @@
+node_modules
+.git
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+vendor/bin
+.DS_Store
+*.log
+# لا تستبعد .env إذا كنت محتاجه في Docker
+# .env

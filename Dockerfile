@@ -3,16 +3,23 @@ FROM webdevops/php-nginx:8.2
 # تعيين متغير البيئة لمجلد الـ public
 ENV WEB_DOCUMENT_ROOT=/app/public
 
+# تثبيت PostgreSQL client
+RUN apt-get update && \
+    apt-get install -y postgresql-client && \
+    docker-php-ext-install pdo_pgsql pgsql && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 # نسخ ملفات المشروع
 COPY . /app
 
-# تثبيت dependencies وتحسين Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+# نسخ startup script
+COPY startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
+
+# تثبيت dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # تعيين الصلاحيات
 RUN chown -R application:application /app && \
@@ -20,9 +27,6 @@ RUN chown -R application:application /app && \
     chmod -R 775 /app/storage && \
     chmod -R 775 /app/bootstrap/cache
 
-# التأكد من وجود مفتاح التطبيق
-RUN php artisan key:generate --no-interaction
-
 EXPOSE 80
 
-CMD ["supervisord", "-c", "/opt/docker/etc/supervisor.conf"]
+CMD ["/usr/local/bin/startup.sh"]
