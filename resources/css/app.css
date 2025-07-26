@@ -185,6 +185,10 @@ input[type="number"] {
   text-align: center !important;
 }
 
+.fdButton:hover {
+  background: linear-gradient(90deg, #2c2b2b, #6077a1, #5956e9, #2c2b2b);
+}
+
 .fdButtonDanger {
   background: linear-gradient(90deg, #ff4d4d, #ff7f7f, #ff4d4d);
   color: #fff;
@@ -254,10 +258,6 @@ input[type="number"] {
 .fdRoundedButton:hover {
   box-shadow: 2px 4px 16px #00000029;
   transform: scale3d(1.01, 1.01, 1.01);
-}
-
-.fdButton:hover {
-  background: linear-gradient(90deg, #2c2b2b, #6077a1, #5956e9, #2c2b2b);
 }
 
 .fdDiveCard {
