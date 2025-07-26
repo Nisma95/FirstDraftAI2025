@@ -1,21 +1,14 @@
 #!/bin/bash
 
-# انتظار قاعدة البيانات
-echo "Waiting for database..."
-sleep 10
-
-# تشغيل migrations
-echo "Running migrations..."
-php artisan migrate --force
-
-# إنشاء جدول sessions إذا كان مطلوب
-php artisan session:table --force 2>/dev/null || true
-php artisan migrate --force
-
-# تشغيل Laravel optimizations
+# تشغيل Laravel optimizations أولاً
+echo "Optimizing Laravel..."
 php artisan config:cache
-php artisan route:cache
+php artisan route:cache  
 php artisan view:cache
+
+# انتظار قاعدة البيانات
+echo "Connecting to database..."
+php artisan migrate --force 2>/dev/null || echo "Migration skipped"
 
 echo "Starting services..."
 # تشغيل supervisor
